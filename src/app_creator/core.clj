@@ -1,8 +1,15 @@
 (ns app-creator.core (:gen-class))
 
-(require '[app-creator.ui.console-ui :as ui])
+(require '[app-creator.ui.cli :as ui])
 
-(defn -main []
-  (ui/run)
+(defn -main [& args]
+  (try
+    (ui/run args)
+    ;(println (re-matches #"^(.+)(\/|\\)([^(\/|\\)]+)(\.yaml|\.yml)$" "C:\\Users\\Lenovo X1\\Downloads\\yaml.ml"))
+     (catch Exception e
+       (println "Exception message: " (.getMessage e))
+       ))
   ;(println "App run")
   )
+
+;(-main)
