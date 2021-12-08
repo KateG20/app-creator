@@ -6,6 +6,6 @@
   :main app-creator.core
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [clj-commons/clj-yaml "0.7.0"]
-                 [defun "0.3.1"]
-                 [org.clojure/tools.cli "1.0.206"]]
+                 [org.clojure/tools.cli "1.0.206"]
+                 [org.clojure/java.jdbc "0.7.12"]]
   :repl-options {:init-ns app-creator.core})
