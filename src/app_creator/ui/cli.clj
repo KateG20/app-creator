@@ -3,12 +3,13 @@
 (require '[clojure.tools.cli :exclude boolean? :as cli-tools]
          '[clojure.string :as string]
          '[clojure.java.io :as io]
-         '[app-creator.parser.parser :as parser])
+         '[app-creator.creator.creator :as creator]
+         )
 
-(def in-path-regex #"^(.+)(\.yaml|\.yml)$")
+(def in-path-regex #"^(.+)(\.yaml|\.yml|.txt)$")            ; TODO CHANGE TXT TO YAML
 (def out-path-regex #"^([^\.])+$")
 (defn required-opt-errs [opt-name]
-  [(str "Invalid options number: " opt-name " option must be specified.")])
+  [(str "Required option " opt-name " must be specified.")])
 
 ; C:/Users/Lenovo X1/Downloads/yaml.yaml
 ; C:\Users\Lenovo X1\Downloads\yaml.yaml
@@ -45,18 +46,7 @@
   should exit (with an error message, and optional ok status), or a map
   indicating the action the program should take and the options provided."
   [args]
-  ;(println (str "\nvalidate-args. unparsed args: " args))
   (let [{:keys [options arguments errors summary]} (cli-tools/parse-opts args cli-options)]
-    ;(println (str "\nvalidate-args. parsed-opts:\noptions: " options
-    ;              "\narguments: " arguments "\nerrors: " errors "\nsummary: " summary))
-    ;(println "")
-
-    ;(try
-    ;  (assert (:in-path options) "`--in-path` must be specified!")
-    ;  (assert (:out-path options) "`--out-path` must be specified!")
-    ;  (catch AssertionError e
-    ;    (println "Invalid options number: " (.getMessage e))
-    ;    ))
 
     (cond
       ; если в options есть help, то возвращаем мапу:
@@ -94,14 +84,15 @@
   (System/exit status))
 
 (defn start [path-in path-out]
-  (parser/parse-from-file path-in))
+  (creator/create path-in path-out))
 
 (defn run [args]
-  ;(println (str "\nrun. args: " args))
+  ; отправляет аргументы на валидацию
   (let [{:keys [action options exit-message ok?]} (validate-args args)]
-    ;(println (str "\nrun. validated args: " [action options exit-message ok?]))
-    (if exit-message
+    (if exit-message                                        ; если пришло exit-message, выходит
       (exit (if ok? 0 1) exit-message)
-      (case action
-        "start" (start (:in-path options) (:out-path options))))))
+      (case action                                          ; иначе смотрит, какое действие требуется
+        "start" (start (:in-path options) (:out-path options))
+        ; more actions
+        ))))
 
