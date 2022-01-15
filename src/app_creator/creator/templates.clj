@@ -25,3 +25,10 @@
          ""] $
         (string/join \newline $)
         (format $ table-name cols)))
+
+(defn spring-init [options path]
+  (as-> ["@echo off"
+         ""
+         "spring init %s %s"] $
+        (string/join \newline $)
+        (format $ options path)))
