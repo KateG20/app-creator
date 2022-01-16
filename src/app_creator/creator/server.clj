@@ -2,7 +2,8 @@
   (:import (java.io File)))
 
 (require '[app-creator.creator.templates :as tmpl]
-         '[app-creator.creator.defaults :as dflt])
+         '[app-creator.creator.defaults :as dflt]
+         '[clojure.java.shell :as cmd])
 
 (defn create-options [specs]
   (let [{:keys [build language boot-version group artifact name description
@@ -26,7 +27,9 @@
           (apply str $))))
 
 (defn create [specs out-path]
-  (println (create-options specs))
-  ;(spit (format "%s%sspringinit.bat" out-path File/separator)
-  ;      (tmpl/spring-init (create-options specs) out-path))
+  ; Заливаем в файл команду
+  (spit (format "%s%sspringinit.bat" out-path File/separator)
+        "spring --help init")
+  ;     (tmpl/spring-init (create-options specs) out-path))
+  (println (cmd/sh (format "%s%sspringinit.bat" out-path File/separator)))
   )
