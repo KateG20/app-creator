@@ -34,7 +34,8 @@
         "Actions:"
         "  start    Start app"
         ""
-        "You have to specify both path to source file and path to target directory to start."]
+        "You have to specify both path to source file and path to target directory to start."
+        "If you have any questions, contact by email: example@mail.com"]
        (string/join \newline)))
 
 (defn error-msg [errors]
