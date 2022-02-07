@@ -11,17 +11,24 @@
   (spit (format "%s%screateDB.sql" out-path File/separator)
         (tmpl/create-db db-name)))
 
+(defn transform-opts [opts]
+  (cond
+    (= opts "string") "varchar(255)"
+    (= opts "number") "integer"
+    (= opts "bool") "boolean"
+    (= opts "date") "date"))
+
 (defn get-columns-info [m]
   "Достает из мапы данные в формате 'имя_колонки параметры_колонки' "
-  (apply str
-         (for [[k v] (:columns m)]
-           (format "\t%s %s,\n" (name k) v))))
+  (apply str (map #(let [{:keys [name opts]} %]
+          (format "\t%s %s,\n" name (transform-opts opts))) m))
+  )
 
 (defn create-table-script [m]
   "Запихивает данные о колонках в create-table DDL"
-  (apply str
-         (for [[k v] m]
-           (tmpl/create-table (name k) (get-columns-info v)))))
+  (apply str (map #(let [{:keys [name columns]} %]
+          (tmpl/create-table name (get-columns-info columns))) m))
+  )
 
 (defn create-tables-script [tables out-path]
   (spit (format "%s%screateTables.sql" out-path File/separator)
