@@ -54,7 +54,7 @@
        [:map
         [:name string?]
         [:endpoint string?]
-        [:type string?]]]]]]М
+        [:type string?]]]]]]
    [:client
     [:map
      [:os string?]
