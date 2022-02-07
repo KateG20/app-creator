@@ -7,5 +7,6 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [clj-commons/clj-yaml "0.7.0"]
                  [org.clojure/tools.cli "1.0.206"]
-                 [org.clojure/java.jdbc "0.7.12"]]
+                 [org.clojure/java.jdbc "0.7.12"]
+                 [metosin/malli "0.8.0"]]
   :repl-options {:init-ns app-creator.core})
