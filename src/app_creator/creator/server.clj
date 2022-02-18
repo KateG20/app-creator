@@ -7,7 +7,7 @@
 
 (defn create-options [specs]
   (let [{:keys [build language boot-version group artifact name description
-                package-name packaging java-version project-version deps]} (:project specs)]
+                packaging java-version project-version deps]} (:project specs)]
 
     (as-> {"build"        (or build dflt/build)
            "language"     (or language dflt/language)
@@ -16,7 +16,6 @@
            "artifact-id"  (or artifact dflt/artifact)
            "name"         (or name dflt/name)
            "description"  (or description dflt/description)
-           "package-name" (or package-name dflt/package-name)
            "packaging"    (or packaging dflt/packaging)
            "java-version" (or java-version dflt/java-version)
            "version"      (or project-version dflt/project-version)
@@ -29,7 +28,11 @@
 (defn create [specs out-path]
   ; Заливаем в файл команду
   (spit (format "%s%sspringinit.bat" out-path File/separator)
-        "spring --help init")
-  ;     (tmpl/spring-init (create-options specs) out-path))
+        (tmpl/spring-init
+          (:name (:project specs))
+          (create-options specs)
+          out-path))
+  ; Вызываем выполнение этого файла
   (println (cmd/sh (format "%s%sspringinit.bat" out-path File/separator)))
+  (println "server created")
   )
