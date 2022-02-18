@@ -26,9 +26,9 @@
         (string/join \newline $)
         (format $ table-name cols)))
 
-(defn spring-init [options path]
+(defn spring-init [name options path]
   (as-> ["@echo off"
          ""
-         "spring init %s %s"] $
+         "spring init %s\"%s%s%s\""] $
         (string/join \newline $)
-        (format $ options path)))
+        (format $ options path File/separator name)))
