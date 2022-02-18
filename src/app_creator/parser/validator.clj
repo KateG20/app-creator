@@ -36,7 +36,6 @@
        [:artifact-id {:optional true} string?]
        [:name        {:optional true} string?]
        [:description {:optional true} string?]
-       [:package-name {:optional true} string?]
        [:packaging   {:optional true} string?]
        [:java-version {:optional true} string?]
        [:version     {:optional true} string?]
