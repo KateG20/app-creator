@@ -1,4 +1,4 @@
-(ns app-creator.creator.db.postgresql.db
+(ns app-creator.creator.db.postgresql.setter
   (:import (java.io File)))
 
 (require '[app-creator.creator.db.postgresql.templates :as templates])
