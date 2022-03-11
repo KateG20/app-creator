@@ -21,8 +21,8 @@
         [:name string?]
         [:columns
          [:sequential
-          [:map                                             ; чел, я очень надеюсь, что ты понимаешь,
-           [:name string?]                                  ; что seq - любой длины
+          [:map
+           [:name string?]
            [:opts string?]]]]]]]]]
    [:server
     [:map
@@ -30,15 +30,15 @@
      [:project
       [:map
        [:build {:optional true} string?]
-       [:language    {:optional true} string?]
+       [:language {:optional true} string?]
        [:boot-version {:optional true} string?]
-       [:group-id    {:optional true} string?]
+       [:group-id {:optional true} string?]
        [:artifact-id {:optional true} string?]
-       [:name        {:optional true} string?]
+       [:name {:optional true} string?]
        [:description {:optional true} string?]
-       [:packaging   {:optional true} string?]
+       [:packaging {:optional true} string?]
        [:java-version {:optional true} string?]
-       [:version     {:optional true} string?]
+       [:version {:optional true} string?]
        [:deps
         [:sequential string?]]]]
      [:url
@@ -52,8 +52,12 @@
       [:sequential
        [:map
         [:name string?]
-        [:endpoint string?]
-        [:type string?]]]]]]
+        [:requests
+         [:sequential
+          [:map
+           [:name string?]
+           [:uri string?]
+           [:type string?]]]]]]]]]
    [:client
     [:map
      [:os string?]
