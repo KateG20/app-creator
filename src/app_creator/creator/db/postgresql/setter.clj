@@ -3,12 +3,16 @@
 
 (require '[app-creator.creator.db.postgresql.templates :as templates])
 
+(use 'selmer.parser)
+
+(def sep File/separator)
+
 (defn psql-script [db-name host username password out-path]
-  (spit (format "%s%ssql.bat" out-path File/separator)
+  (spit (<< "{{out-path}}{{sep}}sql.bat")
         (templates/sql-bat password host username db-name out-path)))
 
 (defn create-DB-script [db-name out-path]
-  (spit (format "%s%screateDB.sql" out-path File/separator)
+  (spit (<< "{{out-path}}{{sep}}createDB.sql")
         (templates/create-db db-name)))
 
 (defn transform-opts [opts]
@@ -20,18 +24,20 @@
 
 (defn get-columns-info [m]
   "Достает из мапы данные в формате 'имя_колонки параметры_колонки' "
-  (apply str (map #(let [{:keys [name opts]} %]
-                     (format "\t%s %s,\n" name (transform-opts opts))) m))
+  (apply str (map #(let [{:keys [name opts]} %
+                         opts (transform-opts opts)]
+                     (<< "\t{{name}} {{opts}},\n")) m))
   )
 
 (defn create-table-script [m]
   "Запихивает данные о колонках в create-table DDL"
-  (apply str (map #(let [{:keys [name columns]} %]
-                     (templates/create-table name (get-columns-info columns))) m))
+  (apply str (map #(let [{:keys [name columns]} %
+                         columns (get-columns-info columns)]
+                     (templates/create-table name columns)) m))
   )
 
 (defn create-tables-script [tables out-path]
-  (spit (format "%s%screateTables.sql" out-path File/separator)
+  (spit (<< "{{out-path}}{{sep}}createTables.sql")
         (create-table-script tables)))
 
 (defn create [specs out-path]

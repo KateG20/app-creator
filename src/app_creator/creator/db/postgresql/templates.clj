@@ -3,26 +3,29 @@
 
 (require '[clojure.string :as string])
 
+(use 'selmer.parser)
+
+(def sep File/separator)
+
 (defn sql-bat [pwd host user db-name path]
-  (as-> ["@echo off"
+  (->> ["@echo off"
          ""
          "setlocal"
-         "set PGPASSWORD=%s"
-         "psql -h %s -U %s -f \"%s%screateDB.sql\""
-         "psql -h %s -U %s -d %s -f \"%s%screateTables.sql\""
+         "set PGPASSWORD={{pwd}}"
+         "psql -h {{host}} -U {{user}} -f \"{{path}}{{sep}}createDB.sql\""
+         "psql -h {{host}} -U {{user}} -d {{db-name}} -f \"{{path}}{{sep}}createTables.sql\""
          "endlocal"
-         "pause"] $
-        (string/join \newline $)
-        (format $ pwd host user path File/separator host user db-name path File/separator)))
+         "pause"]
+        (string/join \newline)
+        (<<)))
 
 (defn create-db [db-name]
-  (-> "SELECT 'CREATE DATABASE %s' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '%s')\\gexec"
-      (format db-name db-name)))
+  (<< "SELECT 'CREATE DATABASE {{db-name}}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{db-name}}')\\gexec"))
 
 (defn create-table [table-name cols]
-  (as-> ["CREATE TABLE %s ("
-         "%s);"
+  (->> ["CREATE TABLE {{table-name}} ("
+         "{{cols}});"
          ""
-         ""] $
-        (string/join \newline $)
-        (format $ table-name cols)))
+         ""]
+        (string/join \newline)
+        (<<)))

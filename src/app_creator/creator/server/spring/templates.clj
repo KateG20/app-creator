@@ -3,15 +3,25 @@
 
 (require '[clojure.string :as string])
 
+(use 'selmer.parser)
+
+(def sep File/separator)
+
 (defn spring-init [name options path]
-  (as-> ["@echo off"
-         ""
-         "spring init %s\"%s%s%s\""] $
-        (string/join \newline $)
-        (format $ options path File/separator name)))
+  (let [path (string/replace path "(\\)|/" sep)]
+    (as-> ["@echo off"
+           ""
+           "spring init {{options}}\"{{path}}{{sep}}{{name}}\""] $
+          (string/join \newline $)
+          (<< $)))
+  )
 
 (defn path-to-packages [out-path name group artifact lang]
   (cond
     (= lang "java")
-    (format "%s/%s/src/main/java/%s/%s/" out-path name (string/replace group #"\." "/") artifact))
+    (let [group (string/replace group #"\." "/")]
+      (-> "{{out-path}}/{{name}}/src/main/java/{{group}}/{{artifact}}/"
+          (string/replace "/" "{{sep}}")
+          (<<)))
+    )
   )

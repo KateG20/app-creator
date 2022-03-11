@@ -6,6 +6,10 @@
          '[app-creator.creator.adapter :as adapter]
          '[clojure.java.shell :as cmd])
 
+(use 'selmer.parser)
+
+(def sep File/separator)
+
 (defn create-options [specs]
   (let [{:keys [build language boot-version group artifact name description
                 packaging java-version project-version deps]} (:project specs)]
@@ -23,25 +27,26 @@
            "force"        "true"
            "dependencies" (clojure.string/join "," deps)} $
           (for [[k v] $]
-            (format "--%s=%s " k v))
+            (<< "--{{k}}={{v}} "))
           (apply str $))))
 
-(defn fulfill [specs out-path]
-  (adapter/server-lang-adapter
-    (or (:language (:project specs)) defaults/language)
-    specs
-    out-path))
+;(defn fulfill [specs out-path]
+;  (adapter/server-lang-adapter
+;    (or (:language (:project specs)) defaults/language)
+;    specs
+;    out-path))
 
 (defn create [specs out-path]
   ; Заливаем в файл команду
-  (spit (format "%s%sspringinit.bat" out-path File/separator)
+  (println "IN SPRING CREATE")
+  (spit (<< "{{out-path}}{{sep}}springinit.bat")
         (templates/spring-init
           (:name (:project specs))
           (create-options specs)
           out-path))
   ; Вызываем выполнение этого файла
-  (println (cmd/sh (format "%s%sspringinit.bat" out-path File/separator)))
+  (println (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat")))
   (println "server created")
   ; Заполняем внутренности сервера
-  (fulfill specs out-path)
+  ;(fulfill specs out-path)
   )
