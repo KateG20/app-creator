@@ -6,23 +6,23 @@
   [:map
    [:info
     [:map
-     [:name string?]
+     [:app-name string?]
      [:description :maybe string?]]]
    [:db
     [:map
      [:type string?]
-     [:name string?]
+     [:db-name string?]
      [:host string?]
      [:username string?]
      [:password string?]
      [:tables
       [:sequential
        [:map
-        [:name string?]
+        [:table-name string?]
         [:columns
          [:sequential
           [:map
-           [:name string?]
+           [:col-name string?]
            [:opts string?]]]]]]]]]
    [:server
     [:map
@@ -34,7 +34,7 @@
        [:boot-version {:optional true} string?]
        [:group-id {:optional true} string?]
        [:artifact-id {:optional true} string?]
-       [:name {:optional true} string?]
+       [:proj-name {:optional true} string?]
        [:description {:optional true} string?]
        [:packaging {:optional true} string?]
        [:java-version {:optional true} string?]
@@ -51,11 +51,11 @@
      [:controllers
       [:sequential
        [:map
-        [:name string?]
+        [:controller-name string?]
         [:requests
          [:sequential
           [:map
-           [:name string?]
+           [:req-name string?]
            [:uri string?]
            [:type string?]]]]]]]]]
    [:client

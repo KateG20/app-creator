@@ -22,18 +22,18 @@
     (= opts "bool") "boolean"
     (= opts "date") "date"))
 
-(defn get-columns-info [m]
+(defn get-columns-info [columns]
   "Достает из мапы данные в формате 'имя_колонки параметры_колонки' "
-  (apply str (map #(let [{:keys [name opts]} %
+  (apply str (map #(let [{:keys [col-name opts]} %
                          opts (transform-opts opts)]
-                     (<< "\t{{name}} {{opts}},\n")) m))
+                     (<< "\t{{col-name}} {{opts}},\n")) columns))
   )
 
-(defn create-table-script [m]
+(defn create-table-script [tables]
   "Запихивает данные о колонках в create-table DDL"
-  (apply str (map #(let [{:keys [name columns]} %
+  (apply str (map #(let [{:keys [table-name columns]} %
                          columns (get-columns-info columns)]
-                     (templates/create-table name columns)) m))
+                     (templates/create-table table-name columns)) tables))
   )
 
 (defn create-tables-script [tables out-path]
@@ -42,9 +42,9 @@
 
 (defn create [specs out-path]
   "Создает скрипты для создания базы данных и таблиц и скрипт для их выполнения"
-  (let [{:keys [name host username password tables]} specs]
-    (psql-script name host username password out-path)
-    (create-DB-script name out-path)
+  (let [{:keys [db-name host username password tables]} specs]
+    (psql-script db-name host username password out-path)
+    (create-DB-script db-name out-path)
     (create-tables-script tables out-path))                 ;; TODO перенести заполнение БД таблицами в filler
   )
 
