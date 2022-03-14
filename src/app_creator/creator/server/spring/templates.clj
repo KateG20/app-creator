@@ -7,6 +7,9 @@
 
 (def sep File/separator)
 
+(defn from-templates []
+  (print "from-templates "))
+
 (defn spring-init [name options path]
   (let [path (string/replace path "(\\)|/" sep)]
     (as-> ["@echo off"
@@ -35,7 +38,9 @@
         (str $ "Service")))
 
 (defn request [req-name uri type]
-  (->> [""]
+  (->> ["    @{{(string/capitalize type)}}Mapping(\"{{uri}}\")"
+        "    public ResponseEntity<Object> {{req-name}}() {"]
+
        (string/join \newline)
        (<<))
   )
