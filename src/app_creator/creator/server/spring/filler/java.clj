@@ -24,6 +24,7 @@
   (let [{:keys [project url entities controllers]} specs
         {:keys [proj-name group artifact language]} project
         path (templates/path-to-packages out-path proj-name group artifact language)]
+    (println "FILLING")
     ;(create-controllers controllers group proj-name path)
     )
   )
