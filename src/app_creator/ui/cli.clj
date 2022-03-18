@@ -2,9 +2,7 @@
 
 (require '[clojure.tools.cli :exclude boolean? :as cli-tools]
          '[clojure.string :as string]
-         '[clojure.java.io :as io]
-         '[app-creator.creator.creator :as creator]
-         )
+         '[clojure.java.io :as io])
 
 (def in-path-regex #"^(.+)(\.yaml|\.yml|.txt)$")            ; TODO CHANGE TXT TO YAML
 (def out-path-regex #"^([^\.])+$")
@@ -84,16 +82,14 @@
   (println msg)
   (System/exit status))
 
-(defn start [path-in path-out]
-  (creator/create path-in path-out))
-
-(defn run [args]
+(defn get-input [args]
   ; отправляет аргументы на валидацию
   (let [{:keys [action options exit-message ok?]} (validate-args args)]
     (if exit-message                                        ; если пришло exit-message, выходит
       (exit (if ok? 0 1) exit-message)
       (case action                                          ; иначе смотрит, какое действие требуется
-        "start" (start (:in-path options) (:out-path options))
+        "start" {:in-path (:in-path options)
+                 :out-path (:out-path options)}
         ; more actions
         ))))
 
