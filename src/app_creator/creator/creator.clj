@@ -1,10 +1,8 @@
 (ns app-creator.creator.creator)
 
 (require '[app-creator.parser.parser :as parser]
-         '[app-creator.creator.adapter :as adapter])
-
-(defn from-creator []
-  (print "from-creator "))
+         '[app-creator.creator.adapter :as adapter]
+         '[app-creator.ui.cli :as ui])
 
 (defn create [in-path out-path]
   (let [{:keys [info db server front]} (parser/parse-from-file in-path)]
@@ -18,5 +16,11 @@
 
     ;(front/create front out-path)
     )
-  (println "CREATED")
+  (println "FINISHED")
   )
+
+(defn start [args]
+  ; Достаем аргументы из фронтенда
+  (let [{:keys [in-path out-path]} (ui/get-input args)]
+    (println "GOT INPUT")
+    (create in-path out-path)))
