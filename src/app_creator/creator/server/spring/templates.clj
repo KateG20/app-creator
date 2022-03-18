@@ -10,11 +10,11 @@
 (defn from-templates []
   (print "from-templates "))
 
-(defn spring-init [name options path]
+(defn spring-init [proj-name options path]
   (let [path (string/replace path "(\\)|/" sep)]
     (as-> ["@echo off"
            ""
-           "spring init {{options}}\"{{path}}{{sep}}{{name}}\""] $
+           "spring init {{options}}\"{{path}}{{sep}}{{proj-name}}\""] $
           (string/join \newline $)
           (<< $)))
   )
@@ -24,8 +24,8 @@
     (= lang "java")
     (let [group (string/replace group #"\." "/")]
       (-> "{{out-path}}/{{proj-name}}/src/main/java/{{group}}/{{artifact}}/"
-          (string/replace "/" "{{sep}}")
-          (<<)))
+          (<<)
+          (string/replace "/" sep)))
     )
   )
 
@@ -37,12 +37,20 @@
         (string/lower-case $)
         (str $ "Service")))
 
-(defn request [req-name uri type]
-  (->> ["    @{{(string/capitalize type)}}Mapping(\"{{uri}}\")"
-        "    public ResponseEntity<Object> {{req-name}}() {"]
-
-       (string/join \newline)
-       (<<))
+(defn request [req-name uri type controller-name]
+  (let [service-var-name (service-name controller-name)]
+    (->> ["    @{{(string/capitalize type)}}Mapping(\"{{uri}}\")"
+          "    public ResponseEntity<Object> {{req-name}}() {"
+          "        val response = {{service-var-name}}.{{req-name}}();"
+          "        if (response) {"
+          "            return ResponseEntity.ok(response);"
+          "        } else {"
+          "            return ResponseEntity.badRequest();"
+          "        }"
+          "    }"
+          ""]
+         (string/join \newline)
+         (<<)))
   )
 
 (defn controller [group proj-name controller-name requests]
