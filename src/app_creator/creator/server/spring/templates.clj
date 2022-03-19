@@ -1,15 +1,13 @@
 (ns app-creator.creator.server.spring.templates
   (:import (java.io File)))
 
-(require '[clojure.string :as string])
+(require '[clojure.string :as string]
+         '[selmer.util :refer [without-escaping]])
 
 (use 'selmer.parser)
+(selmer.util/turn-off-escaping!)
 
 (def sep File/separator)
-
-(defn replace-several [str & replacements]
-  (let [replacements (partition 2 replacements)]
-    (reduce #(apply string/replace %1 %2) str replacements)))
 
 (defn spring-init [proj-name options path]
   (let [path (string/replace path "(\\)|/" sep)]
@@ -39,8 +37,9 @@
         (str $ "Service")))
 
 (defn request [req-name uri type controller-name]
-  (let [service-var-name (service-name controller-name)]
-    (->> ["    @{{(string/capitalize type)}}Mapping(\"{{uri}}\")"
+  (let [service-var-name (service-name controller-name)
+        type (string/capitalize type)]
+    (->> ["    @{{type}}Mapping(\"{{uri}}\")"
           "    public ResponseEntity<Object> {{req-name}}() {"
           "        val response = {{service-var-name}}.{{req-name}}();"
           "        if (response) {"
@@ -57,7 +56,9 @@
 (defn controller [group artifact controller-name requests]
   (let [service-class-name (string/capitalize (service-name controller-name))
         service-var-name (service-name controller-name)]
-    (as-> ["package {{group}}.{{artifact}}.controller;"
+    (println service-class-name)
+    (println service-var-name)
+    (->> ["package {{group}}.{{artifact}}.controller;"
            ""
            "import lombok.val;"
            "import org.springframework.beans.factory.annotation.Autowired;"
@@ -67,11 +68,10 @@
            "@RestController"
            "public class {{controller-name}} {"
            "    @Autowired"
-           "    {{service-class-name)}} {{service-var-name}}"
+           "    {{service-class-name}} {{service-var-name}}"
            ""
            "{{requests}}"
-           "}"] $
-          (string/join \newline $)
-          (<< $)
-          (replace-several $ "&quot;" "\"" "&lt;" "<" "&gt;" ">")))
+           "}"]
+          (string/join \newline)
+          (<<)))
   )
