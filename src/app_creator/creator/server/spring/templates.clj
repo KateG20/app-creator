@@ -28,16 +28,42 @@
     )
   )
 
-(defn service-name [controller-name]
+(defn service-name [controller-name & {:keys [var] :or {var false}}]
   (as-> controller-name $
         (count $)
         (- $ 10)
         (subs controller-name 0 $)
         (string/lower-case $)
+        (if (false? var) (string/capitalize $) $)
         (str $ "Service")))
 
+(defn service-interface [group artifact service-name]
+    (->> ["package {{group}}.{{artifact}}.service;"
+          ""
+          "public interface {{service-name}} {"
+          ""
+          "    // methods here"
+          ""
+          "}"]
+         (string/join \newline)
+         (<<)))
+
+(defn service-impl [group artifact service-name-impl service-name]
+    (->> ["package {{group}}.{{artifact}}.service;"
+          ""
+          "import org.springframework.stereotype.Service;"
+          ""
+          "@Service"
+          "public class {{service-name-impl}} implements {{service-name}} {"
+          ""
+          "    // methods here"
+          ""
+          "}"]
+         (string/join \newline)
+         (<<)))
+
 (defn request [req-name uri type controller-name]
-  (let [service-var-name (service-name controller-name)
+  (let [service-var-name (service-name controller-name :var true)
         type (string/capitalize type)]
     (->> ["    @{{type}}Mapping(\"{{uri}}\")"
           "    public ResponseEntity<Object> {{req-name}}() {"
@@ -50,14 +76,11 @@
           "    }"
           ""]
          (string/join \newline)
-         (<<)))
-  )
+         (<<))))
 
 (defn controller [group artifact controller-name requests]
-  (let [service-class-name (string/capitalize (service-name controller-name))
-        service-var-name (service-name controller-name)]
-    (println service-class-name)
-    (println service-var-name)
+  (let [service-class-name (service-name controller-name)
+        service-var-name (service-name controller-name :var true)]
     (->> ["package {{group}}.{{artifact}}.controller;"
            ""
            "import lombok.val;"
@@ -68,10 +91,9 @@
            "@RestController"
            "public class {{controller-name}} {"
            "    @Autowired"
-           "    {{service-class-name}} {{service-var-name}}"
+           "    {{service-class-name}} {{service-var-name}};"
            ""
            "{{requests}}"
            "}"]
           (string/join \newline)
-          (<<)))
-  )
+          (<<))))
