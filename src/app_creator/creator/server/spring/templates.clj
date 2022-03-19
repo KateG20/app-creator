@@ -7,8 +7,9 @@
 
 (def sep File/separator)
 
-(defn from-templates []
-  (print "from-templates "))
+(defn replace-several [str & replacements]
+  (let [replacements (partition 2 replacements)]
+    (reduce #(apply string/replace %1 %2) str replacements)))
 
 (defn spring-init [proj-name options path]
   (let [path (string/replace path "(\\)|/" sep)]
@@ -53,20 +54,24 @@
          (<<)))
   )
 
-(defn controller [group proj-name controller-name requests]
+(defn controller [group artifact controller-name requests]
   (let [service-class-name (string/capitalize (service-name controller-name))
         service-var-name (service-name controller-name)]
-    (->> ["package {{group}}.{{proj-name}}.controller;"
-          ""
-          "import org.springframework.beans.factory.annotation.Autowired;"
-          ""
-          "@RestController"
-          "public class {{controller-name}} {"
-          "    @Autowired"
-          "    {{service-class-name)}} {{service-var-name}}"
-          ""
-          "{{requests}}"
-          "}"]
-         (string/join \newline)
-         (<<)))
+    (as-> ["package {{group}}.{{artifact}}.controller;"
+           ""
+           "import lombok.val;"
+           "import org.springframework.beans.factory.annotation.Autowired;"
+           "import org.springframework.http.ResponseEntity;"
+           "import org.springframework.web.bind.annotation.*;"
+           ""
+           "@RestController"
+           "public class {{controller-name}} {"
+           "    @Autowired"
+           "    {{service-class-name)}} {{service-var-name}}"
+           ""
+           "{{requests}}"
+           "}"] $
+          (string/join \newline $)
+          (<< $)
+          (replace-several $ "&quot;" "\"" "&lt;" "<" "&gt;" ">")))
   )
