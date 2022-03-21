@@ -1,6 +1,5 @@
 (ns app-creator.creator.server.spring.filler.java
-  (:import (java.io File))
-  (:use clojure.pprint))
+  (:import (java.io File)))
 
 (require '[app-creator.creator.server.spring.templates :as templates])
 
@@ -8,49 +7,79 @@
 
 (def sep File/separator)
 
+(defn create-dir [path name]
+  (let [dir-name (<< "{{path}}{{name}}{{sep}}files")]
+    ; Создает директорию типа ...\src\main\java\com\example\demo_proj\{{name}}\
+    (clojure.java.io/make-parents dir-name)))
+
 (defn create-requests [requests controller-name]
   (println "creating requests")
   (apply str
          (for [req requests
-               :let [{:keys [req-name uri type]} req]]
-           (templates/request req-name uri type controller-name)))
-  )
+               :let [{:keys [req-name uri type]} req
+                     service-var-name (templates/service-name controller-name :var? true)
+                     entity-name (templates/entity-name controller-name)]]
+           (templates/request req-name uri type service-var-name entity-name))))
 
+; TODO попробовать обобщить некоторые методы
 (defn create-controllers [controllers group artifact path]
   (println "creating controllers")
-  (let [dir-name (<< "{{path}}controller{{sep}}files")]
-    ; Создает директорию типа ...\src\main\java\com\example\demo_proj\controller\
-    (clojure.java.io/make-parents dir-name)
 
-    (println (for [controller controllers
-                   :let [{:keys [controller-name requests]} controller
-                         requests (create-requests (vec requests) controller-name)
-                         controllers (templates/controller group artifact controller-name requests)
-                         file-name (<< "{{path}}controller{{sep}}{{controller-name}}.java")]]
-               (spit file-name controllers)))))
+  (create-dir path "controller")
+  (dorun (for [controller controllers
+               :let [{:keys [controller-name requests]} controller
+                     requests (create-requests (vec requests) controller-name)
+                     controllers (templates/controller group artifact controller-name requests)
+                     file-name (<< "{{path}}controller{{sep}}{{controller-name}}.java")]]
+           (spit file-name controllers))))
+
+(defn create-service-methods [requests controller-name & {:keys [implementation?] :or {implementation? false}}]
+  (println "creating service-methods")
+  (apply str
+         (for [req requests
+               :let [{:keys [req-name]} req
+                     method-name req-name
+                     entity-name (templates/entity-name controller-name)]]
+           (templates/service-method entity-name method-name :implementation? implementation?))))
 
 (defn create-services [controllers group artifact path]
   (println "creating services")
-  (let [dir-name (<< "{{path}}service{{sep}}files")]
-    ; Создает директорию типа ...\src\main\java\com\example\demo_proj\service\
-    (clojure.java.io/make-parents dir-name)
 
-    (for [controller controllers
-          :let [{:keys [controller-name requests]} controller
-                service-name (templates/service-name controller-name)
-                service-name-impl (str service-name "Impl")
-                services-interface (templates/service-interface group artifact service-name)
-                services-impls (templates/service-impl group artifact service-name-impl service-name)
-                file-name-interface (<< "{{path}}service{{sep}}{{service-name}}.java")
-                file-name-impl (<< "{{path}}service{{sep}}{{service-name-impl}}.java")]]
-      (do
-        (spit file-name-interface services-interface)
-        (spit file-name-impl services-impls)))))
+  (create-dir path "service")
+  (dorun (for [controller controllers
+               :let [{:keys [controller-name requests]} controller
+                     service-name (templates/service-name controller-name)
+                     service-name-impl (str service-name "Impl")
+                     entity-name (templates/entity-name controller-name)
+
+                     service-interface-methods (create-service-methods (vec requests) controller-name)
+                     service-impl-methods (create-service-methods (vec requests) controller-name :implementation? true)
+
+                     service-interface (templates/service-interface group artifact service-name entity-name service-interface-methods)
+                     service-impl (templates/service-impl group artifact service-name-impl service-name entity-name service-impl-methods)
+
+                     file-name-interface (<< "{{path}}service{{sep}}{{service-name}}.java")
+                     file-name-impl (<< "{{path}}service{{sep}}{{service-name-impl}}.java")]]
+           (do
+             (spit file-name-interface service-interface)
+             (spit file-name-impl service-impl)))))
+
+(defn create-entities [controllers group artifact path]
+  (println "creating entities")
+
+  (create-dir path "entity")
+  (dorun (for [controller controllers
+               :let [{:keys [controller-name]} controller
+                     entity-name (templates/entity-name controller-name)
+                     entities (templates/entity group artifact entity-name)
+                     file-name (<< "{{path}}entity{{sep}}{{entity-name}}.java")]]
+           (spit file-name entities))))
 
 (defn fill [specs out-path]
   (let [{:keys [project url entities controllers]} specs
         {:keys [proj-name group artifact language]} project
         path (templates/path-to-packages out-path proj-name group artifact language)]
-    (println "FILLING")
+    (println "filling...")
     (create-controllers controllers group artifact path)
-    (create-services controllers group artifact path)))
+    (create-services controllers group artifact path)
+    (create-entities controllers group artifact path)))

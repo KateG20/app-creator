@@ -11,11 +11,11 @@
 
 (defn spring-init [proj-name options path]
   (let [path (string/replace path "(\\)|/" sep)]
-    (as-> ["@echo off"
+    (->> ["@echo off"
            ""
-           "spring init {{options}}\"{{path}}{{sep}}{{proj-name}}\""] $
-          (string/join \newline $)
-          (<< $)))
+           "spring init {{options}}\"{{path}}{{sep}}{{proj-name}}\""]
+          (string/join \newline)
+          (<<)))
   )
 
 (defn path-to-packages [out-path proj-name group artifact lang]
@@ -28,50 +28,96 @@
     )
   )
 
-(defn service-name [controller-name & {:keys [var] :or {var false}}]
+(defn service-name [controller-name & {:keys [var?] :or {var? false}}]
   (as-> controller-name $
         (count $)
         (- $ 10)
         (subs controller-name 0 $)
         (string/lower-case $)
-        (if (false? var) (string/capitalize $) $)
+        (if (false? var?) (string/capitalize $) $)
         (str $ "Service")))
 
-(defn service-interface [group artifact service-name]
-    (->> ["package {{group}}.{{artifact}}.service;"
-          ""
-          "public interface {{service-name}} {"
-          ""
-          "    // methods here"
-          ""
-          "}"]
-         (string/join \newline)
-         (<<)))
+(defn entity-name [controller-name]
+  (as-> controller-name $
+        (count $)
+        (- $ 10)
+        (subs controller-name 0 $)))
 
-(defn service-impl [group artifact service-name-impl service-name]
-    (->> ["package {{group}}.{{artifact}}.service;"
-          ""
-          "import org.springframework.stereotype.Service;"
-          ""
-          "@Service"
-          "public class {{service-name-impl}} implements {{service-name}} {"
-          ""
-          "    // methods here"
-          ""
-          "}"]
-         (string/join \newline)
-         (<<)))
+(defn entity [group artifact entity-name]
+  (->> ["package {{group}}.{{artifact}}.entity;"
+        ""
+        "import lombok.NoArgsConstructor;"
+        ""
+        "import javax.persistence.*;"
+        ""
+        "@Entity"
+        "@NoArgsConstructor"
+        "public class {{entity-name}} {"
+        ""
+        "    @Id"
+        "    @Column"
+        "    @GeneratedValue(strategy = GenerationType.IDENTITY)"
+        "    Long id;"
+        ""
+        "    // your fields here"
+        ""
+        "}"]
+       (string/join \newline)
+       (<<)))
 
-(defn request [req-name uri type controller-name]
-  (let [service-var-name (service-name controller-name :var true)
-        type (string/capitalize type)]
+; TODO объединить эти два шаблона
+(defn service-interface [group artifact service-name entity-name service-interface-methods]
+  (->> ["package {{group}}.{{artifact}}.service;"
+        ""
+        "import {{group}}.{{artifact}}.entity.{{entity-name}};"
+        ""
+        "public interface {{service-name}} {"
+        ""
+        "    // Change these methods as per your needs"
+        "{{service-interface-methods}}"
+        "}"]
+       (string/join \newline)
+       (<<)))
+
+(defn service-impl [group artifact service-name-impl service-name entity-name service-impl-methods]
+  (->> ["package {{group}}.{{artifact}}.service;"
+        ""
+        "import {{group}}.{{artifact}}.entity.{{entity-name}};"
+        "import org.springframework.stereotype.Service;"
+        ""
+        "@Service"
+        "public class {{service-name-impl}} implements {{service-name}} {"
+        ""
+        "    // Change these methods as per your needs"
+        "{{service-impl-methods}}}"]
+       (string/join \newline)
+       (<<)))
+
+(defn service-method [entity-name method-name & {:keys [implementation?] :or {implementation? false}}]
+  (let [type (string/capitalize type)]
+    (as-> "{{entity-name}} {{method-name}}()" $
+          (<< $)
+          (if (true? implementation?)
+            (->> ["    @Override"
+                  "    public {{$}} {"
+                  "        return new {{entity-name}}(); // instead of \"return new...\", connect with repo layer here"
+                  "    }"
+                  ""
+                  ""]
+                 (string/join \newline)
+                 (<<))
+            (str "    " $ ";" \newline)))))
+
+(defn request [req-name uri type service-var-name entity-name]
+  (let [type (string/capitalize type)]
     (->> ["    @{{type}}Mapping(\"{{uri}}\")"
-          "    public ResponseEntity<Object> {{req-name}}() {"
-          "        val response = {{service-var-name}}.{{req-name}}();"
-          "        if (response) {"
-          "            return ResponseEntity.ok(response);"
+          "    public ResponseEntity<Object> {{req-name}}() { // Put your type instead of Object"
+          "        {{entity-name}} response = {{service-var-name}}.{{req-name}}();"
+          "        // Change if-statements contents"
+          "        if (response != null) {"
+          "            return new ResponseEntity<>(response, HttpStatus.OK);"
           "        } else {"
-          "            return ResponseEntity.badRequest();"
+          "            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Put your status"
           "        }"
           "    }"
           ""]
@@ -80,20 +126,30 @@
 
 (defn controller [group artifact controller-name requests]
   (let [service-class-name (service-name controller-name)
-        service-var-name (service-name controller-name :var true)]
+        service-var-name (service-name controller-name :var? true)
+        entity-name (entity-name controller-name)]
     (->> ["package {{group}}.{{artifact}}.controller;"
-           ""
-           "import lombok.val;"
-           "import org.springframework.beans.factory.annotation.Autowired;"
-           "import org.springframework.http.ResponseEntity;"
-           "import org.springframework.web.bind.annotation.*;"
-           ""
-           "@RestController"
-           "public class {{controller-name}} {"
-           "    @Autowired"
-           "    {{service-class-name}} {{service-var-name}};"
-           ""
-           "{{requests}}"
-           "}"]
-          (string/join \newline)
-          (<<))))
+          ""
+          "import {{group}}.{{artifact}}.entity.{{entity-name}};"
+          "import {{group}}.{{artifact}}.service.{{service-class-name}};"
+          "import lombok.val;"
+          "import org.springframework.beans.factory.annotation.Autowired;"
+          "import org.springframework.http.HttpStatus;"
+          "import org.springframework.http.ResponseEntity;"
+          "import org.springframework.web.bind.annotation.*;"
+          ""
+          "@RestController"
+          "public class {{controller-name}} {"
+          ""
+          "    private final {{service-class-name}} {{service-var-name}};"
+          ""
+          "    @Autowired"
+          "    public {{controller-name}}({{service-class-name}} {{service-var-name}}) {"
+          "        this.{{service-var-name}} = {{service-var-name}};"
+          "    }"
+          ""
+          "    // Change these methods as per your needs"
+          "{{requests}}"
+          "}"]
+         (string/join \newline)
+         (<<))))
