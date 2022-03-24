@@ -18,15 +18,21 @@
           (<<)))
   )
 
-(defn path-to-packages [out-path proj-name group artifact lang]
+(defn path-to-props [out-path proj-name group artifact lang]
+  (cond
+    (= lang "java")
+    (let [group (string/replace group #"\." "/")]
+      (-> "{{out-path}}/{{proj-name}}/src/main/resources/application.properties"
+          (<<)
+          (string/replace "/" sep)))))
+
+(defn path-to-code [out-path proj-name group artifact lang]
   (cond
     (= lang "java")
     (let [group (string/replace group #"\." "/")]
       (-> "{{out-path}}/{{proj-name}}/src/main/java/{{group}}/{{artifact}}/"
           (<<)
-          (string/replace "/" sep)))
-    )
-  )
+          (string/replace "/" sep)))))
 
 (defn service-name [controller-name & {:keys [var?] :or {var? false}}]
   (as-> controller-name $
@@ -36,6 +42,15 @@
         (string/lower-case $)
         (if (false? var?) (string/capitalize $) $)
         (str $ "Service")))
+
+(defn props [props]
+  (let [{:keys [type username password host port db-name]} (:db props)]
+    (->> ["spring.datasource.url=jdbc:{{type}}://{{host}}:{{port}}/{{db-name}}"
+          "spring.datasource.username={{username}}"
+          "spring.datasource.password={{password}}"
+          "spring.datasource.initialization-mode=always"]
+       (string/join \newline)
+       (<<))))
 
 (defn entity-name [controller-name]
   (as-> controller-name $

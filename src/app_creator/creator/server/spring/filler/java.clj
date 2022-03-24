@@ -75,11 +75,17 @@
                      file-name (<< "{{path}}entity{{sep}}{{entity-name}}.java")]]
            (spit file-name entities))))
 
+(defn create-properties [properties path]
+  (let [props (templates/props properties)]
+    (spit path props)))
+
 (defn fill [specs out-path]
-  (let [{:keys [project url entities controllers]} specs
+  (let [{:keys [project properties controllers]} specs
         {:keys [proj-name group artifact language]} project
-        path (templates/path-to-packages out-path proj-name group artifact language)]
+        path (templates/path-to-code out-path proj-name group artifact language)
+        props-path (templates/path-to-props out-path proj-name group artifact language)]
     (println "filling...")
     (create-controllers controllers group artifact path)
     (create-services controllers group artifact path)
-    (create-entities controllers group artifact path)))
+    (create-entities controllers group artifact path)
+    (create-properties properties props-path)))

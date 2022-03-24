@@ -1,7 +1,7 @@
 (ns app-creator.parser.validator)
 
 (require '[malli.core :as m])
-Ву
+
 (def db-schema
   [:db
    [:map
@@ -42,9 +42,12 @@
      [:map
       [:db
        [:map
+        [:type string?]
+        [:username string?]
+        [:password string?]
         [:host string?]
-        [:port int?]]]
-      ]]
+        [:port int?]
+        [:db-name string?]]]]]
     [:controllers
      [:sequential
       [:map
