@@ -1,6 +1,7 @@
 (ns app-creator.creator.server.spring.templates
   (:import (java.io File)))
 
+; TODO создать папку java и переместить это туда
 (require '[clojure.string :as string]
          '[selmer.util :refer [without-escaping]])
 
@@ -123,9 +124,9 @@
                  (<<))
             (str "    " $ ";" \newline)))))
 
-(defn request [req-name uri type service-var-name entity-name]
-  (let [type (string/capitalize type)]
-    (->> ["    @{{type}}Mapping(\"{{uri}}\")"
+(defn request [req-name uri mapping service-var-name entity-name]
+  (let [mapping (string/capitalize mapping)]
+    (->> ["    @{{mapping}}Mapping(\"{{uri}}\")"
           "    public ResponseEntity<Object> {{req-name}}() { // Put your type instead of Object"
           "        {{entity-name}} response = {{service-var-name}}.{{req-name}}();"
           "        // Change if-statements contents"

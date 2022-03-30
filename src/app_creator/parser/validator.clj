@@ -4,27 +4,37 @@
          '[malli.error :as me]
          '[clojure.string :as string])
 
-(def ip-regex "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
-(def host-regex "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$")
+(def ip-regex #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
+(def host-regex #"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$")
+(def port-regex #"^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")
+(def controller-name-regex #"^[A-Z][\w]*Controller$")
+(def method-name-regex #"^[a-z][\w]*$")
+(def uri-regex #"^(\/{1}\w+)+$")
 
-(def java-vers (string/join "\n- " (map str [8 9 10 11 12 13 14 15 16 17])))
-
-(defn restrict-enum [& elems]
-  (let [error-message (string/join "\n- " elems)
+(defn restrict-enum [elems & {:keys [in-work] :or {in-work false}}]
+  "Создает перечисление со всеми возможными значениями для malli, а также сообщение об ошибке"
+  (let [error-message (as-> elems e
+                            (if in-work (conj e "*more options are coming soon!*") e)
+                            (string/join "\n- " e)
+                            (str "should be one of:\n- " e))
         enum (map str elems)]
-    (concat [:enum {:error/message error-message}] enum)))
+    (vec (concat [:enum {:error/message error-message}] enum))))
+
+(defn matches [str regex]
+  (and (string? str) (re-matches regex str)))
 
 (def db-schema
   [:db
    [:map
-    [:type [:enum {:error/message "should be one of:\n- postgres\n- *other dbs are coming soon*"}
-            "postgres"]]
+    [:type (restrict-enum ["postgresql"] :in-work true)]
     [:db-name string?]                                      ; любое, т.к. скрипт не запускается. валидация на совести юзера
     [:host [:fn {:error/message "invalid ip-address or host name"}
-            (fn [{:keys [host]}] (and (string? host)
-                                      (or
-                                        (re-matches ip-regex host)
-                                        (re-matches host-regex host))))]]
+            (fn [host]
+              (and (string? host)
+                   (or
+                     (= "localhost" host)
+                     (re-matches ip-regex host)
+                     (re-matches host-regex host))))]]
     [:username string?]
     [:password string?]
     [:tables
@@ -35,39 +45,26 @@
         [:sequential
          [:map
           [:col-name string?]
-          [:opts [:enum {:error/message "should be one of:\n- bool\n- number\n- string\n- date"}
-                  "bool" "number" "string" "date"]]]]]]]]]])
+          [:opts (restrict-enum ["bool" "number" "string" "date"])]]]]]]]]])
 
 (def server-schema
   [:server
    [:map
-    [:type [:enum {:error/message "should be one of:\n- spring\n- *other types are coming soon*"}
-            "spring"]]
+    [:type (restrict-enum ["spring"] :in-work true)]
     [:project
      [:map
-      [:build {:optional true} [:enum
-                                {:error/message "should be one of:\n- maven\n- gradle"}
-                                "maven" "gradle"]]
-      [:language {:optional true} [:enum
-                                   {:error/message "should be one of:\n- java\n- kotlin\n- groovy"}
-                                   "java" "kotlin" "groovy"]]
-      [:boot-version {:optional true} [:enum
-                                       {:error/message
-                                        "should be one of:\n- 2.5.11\n- 2.5.12\n- 2.6.5\n- 2.6.6\n- 2.7.0\n- 3.0.0"}
-                                       "2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"]]
+      [:build {:optional true} (restrict-enum ["maven" "gradle"])]
+      [:language {:optional true} (restrict-enum ["java" "kotlin" "groovy"])]
+      [:boot-version {:optional true} (restrict-enum ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])]
       [:group-id {:optional true} string?]
       [:artifact-id {:optional true} string?]
       [:proj-name {:optional true} string?]
       [:description {:optional true} string?]
-      [:packaging {:optional true} [:enum
-                                    {:error/message "should be one of:\n- jar\n- war\n- pom\n- ear\n- rar\n- par"}
-                                    "jar" "war" "pom" "ear" "rar" "par"]]
-      [:java-version {:optional true} [:enum
-                                       {:error/message (str "should be one of:" java-vers)}
-                                       "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"]]
+      [:packaging {:optional true} (restrict-enum ["jar" "war" "pom" "ear" "rar" "par"])]
+      [:java-version {:optional true} (restrict-enum ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])]
       [:version {:optional true} string?]
       [:deps
-       [:sequential string?]]]]
+       [:sequential string?]]]]                             ; todo; some deps must be default
     [:properties
      [:map
       [:db
@@ -75,19 +72,28 @@
         [:type string?]
         [:username string?]
         [:password string?]
-        [:host string?]
-        [:port int?]
+        [:host [:fn {:error/message "invalid ip-address or host name"}
+                (fn [host] (and (string? host)
+                                          (or
+                                            (= "localhost" host)
+                                            (re-matches ip-regex host)
+                                            (re-matches host-regex host))))]]
+        [:port [:fn {:error/message "invalid port number"}
+                (fn [port] (and (int? port) (< 1 port) (< port 65535)))]] ; Integer/parseInt if not work
         [:db-name string?]]]]]
     [:controllers
      [:sequential
       [:map
-       [:controller-name string?]
+       [:controller-name [:fn {:error/message "incorrect spring controller name"}
+                          (fn [name] (and (string? name) (re-matches controller-name-regex name)))]]
        [:requests
         [:sequential
          [:map
-          [:req-name string?]
-          [:uri string?]
-          [:type string?]]]]]]]]])
+          [:req-name [:fn {:error/message "incorrect method name"}
+                      (fn [name] (and (string? name) (re-matches method-name-regex name)))]]
+          [:uri [:fn {:error/message "incorrect path"}
+                 (fn [uri] (and (string? uri) (re-matches uri-regex uri)))]]
+          [:mapping (restrict-enum ["post" "put" "get" "patch" "delete"])]]]]]]]]])
 
 (def client-schema
   [:client
