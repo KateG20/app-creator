@@ -1,8 +1,8 @@
 (ns app-creator.creator.adapter)
 
-(require '[app-creator.creator.db.postgresql.setter :as postgresql]
+(require '[app-creator.creator.db.postgresql.filler :as postgresql]
          '[app-creator.creator.server.spring.setter :as spring-setter]
-         '[app-creator.creator.server.spring.filler.java :as java-fill])
+         '[app-creator.creator.server.spring.java.filler :as java-fill])
 
 (defn from-adapter []
   (print "from adapter "))

@@ -1,4 +1,4 @@
-(ns app-creator.creator.server.spring.templates
+(ns app-creator.creator.server.spring.java.templates
   (:import (java.io File)))
 
 ; TODO создать папку java и переместить это туда

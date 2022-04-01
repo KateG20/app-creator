@@ -1,7 +1,7 @@
-(ns app-creator.creator.server.spring.filler.java
+(ns app-creator.creator.server.spring.java.filler
   (:import (java.io File)))
 
-(require '[app-creator.creator.server.spring.templates :as templates])
+(require '[app-creator.creator.server.spring.java.templates :as templates])
 
 (use 'selmer.parser)
 
@@ -13,18 +13,15 @@
     (clojure.java.io/make-parents dir-name)))
 
 (defn create-requests [requests controller-name]
-  (println "creating requests")
   (apply str
          (for [req requests
-               :let [{:keys [req-name uri type]} req
+               :let [{:keys [req-name uri mapping]} req
                      service-var-name (templates/service-name controller-name :var? true)
                      entity-name (templates/entity-name controller-name)]]
-           (templates/request req-name uri type service-var-name entity-name))))
+           (templates/request req-name uri mapping service-var-name entity-name))))
 
 ; TODO попробовать обобщить некоторые методы
 (defn create-controllers [controllers group artifact path]
-  (println "creating controllers")
-
   (create-dir path "controller")
   (dorun (for [controller controllers
                :let [{:keys [controller-name requests]} controller
@@ -34,7 +31,6 @@
            (spit file-name controllers))))
 
 (defn create-service-methods [requests controller-name & {:keys [implementation?] :or {implementation? false}}]
-  (println "creating service-methods")
   (apply str
          (for [req requests
                :let [{:keys [req-name]} req
@@ -43,8 +39,6 @@
            (templates/service-method entity-name method-name :implementation? implementation?))))
 
 (defn create-services [controllers group artifact path]
-  (println "creating services")
-
   (create-dir path "service")
   (dorun (for [controller controllers
                :let [{:keys [controller-name requests]} controller
@@ -65,8 +59,6 @@
              (spit file-name-impl service-impl)))))
 
 (defn create-entities [controllers group artifact path]
-  (println "creating entities")
-
   (create-dir path "entity")
   (dorun (for [controller controllers
                :let [{:keys [controller-name]} controller
@@ -85,7 +77,12 @@
         path (templates/path-to-code out-path proj-name group artifact language)
         props-path (templates/path-to-props out-path proj-name group artifact language)]
     (println "filling...")
+    (println "creating controllers...")
     (create-controllers controllers group artifact path)
+    (println "creating services...")
     (create-services controllers group artifact path)
+    (println "creating entities...")
     (create-entities controllers group artifact path)
-    (create-properties properties props-path)))
+    (println "creating properties...")
+    (create-properties properties props-path)
+    (println "filled")))

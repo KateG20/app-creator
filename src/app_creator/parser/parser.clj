@@ -7,9 +7,9 @@
   ; https://github.com/metosin/malli
   (let [text (yaml/parse-string (slurp path))
         errors (validator/explain text)]
+    (clojure.pprint/pprint text)
     (if errors
       (clojure.pprint/pprint errors)
       (println "YAML IS VALID"))
-    ;TODO норм сообщение, если валидация не прошла
     text))
 

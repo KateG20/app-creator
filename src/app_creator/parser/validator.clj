@@ -2,7 +2,9 @@
 
 (require '[malli.core :as m]
          '[malli.error :as me]
-         '[clojure.string :as string])
+         '[malli.dev.pretty :as pretty]
+         '[clojure.string :as string]
+         '[app-creator.parser.messages :as msg])
 
 (def ip-regex #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
 (def host-regex #"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$")
@@ -44,7 +46,7 @@
    [:map
     [:type (restrict-enum ["postgresql"] :in-work true)]
     [:db-name string?]                                      ; любое, т.к. скрипт не запускается. валидация на совести юзера
-    [:host [:fn {:error/message "invalid ip-address or host name"}
+    [:host [:fn {:error/message msg/host-error}
             (fn [host]
               (and (string? host)
                    (or
@@ -88,27 +90,29 @@
         [:type string?]
         [:username string?]
         [:password string?]
-        [:host [:fn {:error/message "invalid ip-address or host name"}
+        [:host [:fn {:error/message msg/host-error}
                 (fn [host] (and (string? host)
                                           (or
                                             (= "localhost" host)
                                             (re-matches ip-regex host)
                                             (re-matches host-regex host))))]]
-        [:port [:fn {:error/message "invalid port number"}
+        [:port [:fn {:error/message msg/port-error}
                 (fn [port] (and (int? port) (< 1 port) (< port 65535)))]] ; Integer/parseInt if not work
         [:db-name string?]]]]]
     [:controllers
      [:sequential
       [:map
-       [:controller-name [:fn {:error/message "incorrect spring controller name"}
+       [:controller-name [:fn {:error/message msg/controller-name-error}
                           (fn [name] (and (string? name) (re-matches controller-name-regex name)))]]
        [:requests
         [:sequential
          [:map
-          [:req-name [:fn {:error/message "incorrect method name"}
+          [:req-name [:fn {:error/message msg/method-name-error}
                       (fn [name] (and (string? name) (re-matches method-name-regex name)))]]
-          [:uri [:fn {:error/message "incorrect path"}
+
+          [:uri [:fn {:error/message msg/uri-path-error}
                  (fn [uri] (and (string? uri) (re-matches uri-regex uri)))]]
+
           [:mapping (restrict-enum ["post" "put" "get" "patch" "delete"])]]]]]]]]])
 
 (def client-schema
@@ -137,6 +141,8 @@
   (m/validate input-schema input))
 
 (defn explain [input]
+  ;(pretty/explain input-schema input)
   (-> input-schema
       (m/explain input)
-      (me/humanize)))
+      (me/humanize))
+  )

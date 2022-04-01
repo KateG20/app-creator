@@ -1,17 +1,14 @@
 (ns app-creator.creator.server.spring.setter
   (:import (java.io File)))
 
-(require '[app-creator.creator.server.spring.templates :as templates]
+(require '[app-creator.creator.server.spring.java.templates :as templates]
          '[app-creator.creator.server.spring.defaults :as defaults]
-         '[app-creator.creator.server.spring.filler.java :as java-fill]
+         '[app-creator.creator.server.spring.java.filler :as java-fill]
          '[clojure.java.shell :as cmd])
 
 (use 'selmer.parser)
 
 (def sep File/separator)
-
-(defn from-setter []
-  (print "from-setter "))
 
 (defn create-options [specs]
   (let [{:keys [build language boot-version group artifact proj-name description
@@ -45,7 +42,7 @@
 
 (defn create [specs out-path]
   ; Заливаем в файл команду
-  (println "CREATING SPRING SERVER")
+  (println "creating spring server...")
   (spit (<< "{{out-path}}{{sep}}springinit.bat")
         (templates/spring-init
           (:proj-name (:project specs))
@@ -53,7 +50,6 @@
           out-path))
   ; Вызываем выполнение этого файла (создается сервер)
   ;(println (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat")))
-  (println "SERVER CREATED")
+  (println "server created!")
   ; Заполняем внутренности сервера
-  (fulfill specs out-path)
-  )
+  (fulfill specs out-path))
