@@ -47,7 +47,7 @@
     [:type (restrict-enum ["postgresql"] :in-work true)]
     [:db-name string?]                                      ; любое, т.к. скрипт не запускается. валидация на совести юзера
     [:host [:fn {:error/message msg/host-error
-                 :error/path [:db :host]}
+                 :error/path    [:db :host]}
             (fn [host]
               (and (string? host)
                    (or
@@ -83,7 +83,7 @@
       [:java-version {:optional true} (restrict-enum ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])]
       [:version {:optional true} string?]
       [:deps
-       [:sequential (restrict-enum deps)]]]]                             ; todo; some deps must be default
+       [:sequential (restrict-enum deps)]]]]                ; todo; some deps must be default
     [:properties
      [:map
       [:db
@@ -93,10 +93,10 @@
         [:password string?]
         [:host [:fn {:error/message msg/host-error}
                 (fn [host] (and (string? host)
-                                          (or
-                                            (= "localhost" host)
-                                            (re-matches ip-regex host)
-                                            (re-matches host-regex host))))]]
+                                (or
+                                  (= "localhost" host)
+                                  (re-matches ip-regex host)
+                                  (re-matches host-regex host))))]]
         [:port [:fn {:error/message msg/port-error}
                 (fn [port] (and (int? port) (< 1 port) (< port 65535)))]] ; Integer/parseInt if not work
         [:db-name string?]]]]]
@@ -138,8 +138,8 @@
    server-schema
    client-schema])
 
-(defn validate [input]
-  (m/validate input-schema input))
+;(defn validate [input]
+;  (m/validate input-schema input))
 
 (defn keys-in
   "Returns a sequence of all key paths in a given map using DFS walk."
@@ -156,18 +156,80 @@
          (map vector)
          (mapcat #(tree-seq branch? children %)))))
 
+(require '[clojure.walk :as walk])
+
+(defn vectorize [data]
+  (if (vector? data) (map vectorize data)
+                     (if (map? data)
+                       [(nth (keys data) 0)
+                        (vectorize (nth (vals data) 0))]
+                       data)))
+
+(defn get-paths [data]
+  (println "current data piece:")
+  (clojure.pprint/pprint data)
+  (println)
+  (if (string? data)
+    (str "\nError: " (apply str data))
+    (if (vector? data)
+      (apply str (map get-paths data))
+      (if (map? data)
+        ;(apply str (map (fn [x] (str ">>" (nth x 0) (get-paths (nth x 1))))))
+        ;(map (fn [x] (str ">>" (nth x 0) (apply str (get-paths (nth x 1))))))
+        (map (fn [[key val]]
+               (let [got (apply str (get-paths val))]
+                 (println (str "\nNEXT STEP: " got))
+                 (str " >> " key got))) data)
+        data
+        ))))
+
+(defn find-paths [data path paths]
+  (if (string? data)
+    (do
+      (conj paths (str path "\nError: " data))
+      (println (str path "\nError: " data)))
+    (if (vector? data)
+      (map (fn [piece] (find-paths piece path paths)) data)
+      (if (map? data)
+        (map (fn [[key val]]
+               (find-paths val (str path " >> " key) paths)) data)
+        data
+        ))))
+
 (defn explain [input]
   ;(pretty/explain input-schema input)
-  ;(-> input-schema
-  ;    (m/explain input)
-  ;    (me/humanize)
-  ;    (keys-in))
-  (let [res (me/humanize (m/explain input-schema input))]
-    (println "\nRES:\n")
-    (clojure.pprint/pprint res)
-    (println "\nKEYS-IN:\n")
-    (clojure.pprint/pprint (keys-in res)))
+  (-> input-schema
+      (m/explain input)
+      (me/humanize)
+      (find-paths "" [])
+      (println))
+  ;(let [res (me/humanize (m/explain input-schema input))]
+  ;  (println "\nRES:\n")
+  ;  (clojure.pprint/pprint res)
+  ;  (println "\nKEYS-IN:\n")
+  ;  (clojure.pprint/pprint (keys-in res))
+  ;  (println "\nVECTORIZE\n")
+  ;  (vectorize res)
+  ;  ;(walk/postwalk
+  ;  ;  (fn [v]
+  ;  ;    ((println v)
+  ;  ;     (if (map? v)
+  ;  ;       ((juxt #(nth (keys %) 0) #(nth (vals %) 0)) v)
+  ;  ;       v)))
+  ;  ;  res)
+  ;  )
   )
+
+(def myres
+  {:db
+   {:tables
+    [nil
+     {:columns
+      {0 {:opts ["should be one of: bool | number | string | date"]}}}]},
+   :server
+   {:controllers
+    [{:requests {0 {:req-name ["missing required key"]}}}
+     {:requests {0 {:uri ["incorrect path"]}}}]}})
 
 
 
