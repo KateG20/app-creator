@@ -146,11 +146,13 @@
   [m]
   (letfn [(children [node]
             (let [v (get-in m node)]
-              (if (map? v)
-                (map (fn [x] (conj node x)) (keys v))
+              (if (string? v)
+                ()
                 (if (vector? v)
-                  (reduce conj {} (map (fn [x] [(keyword (str x)) nil]) v))
-                  []))))
+                  ()
+                  (if (map? v)
+                    (map (fn [x] (conj node x)) (keys v))
+                    [])))))
           (branch? [node] (-> (children node) seq boolean))]
     (->> (keys m)
          (map vector)
@@ -185,24 +187,99 @@
 
 (defn find-paths [data path paths]
   (if (string? data)
-    (do
-      (conj paths (str path "\nError: " data))
-      (println (str path "\nError: " data)))
+    [(str "\nPATHSTART: " path "\nError: " data " :PATHEND")]
     (if (vector? data)
-      (map (fn [piece] (find-paths piece path paths)) data)
+      (map (fn [piece] (conj paths (find-paths piece path paths))) data)
       (if (map? data)
         (map (fn [[key val]]
-               (find-paths val (str path " >> " key) paths)) data)
-        data
-        ))))
+               (let [str-key (str key)
+                     clean-key (if (= ":" (subs str-key 0 1))
+                                 (subs str-key 1) str-key)
+                     final-key (if (every? #(Character/isDigit ^char %) clean-key) ; todo может это не номер в спике, а номер в ошибках
+                                 (str "element " (+ 1 (Integer/parseInt clean-key)))
+                                 clean-key)
+                     separator (if (empty? path) "" " >> ")]
+                 (conj paths (find-paths val (str path separator final-key) paths)))) data)
+        data))))
+
+(defn find-paths-version-100500 [data]
+  (println (str "START. WE HAVE DATA: " data "\n"))
+
+  (if (string? data)
+    (do
+      (println (str "WE HAVE STRING. WE RETURN [\"Error: " data "\"]\n"))
+      [(str "\nError: " data)]
+      )
+    (if (vector? data)
+      (do
+        (println (str "WE HAVE VECTOR. GO INTO:"))
+      ;(map find-paths-version-100500 data)
+        (let [res (vec (apply concat (map (fn [x] (if x (find-paths-version-100500 x)))
+             data)))]
+          (println (str "WE RETURN FROM VECTOR: " res "\n"))
+          res))
+      (if (map? data)
+        (do
+         (println (str "WE HAVE MAP. GO INTO:"))
+        (map (fn [[key val]]
+               (let [res
+                     (map (fn [v] (str key " >> " v))
+                          (find-paths-version-100500 val))]
+                 (println (str "FOR " key " FROM MAP WE RETURN: " res "\n"))
+                 res)
+               )
+             data))
+        data))))
+
+(defn glob-find-paths [glob-data]
+  (let [paths []]
+    (letfn [(find-paths [data path]
+              (if (string? data)
+                (do
+                  (conj paths (str path "\nError: " data))
+                  ;(println (str "\nPATHS: " path "\nError: " data "END"))
+                  )
+                (if (vector? data)
+                  (map (fn [piece] (find-paths piece path paths)) data)
+                  (if (map? data)
+                    (map (fn [[key val]]
+                           (let [str-key (str key)
+                                 clean-key (if (= ":" (subs str-key 0 1))
+                                             (subs str-key 1) str-key)
+                                 final-key (if (every? #(Character/isDigit ^char %) clean-key)
+                                             (str "element " (+ 1 (Integer/parseInt clean-key)))
+                                             clean-key)
+                                 separator (if (empty? path) "" " >> ")]
+                             (find-paths val (str path separator final-key) paths))) data)
+                    data))))]
+      (find-paths glob-data "")
+      (println (str "PATHS " paths))
+      paths)))
+
+;(defn red-paths [data]
+;  (reduce (fn [prev next]
+;            (if (string? next)
+;              (do
+;                (str prev " >> " next)
+;                )
+;              (if (vector? d)
+;                ()
+;                (if (map? d)
+;                  ()
+;                  d))))
+;          "" data)
+;  )
 
 (defn explain [input]
   ;(pretty/explain input-schema input)
   (-> input-schema
       (m/explain input)
       (me/humanize)
-      (find-paths "" [])
-      (println))
+      (find-paths-version-100500)
+      ;(find-paths "" [])
+      ;(glob-find-paths)
+      ;(println)
+      )
   ;(let [res (me/humanize (m/explain input-schema input))]
   ;  (println "\nRES:\n")
   ;  (clojure.pprint/pprint res)
