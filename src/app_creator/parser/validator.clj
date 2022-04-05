@@ -213,22 +213,55 @@
     (if (vector? data)
       (do
         (println (str "WE HAVE VECTOR. GO INTO:"))
-      ;(map find-paths-version-100500 data)
-        (let [res (vec (apply concat (map (fn [x] (if x (find-paths-version-100500 x)))
-             data)))]
+        ;(map find-paths-version-100500 data)
+        (let [res (nth (map (fn [x] (if x (find-paths-version-100500 x)))
+                            data) 0)]
           (println (str "WE RETURN FROM VECTOR: " res "\n"))
           res))
       (if (map? data)
         (do
-         (println (str "WE HAVE MAP. GO INTO:"))
-        (map (fn [[key val]]
-               (let [res
-                     (map (fn [v] (str key " >> " v))
-                          (find-paths-version-100500 val))]
-                 (println (str "FOR " key " FROM MAP WE RETURN: " res "\n"))
-                 res)
-               )
-             data))
+          (println (str "WE HAVE MAP. GO INTO:"))
+          (map (fn [[key val]]
+                 (let [res
+                       (map (fn [v] (str key " >> " v))
+                            (find-paths-version-100500 val))]
+                   (println (str "FOR " key " FROM MAP WE RETURN: " res "\n"))
+                   res)
+                 )
+               data))
+        data))))
+
+(defn find-paths-version-100501 [data]
+  "Находит все пути от корня до листьев в ациклическом графе, где листья - строки,
+  а другие ноды могут быть векторы или мапы. Возвращает всегда вектор строк -
+  найденных для данной вершины путей."
+  (println (str "START. WE HAVE DATA: " data "\n"))
+
+  (if (string? data)
+    (do
+      (println (str "WE HAVE STRING. WE RETURN [\"Error: " data "\"]\n"))
+      [(str "\nError: " data)]
+      )
+    (if (vector? data)
+      (do
+        (println (str "WE HAVE VECTOR. GO INTO:"))
+        (let [res
+              (reduce
+                (fn [prev new] (vec (concat prev (if new (find-paths-version-100501 new)))))
+                []
+                data)]
+          (println (str "WE RETURN FROM VECTOR: " res "\n"))
+          res))
+      (if (map? data)
+        (do
+          (println (str "WE HAVE MAP. GO INTO:"))
+          (reduce-kv (fn [prev key val]
+                       (vec (concat prev (reduce
+                                           (fn [prev new] (conj prev (str key " >> " new)))
+                                           []
+                                           (find-paths-version-100501 val)))))
+                     []
+                     data))
         data))))
 
 (defn glob-find-paths [glob-data]
@@ -275,7 +308,7 @@
   (-> input-schema
       (m/explain input)
       (me/humanize)
-      (find-paths-version-100500)
+      (find-paths-version-100501)
       ;(find-paths "" [])
       ;(glob-find-paths)
       ;(println)
