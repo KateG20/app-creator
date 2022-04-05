@@ -8,12 +8,10 @@
   ; https://github.com/metosin/malli
   (let [text (yaml/parse-string (slurp path))
         errors (validator/explain text)]
-    (clojure.pprint/pprint text)
-    ;(println "\nPROVIDEDSTART\n")
-    ;(clojure.pprint/pprint (mp/provide text))
-    ;(println "\nPROVIDEDEND\n")
+
     (if errors
-      (clojure.pprint/pprint errors)
+      (do (println "ERRORS:\n")
+      (dorun (map println errors)))
       (println "YAML IS VALID"))
     text))
 

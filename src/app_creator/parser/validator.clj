@@ -138,197 +138,50 @@
    server-schema
    client-schema])
 
-;(defn validate [input]
-;  (m/validate input-schema input))
-
-(defn keys-in
-  "Returns a sequence of all key paths in a given map using DFS walk."
-  [m]
-  (letfn [(children [node]
-            (let [v (get-in m node)]
-              (if (string? v)
-                ()
-                (if (vector? v)
-                  ()
-                  (if (map? v)
-                    (map (fn [x] (conj node x)) (keys v))
-                    [])))))
-          (branch? [node] (-> (children node) seq boolean))]
-    (->> (keys m)
-         (map vector)
-         (mapcat #(tree-seq branch? children %)))))
-
-(require '[clojure.walk :as walk])
-
-(defn vectorize [data]
-  (if (vector? data) (map vectorize data)
-                     (if (map? data)
-                       [(nth (keys data) 0)
-                        (vectorize (nth (vals data) 0))]
-                       data)))
-
-(defn get-paths [data]
-  (println "current data piece:")
-  (clojure.pprint/pprint data)
-  (println)
-  (if (string? data)
-    (str "\nError: " (apply str data))
-    (if (vector? data)
-      (apply str (map get-paths data))
-      (if (map? data)
-        ;(apply str (map (fn [x] (str ">>" (nth x 0) (get-paths (nth x 1))))))
-        ;(map (fn [x] (str ">>" (nth x 0) (apply str (get-paths (nth x 1))))))
-        (map (fn [[key val]]
-               (let [got (apply str (get-paths val))]
-                 (println (str "\nNEXT STEP: " got))
-                 (str " >> " key got))) data)
-        data
-        ))))
-
-(defn find-paths [data path paths]
-  (if (string? data)
-    [(str "\nPATHSTART: " path "\nError: " data " :PATHEND")]
-    (if (vector? data)
-      (map (fn [piece] (conj paths (find-paths piece path paths))) data)
-      (if (map? data)
-        (map (fn [[key val]]
-               (let [str-key (str key)
-                     clean-key (if (= ":" (subs str-key 0 1))
-                                 (subs str-key 1) str-key)
-                     final-key (if (every? #(Character/isDigit ^char %) clean-key) ; todo может это не номер в спике, а номер в ошибках
-                                 (str "element " (+ 1 (Integer/parseInt clean-key)))
-                                 clean-key)
-                     separator (if (empty? path) "" " >> ")]
-                 (conj paths (find-paths val (str path separator final-key) paths)))) data)
-        data))))
-
-(defn find-paths-version-100500 [data]
-  (println (str "START. WE HAVE DATA: " data "\n"))
-
-  (if (string? data)
-    (do
-      (println (str "WE HAVE STRING. WE RETURN [\"Error: " data "\"]\n"))
-      [(str "\nError: " data)]
-      )
-    (if (vector? data)
-      (do
-        (println (str "WE HAVE VECTOR. GO INTO:"))
-        ;(map find-paths-version-100500 data)
-        (let [res (nth (map (fn [x] (if x (find-paths-version-100500 x)))
-                            data) 0)]
-          (println (str "WE RETURN FROM VECTOR: " res "\n"))
-          res))
-      (if (map? data)
-        (do
-          (println (str "WE HAVE MAP. GO INTO:"))
-          (map (fn [[key val]]
-                 (let [res
-                       (map (fn [v] (str key " >> " v))
-                            (find-paths-version-100500 val))]
-                   (println (str "FOR " key " FROM MAP WE RETURN: " res "\n"))
-                   res)
-                 )
-               data))
-        data))))
-
 (defn find-paths-version-100501 [data]
   "Находит все пути от корня до листьев в ациклическом графе, где листья - строки,
   а другие ноды могут быть векторы или мапы. Возвращает всегда вектор строк -
   найденных для данной вершины путей."
-  (println (str "START. WE HAVE DATA: " data "\n"))
 
   (if (string? data)
-    (do
-      (println (str "WE HAVE STRING. WE RETURN [\"Error: " data "\"]\n"))
-      [(str "\nError: " data)]
-      )
+    [(str "\nError: " data "\n")]
     (if (vector? data)
-      (do
-        (println (str "WE HAVE VECTOR. GO INTO:"))
-        (let [res
-              (reduce
-                (fn [prev new] (vec (concat prev (if new (find-paths-version-100501 new)))))
-                []
-                data)]
-          (println (str "WE RETURN FROM VECTOR: " res "\n"))
-          res))
+      (reduce
+        (fn [prev new]
+          (->> new
+               (find-paths-version-100501)
+               (concat prev)
+               (vec)))
+        []
+        data)
       (if (map? data)
-        (do
-          (println (str "WE HAVE MAP. GO INTO:"))
-          (reduce-kv (fn [prev key val]
-                       (vec (concat prev (reduce
-                                           (fn [prev new] (conj prev (str key " >> " new)))
-                                           []
-                                           (find-paths-version-100501 val)))))
-                     []
-                     data))
+        (reduce-kv (fn [prev key val]
+                     (->> val
+                          (find-paths-version-100501)
+                          (reduce
+                            (fn [prev new]
+                              (let [key (as-> key k
+                                              (str k)
+                                              (if (= ":" (subs k 0 1))
+                                                (subs k 1) k)
+                                              (if (every? #(Character/isDigit ^char %) k)
+                                                (str "element " (+ 1 (Integer/parseInt k))) k))]
+                                (conj prev (str key " >> " new))))
+                            [])
+                          (concat prev)
+                          (vec)))
+                   []
+                   data)
         data))))
 
-(defn glob-find-paths [glob-data]
-  (let [paths []]
-    (letfn [(find-paths [data path]
-              (if (string? data)
-                (do
-                  (conj paths (str path "\nError: " data))
-                  ;(println (str "\nPATHS: " path "\nError: " data "END"))
-                  )
-                (if (vector? data)
-                  (map (fn [piece] (find-paths piece path paths)) data)
-                  (if (map? data)
-                    (map (fn [[key val]]
-                           (let [str-key (str key)
-                                 clean-key (if (= ":" (subs str-key 0 1))
-                                             (subs str-key 1) str-key)
-                                 final-key (if (every? #(Character/isDigit ^char %) clean-key)
-                                             (str "element " (+ 1 (Integer/parseInt clean-key)))
-                                             clean-key)
-                                 separator (if (empty? path) "" " >> ")]
-                             (find-paths val (str path separator final-key) paths))) data)
-                    data))))]
-      (find-paths glob-data "")
-      (println (str "PATHS " paths))
-      paths)))
-
-;(defn red-paths [data]
-;  (reduce (fn [prev next]
-;            (if (string? next)
-;              (do
-;                (str prev " >> " next)
-;                )
-;              (if (vector? d)
-;                ()
-;                (if (map? d)
-;                  ()
-;                  d))))
-;          "" data)
-;  )
+; todo может число в пути - это не номер в спике, а номер в ошибках
 
 (defn explain [input]
   ;(pretty/explain input-schema input)
   (-> input-schema
       (m/explain input)
       (me/humanize)
-      (find-paths-version-100501)
-      ;(find-paths "" [])
-      ;(glob-find-paths)
-      ;(println)
-      )
-  ;(let [res (me/humanize (m/explain input-schema input))]
-  ;  (println "\nRES:\n")
-  ;  (clojure.pprint/pprint res)
-  ;  (println "\nKEYS-IN:\n")
-  ;  (clojure.pprint/pprint (keys-in res))
-  ;  (println "\nVECTORIZE\n")
-  ;  (vectorize res)
-  ;  ;(walk/postwalk
-  ;  ;  (fn [v]
-  ;  ;    ((println v)
-  ;  ;     (if (map? v)
-  ;  ;       ((juxt #(nth (keys %) 0) #(nth (vals %) 0)) v)
-  ;  ;       v)))
-  ;  ;  res)
-  ;  )
-  )
+      (find-paths-version-100501)))
 
 (def myres
   {:db
