@@ -5,19 +5,26 @@
          '[app-creator.ui.cli :as ui])
 
 (defn create [in-path out-path]
-  (let [{:keys [info db server front]} (parser/parse-from-file in-path)]
-    ;(and (some? db)
-    ;     (let [{:keys [type]} (db)]
-    ;       (adapter/db-type-adapter type db out-path)))
-    (println "PARSED")
-    (and (some? server)
-         (let [{:keys [type]} server]
-           (adapter/server-type-adapter type server out-path)))
+  (let [{:keys [errors data]} (parser/parse-from-file in-path)]
+    (println "PARSED DATA")
+    (cond
+      (some? errors)
+      (do (println "ERRORS FOUND")
+          (println "Errors occurred while validating input file.\nPlease fix and try again.\n")
+          (dorun (map #(println (str "Path: " %)) errors))) ; todo лучше "Path" добавлять где-то раньше
 
-    ;(front/create front out-path)
-    )
-  (println "FINISHED")
-  )
+      (some? data)
+      (let [{:keys [info db server front]} data]
+        (println "NO ERRORS FOUND")
+        ;(and (some? db)
+        ;     (let [{:keys [type]} (db)]
+        ;       (adapter/db-type-adapter type db out-path)))
+
+        ;(and (some? server)
+        ;     (let [{:keys [type]} server]
+        ;       (adapter/server-type-adapter type server out-path)))
+        )))
+  (println "FINISHED"))
 
 (defn start [args]
   ; Достаем аргументы из фронтенда

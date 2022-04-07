@@ -6,12 +6,8 @@
 
 (defn parse-from-file [path]                                ; todo https://github.com/metosin/malli#dot визуализация
   ; https://github.com/metosin/malli
-  (let [text (yaml/parse-string (slurp path))
-        errors (validator/explain text)]
+  (let [data (yaml/parse-string (slurp path))
+        errors (validator/explain data)]
 
-    (if errors
-      (do (println "ERRORS:\n")
-      (dorun (map println errors)))
-      (println "YAML IS VALID"))
-    text))
+    {:errors errors :data data}))
 
