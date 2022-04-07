@@ -1,37 +1,27 @@
 (ns app-creator.creator.adapter)
 
-(require '[app-creator.creator.db.postgresql.filler :as postgresql]
-         '[app-creator.creator.server.spring.setter :as spring-setter]
-         '[app-creator.creator.server.spring.java.filler :as java-fill])
+(defmacro create-db []
+  '(cond
+     (= type "postgresql")
+     (postgresql/create specs out-path)
 
-(defn from-adapter []
-  (print "from adapter "))
+     ; add redirections for other types here
+     ))
 
-(defn db-type-adapter [type specs out-path]
-  (cond
-    (= type "postgresql")
-    (postgresql/create specs out-path)
+(defmacro fill-server []
+  '(cond
+     (= lang "java")
+     (java/fill specs out-path)
 
-    ; add redirections for other types here
-    )
-  )
+     ; add redirections for other types here
+     ))
 
-(defn server-lang-adapter [lang specs out-path]
-  (cond
-    (= lang "java")
-    (java-fill/fill specs out-path)
+(defmacro create-server []
+  '(cond
+     (= type "spring")
+     (spring/create specs out-path)
 
-    ; add redirections for other types here
-    )
-  )
-
-(defn server-type-adapter [type specs out-path]
-  (cond
-    (= type "spring")
-    (spring-setter/create specs out-path)
-
-    ; add redirections for other types here
-    )
-  )
+     ; add redirections for other types here
+     ))
 
 

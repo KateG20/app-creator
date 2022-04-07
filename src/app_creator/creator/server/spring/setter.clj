@@ -3,7 +3,8 @@
 
 (require '[app-creator.creator.server.spring.java.templates :as templates]
          '[app-creator.creator.server.spring.defaults :as defaults]
-         '[app-creator.creator.server.spring.java.filler :as java-fill]
+         '[app-creator.creator.server.spring.java.filler :as java]
+         '[app-creator.creator.adapter :as adapter]
          '[clojure.java.shell :as cmd])
 
 (use 'selmer.parser)
@@ -31,14 +32,9 @@
           (apply str $))))
 
 (defn fulfill [specs out-path]
-  ;(adapter/server-lang-adapter
-  ;  (or (:language (:project specs))
-  ;      defaults/language)
-  ;  specs
-  ;  out-path)
-  (java-fill/fill specs out-path)                           ; пока иду напрямую без адаптера
-
-  )
+  (let [lang (or (:language (:project specs))
+                 defaults/language)]                        ; names: lang, specs, out-path - it's important
+    (adapter/fill-server)))
 
 (defn create [specs out-path]
   ; Заливаем в файл команду
@@ -49,7 +45,7 @@
           (create-options specs)
           out-path))
   ; Вызываем выполнение этого файла (создается сервер)
-  ;(println (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat")))
+  (println (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat")))
   (println "server created!")
   ; Заполняем внутренности сервера
   (fulfill specs out-path))

@@ -1,6 +1,9 @@
 (ns app-creator.creator.creator)
 
 (require '[app-creator.parser.parser :as parser]
+         '[app-creator.creator.db.postgresql.filler :as postgresql]
+         '[app-creator.creator.server.spring.setter :as spring]
+         '[app-creator.creator.server.spring.java.filler :as java]
          '[app-creator.creator.adapter :as adapter]
          '[app-creator.ui.cli :as ui])
 
@@ -16,13 +19,15 @@
       (some? data)
       (let [{:keys [info db server front]} data]
         (println "NO ERRORS FOUND")
-        ;(and (some? db)
-        ;     (let [{:keys [type]} (db)]
-        ;       (adapter/db-type-adapter type db out-path)))
+        (and (some? db)
+             (let [{:keys [type]} db
+                   specs db]                                ; names: type, specs, out-path - it's important
+               (adapter/create-db)))
 
-        ;(and (some? server)
-        ;     (let [{:keys [type]} server]
-        ;       (adapter/server-type-adapter type server out-path)))
+        (and (some? server)
+             (let [{:keys [type]} server
+                   specs server]                            ; names: type, specs, out-path - it's important
+               (adapter/create-server)))
         )))
   (println "FINISHED"))
 
