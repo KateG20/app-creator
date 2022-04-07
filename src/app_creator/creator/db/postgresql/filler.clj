@@ -17,10 +17,10 @@
 
 (defn adjust-type [opts]
   (cond
-    (= opts "string") "varchar(255)"
-    (= opts "number") "integer"
-    (= opts "bool") "boolean"
-    (= opts "date") "date"))
+    (= opts "string") "VARCHAR(255)"
+    (= opts "number") "INTEGER"
+    (= opts "bool") "BOOLEAN"
+    (= opts "date") "DATE"))
 
 (defn get-columns-info [columns]
   "Достает из мапы данные в формате 'имя_колонки параметры_колонки' "
@@ -43,8 +43,7 @@
   (let [{:keys [db-name host username password tables]} specs]
     (psql-script db-name host username password out-path)
     (create-DB-script db-name out-path)
-    (create-tables-script tables out-path))                 ;; TODO перенести заполнение БД таблицами в filler
-  )
+    (create-tables-script tables out-path)))
 
 
 
