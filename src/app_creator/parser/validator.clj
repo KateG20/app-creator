@@ -81,7 +81,7 @@
       [:packaging {:optional true} (restrict-enum ["jar" "war" "pom" "ear" "rar" "par"])]
       [:java-version {:optional true} (restrict-enum ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])]
       [:version {:optional true} string?]
-      [:deps
+      [:deps {:optional true}
        [:sequential (restrict-enum deps)]]]]                ; todo; some deps must be default
     [:properties
      [:map

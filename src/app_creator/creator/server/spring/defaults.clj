@@ -10,3 +10,4 @@
 (def packaging "jar")
 (def java-version "11")
 (def project-version "0.0.1-SNAPSHOT")
+(def deps '("validation" "web" "data-jpa" "lombok"))

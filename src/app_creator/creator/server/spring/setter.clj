@@ -26,7 +26,11 @@
            "java-version" (or java-version defaults/java-version)
            "version"      (or project-version defaults/project-version)
            "force"        "true"
-           "dependencies" (clojure.string/join "," deps)} $
+           "dependencies" (->> deps
+                               (concat defaults/deps)
+                               (into #{})
+                               (into '())
+                               (clojure.string/join ","))} $
           (for [[k v] $]
             (<< "--{{k}}={{v}} "))
           (apply str $))))
@@ -45,7 +49,7 @@
           (create-options specs)
           out-path))
   ; Вызываем выполнение этого файла (создается сервер)
-  (println (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat")))
+  (println (:out (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat"))))
   (println "server created!")
   ; Заполняем внутренности сервера
   (fulfill specs out-path))
