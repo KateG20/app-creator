@@ -49,7 +49,7 @@
     (->> ["spring.datasource.url=jdbc:{{type}}://{{host}}:{{port}}/{{db-name}}"
           "spring.datasource.username={{username}}"
           "spring.datasource.password={{password}}"
-          "spring.datasource.initialization-mode=always"]
+          "spring.sql.init.mode=always"]
        (string/join \newline)
        (<<))))
 
@@ -148,7 +148,6 @@
           ""
           "import {{group}}.{{artifact}}.entity.{{entity-name}};"
           "import {{group}}.{{artifact}}.service.{{service-class-name}};"
-          "import lombok.val;"
           "import org.springframework.beans.factory.annotation.Autowired;"
           "import org.springframework.http.HttpStatus;"
           "import org.springframework.http.ResponseEntity;"
