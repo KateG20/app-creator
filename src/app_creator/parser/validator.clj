@@ -4,42 +4,9 @@
          '[malli.core :as m]
          '[malli.error :as me]
          '[clojure.string :as string]
-         '[app-creator.parser.messages :as msg])
-
-(def ip-regex #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
-(def host-regex #"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$")
-(def controller-name-regex #"^[A-Z][\w]*Controller$")
-(def method-name-regex #"^[a-z][\w]*$")
-(def uri-regex #"^(\/{1}\w+)+$")
-
-(def dbms-opts ["postgresql"])
-(def server-opts ["spring"])
-(def build-opts ["maven" "gradle"])
-(def lang-opts ["java" "kotlin" "groovy"])
-(def boot-v-opts ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])
-(def packaging-opts ["jar" "war" "pom" "ear" "rar" "par"])
-(def java-v-opts ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])
-(def col-type-opts ["bool" "number" "string" "date"])
-(def mapping-opts ["post" "put" "get" "patch" "delete"])
-(def client-opts ["android"])
-(def deps-opts ["activemq" "actuator" "amqp" "artemis" "azure-active-directory" "azure-cosmos-db" "azure-keyvault-secrets"
-           "azure-storage" "azure-support" "batch" "cache" "camel" "cloud-bus" "cloud-cloudfoundry-discovery"
-           "cloud-config-client" "cloud-config-server" "cloud-contract-stub-runner" "cloud-contract-verifier"
-           "cloud-eureka" "cloud-eureka-server" "cloud-feign" "cloud-function" "cloud-gateway" "cloud-gcp"
-           "cloud-gcp-pubsub" "cloud-gcp-storage" "cloud-loadbalancer" "cloud-resilience4j" "cloud-starter"
-           "cloud-starter-consul-config" "cloud-starter-consul-discovery" "cloud-starter-sleuth"
-           "cloud-starter-vault-config" "cloud-starter-zipkin" "cloud-starter-zookeeper-config"
-           "cloud-starter-zookeeper-discovery" "cloud-stream" "cloud-task" "codecentric-spring-boot-admin-client"
-           "codecentric-spring-boot-admin-server" "configuration-processor" "data-cassandra" "data-cassandra-reactive"
-           "data-couchbase" "data-couchbase-reactive" "data-elasticsearch" "data-jdbc" "data-jpa" "data-ldap"
-           "data-mongodb" "data-mongodb-reactive" "data-neo4j" "data-r2dbc" "data-redis" "data-redis-reactive"
-           "data-rest" "data-rest-explorer" "datadog" "db2" "derby" "devtools" "flapdoodle-mongo" "flyway" "freemarker"
-           "geode" "graphite" "graphql" "groovy-templates" "h2" "hateoas" "hsql" "influx" "integration" "jdbc" "jersey"
-           "jooq" "kafka" "kafka-streams" "liquibase" "lombok" "mail" "mariadb" "mustache" "mybatis" "mysql" "native"
-           "new-relic" "oauth2-client" "oauth2-resource-server" "okta" "open-service-broker" "oracle" "picocli"
-           "postgresql" "prometheus" "quartz" "restdocs" "rsocket" "scs-config-client" "scs-service-registry" "security"
-           "session" "solace" "sqlserver" "testcontainers" "thymeleaf" "unboundid-ldap" "vaadin" "validation"
-           "wavefront" "web" "web-services" "webflux" "websocket"])
+         '[app-creator.parser.messages :as msg]
+         '[app-creator.parser.regex :as r]
+         '[app-creator.parser.opts :as o])
 
 (defn restrict-error-msg [elems & {:keys [in-work] :or {in-work false}}]
   "Создает сообщение об недопустимом значении, перечисляя допустимые"
@@ -58,7 +25,7 @@
   [:db
    [:map {:closed        true
           ; if map keys are not from allowed list:
-          :error/message (restrict-error-msg dbms-opts :in-work true)}
+          :error/message (restrict-error-msg o/dbms-opts :in-work true)}
     [:postgresql {:optional true}
      [:map {:closed true}
       [:db-name string?]                                    ; любое, т.к. скрипт не запускается прогой. валидация на совести юзера
@@ -68,8 +35,8 @@
                 (and (string? host)
                      (or
                        (= "localhost" host)
-                       (re-matches ip-regex host)
-                       (re-matches host-regex host))))]]
+                       (re-matches r/ip-regex host)
+                       (re-matches r/host-regex host))))]]
       [:username string?]
       [:password string?]
       [:tables
@@ -80,7 +47,7 @@
           [:sequential
            [:map {:closed true}
             [:col-name string?]
-            [:opts (restrict-enum col-type-opts)]]]]]]]]]
+            [:opts (restrict-enum o/col-type-opts)]]]]]]]]]
     ; other db types here, for example:
     ; [:mongo {:optional true} string?]
     ]
@@ -89,21 +56,21 @@
 (def server-schema
   [:server
    [:map {:closed true}
-    [:type (restrict-enum server-opts :in-work true)]
+    [:type (restrict-enum o/server-opts :in-work true)]
     [:project
      [:map {:closed true}
-      [:build {:optional true} (restrict-enum build-opts)]
-      [:language {:optional true} (restrict-enum lang-opts)]
-      [:boot-version {:optional true} (restrict-enum boot-v-opts)]
+      [:build {:optional true} (restrict-enum o/build-opts)]
+      [:language {:optional true} (restrict-enum o/lang-opts)]
+      [:boot-version {:optional true} (restrict-enum o/boot-v-opts)]
       [:group {:optional true} string?]
       [:artifact {:optional true} string?]
       [:proj-name {:optional true} string?]
       [:description {:optional true} string?]
-      [:packaging {:optional true} (restrict-enum packaging-opts)]
-      [:java-version {:optional true} (restrict-enum java-v-opts)]
+      [:packaging {:optional true} (restrict-enum o/packaging-opts)]
+      [:java-version {:optional true} (restrict-enum o/java-v-opts)]
       [:project-version {:optional true} string?]
       [:deps {:optional true}
-       [:sequential (restrict-enum deps-opts)]]]]
+       [:sequential (restrict-enum o/deps-opts)]]]]
     [:properties
      [:map {:closed true}
       [:db
@@ -115,8 +82,8 @@
                     (fn [host] (and (string? host)
                                     (or
                                       (= "localhost" host)
-                                      (re-matches ip-regex host)
-                                      (re-matches host-regex host))))]]
+                                      (re-matches r/ip-regex host)
+                                      (re-matches r/host-regex host))))]]
         [:sql-port [:fn {:error/message msg/port-error}
                     (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
         [:db-name string?]]]]]
@@ -124,22 +91,22 @@
      [:sequential
       [:map {:closed true}
        [:controller-name [:fn {:error/message msg/controller-name-error}
-                          (fn [name] (and (string? name) (re-matches controller-name-regex name)))]]
+                          (fn [name] (and (string? name) (re-matches r/controller-name-regex name)))]]
        [:requests
         [:sequential
          [:map {:closed true}
           [:req-name [:fn {:error/message msg/method-name-error}
-                      (fn [name] (and (string? name) (re-matches method-name-regex name)))]]
+                      (fn [name] (and (string? name) (re-matches r/method-name-regex name)))]]
 
           [:uri [:fn {:error/message msg/uri-path-error}
-                 (fn [uri] (and (string? uri) (re-matches uri-regex uri)))]]
+                 (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
 
-          [:mapping (restrict-enum mapping-opts)]]]]]]]]])
+          [:mapping (restrict-enum o/mapping-opts)]]]]]]]]])
 
 (def client-schema
   [:client
    [:map {:closed true}
-    [:type (restrict-enum client-opts :in-work true)]
+    [:type (restrict-enum o/client-opts :in-work true)]
     [:language string?]
     [:endpoints
      [:sequential
