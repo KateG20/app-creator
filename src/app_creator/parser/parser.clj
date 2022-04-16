@@ -1,8 +1,7 @@
 (ns app-creator.parser.parser)
 
 (require '[clj-yaml.core :as yaml]
-         '[app-creator.parser.validator :as validator]
-         '[malli.provider :as mp])
+         '[app-creator.parser.validator :as validator])
 
 (defn parse-from-file [path]                                ; todo https://github.com/metosin/malli#dot визуализация
   ; https://github.com/metosin/malli

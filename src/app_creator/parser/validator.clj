@@ -2,7 +2,6 @@
 
 (require '[malli.core :as m]
          '[malli.error :as me]
-         '[malli.dev.pretty :as pretty]
          '[clojure.string :as string]
          '[app-creator.parser.messages :as msg])
 
@@ -42,7 +41,7 @@
 
 (def db-schema
   [:db
-   [:map
+   [:map {:closed true}
     [:type (restrict-enum ["postgresql"] :in-work true)]
     [:db-name string?]                                      ; любое, т.к. скрипт не запускается. валидация на совести юзера
     [:host [:fn {:error/message msg/host-error
@@ -57,56 +56,57 @@
     [:password string?]
     [:tables
      [:sequential
-      [:map
+      [:map {:closed true}
        [:table-name string?]
        [:columns
         [:sequential
-         [:map
+         [:map {:closed true}
           [:col-name string?]
-          [:opts (restrict-enum ["bool" "number" "string" "date"])]]]]]]]]])
+          [:opts (restrict-enum ["bool" "number" "string" "date"])]]]]]]]
+    ]])
 
 (def server-schema
   [:server
-   [:map
+   [:map {:closed true}
     [:type (restrict-enum ["spring"] :in-work true)]
     [:project
-     [:map
+     [:map {:closed true}
       [:build {:optional true} (restrict-enum ["maven" "gradle"])]
       [:language {:optional true} (restrict-enum ["java" "kotlin" "groovy"])]
       [:boot-version {:optional true} (restrict-enum ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])]
-      [:group-id {:optional true} string?]
-      [:artifact-id {:optional true} string?]
+      [:group {:optional true} string?]
+      [:artifact {:optional true} string?]
       [:proj-name {:optional true} string?]
       [:description {:optional true} string?]
       [:packaging {:optional true} (restrict-enum ["jar" "war" "pom" "ear" "rar" "par"])]
       [:java-version {:optional true} (restrict-enum ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])]
-      [:version {:optional true} string?]
+      [:project-version {:optional true} string?]
       [:deps {:optional true}
-       [:sequential (restrict-enum deps)]]]]                ; todo; some deps must be default
+       [:sequential (restrict-enum deps)]]]]
     [:properties
-     [:map
+     [:map {:closed true}
       [:db
-       [:map
+       [:map {:closed true}
         [:type string?]
         [:username string?]
         [:password string?]
-        [:host [:fn {:error/message msg/host-error}
+        [:sql-host [:fn {:error/message msg/host-error}
                 (fn [host] (and (string? host)
                                 (or
                                   (= "localhost" host)
                                   (re-matches ip-regex host)
                                   (re-matches host-regex host))))]]
-        [:port [:fn {:error/message msg/port-error}
-                (fn [port] (and (int? port) (< 1 port) (< port 65535)))]] ; Integer/parseInt if not work
+        [:sql-port [:fn {:error/message msg/port-error}
+                (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
         [:db-name string?]]]]]
     [:controllers
      [:sequential
-      [:map
+      [:map {:closed true}
        [:controller-name [:fn {:error/message msg/controller-name-error}
                           (fn [name] (and (string? name) (re-matches controller-name-regex name)))]]
        [:requests
         [:sequential
-         [:map
+         [:map {:closed true}
           [:req-name [:fn {:error/message msg/method-name-error}
                       (fn [name] (and (string? name) (re-matches method-name-regex name)))]]
 
@@ -117,20 +117,22 @@
 
 (def client-schema
   [:client
-   [:map
-    [:os string?]
+   [:map {:closed true}
+    [:type (restrict-enum ["android"] :in-work true)]
     [:language string?]
     [:endpoints
      [:sequential
-      [:map
+      [:map {:closed true}
        [:name string?]
        [:endpoint string?]
        [:type string?]]]]]])
 
+; TODO ВСЁ НЕПРАВИЛЬНО. Содержимое может быть разное в зависимости от типа проекта. (((((
+
 (def input-schema
-  [:map
+  [:map {:closed true}
    [:info
-    [:map
+    [:map {:closed true}
      [:app-name string?]
      [:description :maybe string?]]]
    db-schema
