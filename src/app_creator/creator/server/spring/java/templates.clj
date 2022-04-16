@@ -1,23 +1,13 @@
 (ns app-creator.creator.server.spring.java.templates
   (:import (java.io File)))
 
-; TODO создать папку java и переместить это туда
 (require '[clojure.string :as string]
-         '[selmer.util :refer [without-escaping]])
+         '[selmer.util :as sutil :refer [without-escaping]])
 
 (use 'selmer.parser)
-(selmer.util/turn-off-escaping!)
+(sutil/turn-off-escaping!)
 
 (def sep File/separator)
-
-(defn spring-init [proj-name options path]
-  (let [path (string/replace path "(\\)|/" sep)]
-    (->> ["@echo off"
-           ""
-           "spring init {{options}}\"{{path}}{{sep}}{{proj-name}}\""]
-          (string/join \newline)
-          (<<)))
-  )
 
 (defn path-to-props [out-path proj-name group artifact lang]
   (cond
@@ -45,8 +35,9 @@
         (str $ "Service")))
 
 (defn props [props]
-  (let [{:keys [type username password host port db-name]} (:db props)]
-    (->> ["spring.datasource.url=jdbc:{{type}}://{{host}}:{{port}}/{{db-name}}"
+  (let [{:keys [type username password sql-host sql-port db-name]} (:db props)]
+    (->> ["# Before deploying, replace sql-host with your further container name"
+          "spring.datasource.url=jdbc:{{type}}://{{sql-host}}:{{sql-port}}/{{db-name}}"
           "spring.datasource.username={{username}}"
           "spring.datasource.password={{password}}"
           "spring.sql.init.mode=always"]
