@@ -1,7 +1,7 @@
 (ns app-creator.creator.server.spring.setter
   (:import (java.io File)))
 
-(require '[app-creator.creator.server.spring.java.templates :as templates]
+(require '[app-creator.creator.server.spring.templates :as templates]
          '[app-creator.creator.server.spring.defaults :as defaults]
          '[app-creator.creator.server.spring.java.filler :as java]
          '[app-creator.creator.adapter :as adapter]
