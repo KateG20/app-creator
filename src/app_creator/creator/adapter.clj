@@ -1,9 +1,9 @@
 (ns app-creator.creator.adapter)
 
 (defmacro create-db []
-  '(cond
-     (= type "postgresql")
-     (postgresql/create specs out-path)
+  '(let [{:keys [postgresql]} db]                           ; add other types into :keys
+     (and (some? postgresql)
+          (postgresql/create (:postgresql db) out-path))
 
      ; add redirections for other types here
      ))

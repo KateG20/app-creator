@@ -20,22 +20,21 @@
       (some? data)
       (let [{:keys [info db server front]} data]
         (println "NO ERRORS FOUND")
-        (and (some? db)
-             (let [{:keys [type]} db
-                   specs db]                                ; names: type, specs, out-path - it's important
-               (adapter/create-db)))
-
-        (and (some? server)
-             (let [{:keys [type]} server
-                   specs server]                            ; names: type, specs, out-path - it's important
-               (adapter/create-server)))
-
-
-        (and (some? front)
-             (let [{:keys [type]} front
-                   specs front]                            ; names: type, specs, out-path - it's important
-               (adapter/create-front)))
-        )))
+        (and (some? db)                                     ; names: db, out-path - it's important
+             (adapter/create-db))
+        ;
+        ;(and (some? server)
+        ;     (let [{:keys [type]} server
+        ;           specs server]                            ; names: type, specs, out-path - it's important
+        ;       (adapter/create-server)))
+        ;
+        ;
+        ;(and (some? front)
+        ;     (let [{:keys [type]} front
+        ;           specs front]                            ; names: type, specs, out-path - it's important
+        ;       (adapter/create-front)))
+        )
+      ))
   (println "FINISHED"))
 
 (defn start [args]

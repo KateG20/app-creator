@@ -19,12 +19,14 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Leiningen: borkdude/dynaload:0.2.2" level="project" />
     <orderEntry type="library" name="Leiningen: borkdude/edamame:0.0.18" level="project" />
+    <orderEntry type="library" name="Leiningen: borkdude/sci.impl.reflector:0.0.1" level="project" />
     <orderEntry type="library" name="Leiningen: clj-commons/clj-yaml:0.7.0" level="project" />
     <orderEntry type="library" name="Leiningen: clojure-complete:0.2.5" level="project" />
     <orderEntry type="library" name="Leiningen: fipp:0.6.25" level="project" />
     <orderEntry type="library" name="Leiningen: metosin/malli:0.8.0" level="project" />
     <orderEntry type="library" name="Leiningen: mvxcvi/arrangement:2.0.0" level="project" />
     <orderEntry type="library" name="Leiningen: nrepl:0.6.0" level="project" />
+    <orderEntry type="library" name="Leiningen: org.babashka/sci:0.3.4" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/clojure:1.10.3" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.rrb-vector:0.1.2" level="project" />
     <orderEntry type="library" name="Leiningen: org.clojure/core.specs.alpha:0.2.56" level="project" />

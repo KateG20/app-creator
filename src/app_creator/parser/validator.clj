@@ -1,6 +1,7 @@
 (ns app-creator.parser.validator)
 
-(require '[malli.core :as m]
+(require '[sci.core]                                        ; https://github.com/metosin/malli#serializable-functions
+         '[malli.core :as m]
          '[malli.error :as me]
          '[clojure.string :as string]
          '[app-creator.parser.messages :as msg])
@@ -11,7 +12,17 @@
 (def method-name-regex #"^[a-z][\w]*$")
 (def uri-regex #"^(\/{1}\w+)+$")
 
-(def deps ["activemq" "actuator" "amqp" "artemis" "azure-active-directory" "azure-cosmos-db" "azure-keyvault-secrets"
+(def dbms-opts ["postgresql"])
+(def server-opts ["spring"])
+(def build-opts ["maven" "gradle"])
+(def lang-opts ["java" "kotlin" "groovy"])
+(def boot-v-opts ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])
+(def packaging-opts ["jar" "war" "pom" "ear" "rar" "par"])
+(def java-v-opts ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])
+(def col-type-opts ["bool" "number" "string" "date"])
+(def mapping-opts ["post" "put" "get" "patch" "delete"])
+(def client-opts ["android"])
+(def deps-opts ["activemq" "actuator" "amqp" "artemis" "azure-active-directory" "azure-cosmos-db" "azure-keyvault-secrets"
            "azure-storage" "azure-support" "batch" "cache" "camel" "cloud-bus" "cloud-cloudfoundry-discovery"
            "cloud-config-client" "cloud-config-server" "cloud-contract-stub-runner" "cloud-contract-verifier"
            "cloud-eureka" "cloud-eureka-server" "cloud-feign" "cloud-function" "cloud-gateway" "cloud-gcp"
@@ -30,59 +41,69 @@
            "session" "solace" "sqlserver" "testcontainers" "thymeleaf" "unboundid-ldap" "vaadin" "validation"
            "wavefront" "web" "web-services" "webflux" "websocket"])
 
+(defn restrict-error-msg [elems & {:keys [in-work] :or {in-work false}}]
+  "Создает сообщение об недопустимом значении, перечисляя допустимые"
+  (as-> elems e
+        (if in-work (conj e "*more options are coming soon!*") e)
+        (string/join " | " e)
+        (str "should be one of: " e)))
+
 (defn restrict-enum [elems & {:keys [in-work] :or {in-work false}}]
   "Создает перечисление со всеми возможными значениями для malli, а также сообщение об ошибке"
-  (let [error-message (as-> elems e
-                            (if in-work (conj e "*more options are coming soon!*") e)
-                            (string/join " | " e)
-                            (str "should be one of: " e))
+  (let [error-message (restrict-error-msg elems :in-work in-work)
         enum (map str elems)]
     (vec (concat [:enum {:error/message error-message}] enum))))
 
 (def db-schema
   [:db
-   [:map {:closed true}
-    [:type (restrict-enum ["postgresql"] :in-work true)]
-    [:db-name string?]                                      ; любое, т.к. скрипт не запускается. валидация на совести юзера
-    [:host [:fn {:error/message msg/host-error
-                 :error/path    [:db :host]}
-            (fn [host]
-              (and (string? host)
-                   (or
-                     (= "localhost" host)
-                     (re-matches ip-regex host)
-                     (re-matches host-regex host))))]]
-    [:username string?]
-    [:password string?]
-    [:tables
-     [:sequential
-      [:map {:closed true}
-       [:table-name string?]
-       [:columns
-        [:sequential
-         [:map {:closed true}
-          [:col-name string?]
-          [:opts (restrict-enum ["bool" "number" "string" "date"])]]]]]]]
-    ]])
+   [:map {:closed        true
+          ; if map keys are not from allowed list:
+          :error/message (restrict-error-msg dbms-opts :in-work true)}
+    [:postgresql {:optional true}
+     [:map {:closed true}
+      [:db-name string?]                                    ; любое, т.к. скрипт не запускается прогой. валидация на совести юзера
+      [:host [:fn {:error/message msg/host-error
+                   :error/path    [:db :host]}
+              (fn [host]
+                (and (string? host)
+                     (or
+                       (= "localhost" host)
+                       (re-matches ip-regex host)
+                       (re-matches host-regex host))))]]
+      [:username string?]
+      [:password string?]
+      [:tables
+       [:sequential
+        [:map {:closed true}
+         [:table-name string?]
+         [:columns
+          [:sequential
+           [:map {:closed true}
+            [:col-name string?]
+            [:opts (restrict-enum col-type-opts)]]]]]]]]]
+    ; other db types here, for example:
+    ; [:mongo {:optional true} string?]
+    ]
+   ])
 
 (def server-schema
   [:server
    [:map {:closed true}
-    [:type (restrict-enum ["spring"] :in-work true)]
+    [:type (restrict-enum server-opts :in-work true)]
     [:project
      [:map {:closed true}
-      [:build {:optional true} (restrict-enum ["maven" "gradle"])]
-      [:language {:optional true} (restrict-enum ["java" "kotlin" "groovy"])]
-      [:boot-version {:optional true} (restrict-enum ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])]
+      [:build {:optional true} (restrict-enum build-opts)]
+      [:language {:optional true} (restrict-enum lang-opts)]
+      [:boot-version {:optional true} (restrict-enum boot-v-opts)]
       [:group {:optional true} string?]
       [:artifact {:optional true} string?]
       [:proj-name {:optional true} string?]
       [:description {:optional true} string?]
-      [:packaging {:optional true} (restrict-enum ["jar" "war" "pom" "ear" "rar" "par"])]
-      [:java-version {:optional true} (restrict-enum ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])]
+      [:packaging {:optional true} (restrict-enum packaging-opts)]
+      [:java-version {:optional true} (restrict-enum java-v-opts)]
       [:project-version {:optional true} string?]
       [:deps {:optional true}
-       [:sequential (restrict-enum deps)]]]]
+       [:sequential (restrict-enum deps-opts)]]]]
     [:properties
      [:map {:closed true}
       [:db
@@ -91,13 +112,13 @@
         [:username string?]
         [:password string?]
         [:sql-host [:fn {:error/message msg/host-error}
-                (fn [host] (and (string? host)
-                                (or
-                                  (= "localhost" host)
-                                  (re-matches ip-regex host)
-                                  (re-matches host-regex host))))]]
+                    (fn [host] (and (string? host)
+                                    (or
+                                      (= "localhost" host)
+                                      (re-matches ip-regex host)
+                                      (re-matches host-regex host))))]]
         [:sql-port [:fn {:error/message msg/port-error}
-                (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
+                    (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
         [:db-name string?]]]]]
     [:controllers
      [:sequential
@@ -113,12 +134,12 @@
           [:uri [:fn {:error/message msg/uri-path-error}
                  (fn [uri] (and (string? uri) (re-matches uri-regex uri)))]]
 
-          [:mapping (restrict-enum ["post" "put" "get" "patch" "delete"])]]]]]]]]])
+          [:mapping (restrict-enum mapping-opts)]]]]]]]]])
 
 (def client-schema
   [:client
    [:map {:closed true}
-    [:type (restrict-enum ["android"] :in-work true)]
+    [:type (restrict-enum client-opts :in-work true)]
     [:language string?]
     [:endpoints
      [:sequential
@@ -127,7 +148,7 @@
        [:endpoint string?]
        [:type string?]]]]]])
 
-; TODO ВСЁ НЕПРАВИЛЬНО. Содержимое может быть разное в зависимости от типа проекта. (((((
+; TODO разное содержимое для типа сервера и клиента
 
 (def input-schema
   [:map {:closed true}
@@ -177,10 +198,20 @@
         data))))
 
 (defn explain [input]
+  ;(-> [:and [:map
+  ;           [:password string?]
+  ;           [:password2 string?]]
+  ;     [:fn {:error/message "passwords don't match"}
+  ;      '(fn [{:keys [password password2]}]
+  ;         (= password password2))]]
+  ;    (m/explain {:password "secret"
+  ;                :password2 "secret"})
+  ;    (me/humanize))
   (-> input-schema
       (m/explain input)
       (me/humanize)
-      (find-error-paths)))
+      (find-error-paths))
+  )
 
 (def provided-schema                                        ; autogenerated by lib; incorrect imho
   [:vector
