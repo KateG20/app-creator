@@ -4,6 +4,7 @@
          '[app-creator.creator.db.postgresql.filler :as postgresql]
          '[app-creator.creator.server.spring.setter :as spring]
          '[app-creator.creator.server.spring.java.filler :as java]
+         '[app-creator.creator.front.android.setter :as android]
          '[app-creator.creator.adapter :as adapter]
          '[app-creator.ui.cli :as ui])
 
@@ -28,6 +29,12 @@
              (let [{:keys [type]} server
                    specs server]                            ; names: type, specs, out-path - it's important
                (adapter/create-server)))
+
+
+        (and (some? front)
+             (let [{:keys [type]} front
+                   specs front]                            ; names: type, specs, out-path - it's important
+               (adapter/create-front)))
         )))
   (println "FINISHED"))
 

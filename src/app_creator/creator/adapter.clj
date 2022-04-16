@@ -24,4 +24,12 @@
      ; add redirections for other types here
      ))
 
+(defmacro create-front []
+  '(cond
+     (= type "android")
+     (android/create specs out-path)
+
+     ; add redirections for other types here
+     ))
+
 
