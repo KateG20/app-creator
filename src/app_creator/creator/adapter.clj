@@ -17,17 +17,17 @@
      ))
 
 (defmacro create-server []
-  '(cond
-     (= type "spring")
-     (spring/create specs out-path)
+  '(let [{:keys [spring]} server]                           ; add other types into :keys
+     (and (some? spring)
+          (android/create (:spring server) out-path))
 
      ; add redirections for other types here
      ))
 
 (defmacro create-front []
-  '(cond
-     (= type "android")
-     (android/create specs out-path)
+  '(let [{:keys [android]} front]                           ; add other types into :keys
+     (and (some? android)
+          (android/create (:android front) out-path))
 
      ; add redirections for other types here
      ))

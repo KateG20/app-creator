@@ -22,17 +22,12 @@
         (println "NO ERRORS FOUND")
         (and (some? db)                                     ; names: db, out-path - it's important
              (adapter/create-db))
-        ;
-        ;(and (some? server)
-        ;     (let [{:keys [type]} server
-        ;           specs server]                            ; names: type, specs, out-path - it's important
-        ;       (adapter/create-server)))
-        ;
-        ;
-        ;(and (some? front)
-        ;     (let [{:keys [type]} front
-        ;           specs front]                            ; names: type, specs, out-path - it's important
-        ;       (adapter/create-front)))
+
+        (and (some? server)                                 ; names: server, out-path - it's important
+             (adapter/create-server))
+
+        (and (some? front)                                  ; names: front, out-path - it's important
+             (adapter/create-front))
         )
       ))
   (println "FINISHED"))
