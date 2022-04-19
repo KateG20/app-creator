@@ -1,4 +1,4 @@
-(ns app-creator.creator.front.android.templates
+(ns app-creator.creator.client.android.templates
   (:import (java.io File)))
 
 (require '[clojure.string :as string]

@@ -1,10 +1,13 @@
-(ns app-creator.creator.front.android.setter
-  (:require [app-creator.creator.front.android.defaults :as defaults]))
+(ns app-creator.creator.client.android.setter
+  (:import (java.io File)))
 
-(require '[app-creator.creator.front.android.templates :as templates]
+(require '[app-creator.creator.client.android.templates :as templates]
+         '[app-creator.creator.client.android.defaults :as defaults]
          '[clojure.java.shell :as cmd])
 
 (use 'selmer.parser)
+
+(def sep File/separator)
 
 (defn create-options [specs]
   (let [{:keys [proj-name language dsl-language package-name test-framework]} specs]
@@ -20,6 +23,7 @@
 (defn create [specs out-path]
   (println "creating android project...")
   (let [proj-name (:proj-name specs)]
+    (println (str "proj-name: " proj-name))
     (->> specs
          (create-options)
          (templates/gradle-init proj-name out-path)

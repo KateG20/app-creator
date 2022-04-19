@@ -24,10 +24,10 @@
      ; add redirections for other types here
      ))
 
-(defmacro create-front []
-  '(let [{:keys [android]} front]                           ; add other types into :keys
+(defmacro create-client []
+  '(let [{:keys [android]} client]                           ; add other types into :keys
      (and (some? android)
-          (android/create (:android front) out-path))
+          (android/create (:android client) out-path))
 
      ; add redirections for other types here
      ))

@@ -1,4 +1,4 @@
-(ns app-creator.creator.front.android.defaults)
+(ns app-creator.creator.client.android.defaults)
 
 (def proj-name "demo")
 (def language "java-application")
