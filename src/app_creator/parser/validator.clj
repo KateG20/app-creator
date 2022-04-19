@@ -55,67 +55,75 @@
 
 (def server-schema
   [:server
-   [:map {:closed true}
-    [:type (restrict-enum o/server-opts :in-work true)]
-    [:project
+   [:map {:closed        true
+          ; if map keys are not from allowed list:
+          :error/message (restrict-error-msg o/server-opts :in-work true)}
+    [:spring {:optional true}
      [:map {:closed true}
-      [:build {:optional true} (restrict-enum o/build-opts)]
-      [:language {:optional true} (restrict-enum o/lang-opts)]
-      [:boot-version {:optional true} (restrict-enum o/boot-v-opts)]
-      [:group {:optional true} string?]
-      [:artifact {:optional true} string?]
-      [:proj-name {:optional true} string?]
-      [:description {:optional true} string?]
-      [:packaging {:optional true} (restrict-enum o/packaging-opts)]
-      [:java-version {:optional true} (restrict-enum o/java-v-opts)]
-      [:project-version {:optional true} string?]
-      [:deps {:optional true}
-       [:sequential (restrict-enum o/deps-opts)]]]]
-    [:properties
-     [:map {:closed true}
-      [:db
+      [:project
        [:map {:closed true}
-        [:type string?]
-        [:username string?]
-        [:password string?]
-        [:sql-host [:fn {:error/message msg/host-error}
-                    (fn [host] (and (string? host)
-                                    (or
-                                      (= "localhost" host)
-                                      (re-matches r/ip-regex host)
-                                      (re-matches r/host-regex host))))]]
-        [:sql-port [:fn {:error/message msg/port-error}
-                    (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
-        [:db-name string?]]]]]
-    [:controllers
-     [:sequential
-      [:map {:closed true}
-       [:controller-name [:fn {:error/message msg/controller-name-error}
-                          (fn [name] (and (string? name) (re-matches r/controller-name-regex name)))]]
-       [:requests
-        [:sequential
+        [:build {:optional true} (restrict-enum o/build-opts)]
+        [:language {:optional true} (restrict-enum o/lang-opts)]
+        [:boot-version {:optional true} (restrict-enum o/boot-v-opts)]
+        [:group {:optional true} string?]
+        [:artifact {:optional true} string?]
+        [:proj-name {:optional true} string?]
+        [:description {:optional true} string?]
+        [:packaging {:optional true} (restrict-enum o/packaging-opts)]
+        [:java-version {:optional true} (restrict-enum o/java-v-opts)]
+        [:project-version {:optional true} string?]
+        [:deps {:optional true}
+         [:sequential (restrict-enum o/deps-opts)]]]]
+      [:properties
+       [:map {:closed true}
+        [:db
          [:map {:closed true}
-          [:req-name [:fn {:error/message msg/method-name-error}
-                      (fn [name] (and (string? name) (re-matches r/method-name-regex name)))]]
+          [:type string?]
+          [:username string?]
+          [:password string?]
+          [:sql-host [:fn {:error/message msg/host-error}
+                      (fn [host] (and (string? host)
+                                      (or
+                                        (= "localhost" host)
+                                        (re-matches r/ip-regex host)
+                                        (re-matches r/host-regex host))))]]
+          [:sql-port [:fn {:error/message msg/port-error}
+                      (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
+          [:db-name string?]]]]]
+      [:controllers
+       [:sequential
+        [:map {:closed true}
+         [:controller-name [:fn {:error/message msg/controller-name-error}
+                            (fn [name] (and (string? name) (re-matches r/controller-name-regex name)))]]
+         [:requests
+          [:sequential
+           [:map {:closed true}
+            [:req-name [:fn {:error/message msg/method-name-error}
+                        (fn [name] (and (string? name) (re-matches r/method-name-regex name)))]]
 
-          [:uri [:fn {:error/message msg/uri-path-error}
-                 (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
+            [:uri [:fn {:error/message msg/uri-path-error}
+                   (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
 
-          [:mapping (restrict-enum o/mapping-opts)]]]]]]]]])
+            [:mapping (restrict-enum o/mapping-opts)]]]]]]]]]]])
 
 (def client-schema
   [:client
-   [:map {:closed true}
-    [:type (restrict-enum o/client-opts :in-work true)]
-    [:language string?]
-    [:endpoints
-     [:sequential
-      [:map {:closed true}
-       [:name string?]
-       [:endpoint string?]
-       [:type string?]]]]]])
-
-; TODO разное содержимое для типа сервера и клиента
+   [:map {:closed        true
+          ; if map keys are not from allowed list:
+          :error/message (restrict-error-msg o/client-opts :in-work true)}
+    [:android {:optional true}
+     [:map {:closed true}
+      [:proj-name string?]
+      [:language (restrict-enum ["java"] :in-work true)]
+      [:dsl-language (restrict-enum ["groovy" "kotlin"])]
+      [:package-name string?]
+      [:test-framework (restrict-enum ["junit" "testng" "spock" "junit-jupiter"])]
+      [:endpoints
+       [:sequential
+        [:map {:closed true}
+         [:name string?]
+         [:endpoint string?]
+         [:type string?]]]]]]]])
 
 (def input-schema
   [:map {:closed true}
