@@ -19,7 +19,7 @@
 (defmacro create-server []
   '(let [{:keys [spring]} server]                           ; add other types into :keys
      (and (some? spring)
-          (android/create (:spring server) out-path))
+          (spring/create (:spring server) out-path))
 
      ; add redirections for other types here
      ))
