@@ -38,7 +38,7 @@
 (defn fulfill [specs out-path]
   (let [lang (or (:language (:project specs))
                  defaults/language)]                        ; names: lang, specs, out-path - it's important
-    (adapter/fill-server)))
+    (adapter/fill-project)))
 
 (defn create [specs out-path]
   ; Заливаем в файл команду
@@ -50,6 +50,6 @@
           out-path))
   ; Вызываем выполнение этого файла (создается сервер)
   (println (:out (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat"))))
-  (println "server created!")
+  (println "server project created!")
   ; Заполняем внутренности сервера
   (fulfill specs out-path))

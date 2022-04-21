@@ -115,7 +115,6 @@
      [:map {:closed true}
       [:proj-name string?]
       [:language (restrict-enum ["java"] :in-work true)]
-      [:dsl-language (restrict-enum ["groovy" "kotlin"])]
       [:package-name string?]
       [:test-framework (restrict-enum ["junit" "testng" "spock" "junit-jupiter"])]
       [:endpoints

@@ -8,7 +8,7 @@
      ; add redirections for other types here
      ))
 
-(defmacro fill-server []
+(defmacro fill-project []
   '(cond
      (= lang "java")
      (java/fill specs out-path)

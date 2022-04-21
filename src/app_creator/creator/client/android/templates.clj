@@ -14,6 +14,8 @@
     (->> ["@echo off"
           ""
           "cd \"{{path}}{{sep}}{{proj-name}}\""
-          "gradle init {{options}} --incubating"]
+          "gradle init {{options}} --incubating --dsl groovy"]
          (string/join \newline)
          (<<))))
+
+(def settings-gradle "include ':app'")
