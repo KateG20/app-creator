@@ -13,7 +13,7 @@
   (let [path (string/replace path "(\\)|/" sep)]
     (->> ["@echo off"
           ""
-          "cd {{path}}{{sep}}{{proj-name}}"
+          "cd \"{{path}}{{sep}}{{proj-name}}\""
           "gradle init {{options}} --incubating"]
          (string/join \newline)
          (<<))))
