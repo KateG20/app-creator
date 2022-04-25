@@ -25,19 +25,25 @@
        (templates/manifest)
        (spit path)))
 
+(defn add-properties-gradle [path]
+  (spit path templates/gradle-properties))
+
 (defn fill [specs out-path]
   (let [{:keys [proj-name package-name endpoints]} specs
         proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")
+        app-dir (<< "{{proj-dir}}app{{sep}}")
         root-build-gradle-path (<< "{{proj-dir}}build.gradle")
-        app-build-gradle-path (<< "{{proj-dir}}app{{sep}}build.gradle")
-        res-dir (<< "{{proj-dir}}app{{sep}}src{{sep}}main{{sep}}resources{{sep}}values{{sep}}")
-        manifest-path (<< "{{proj-dir}}app{{sep}}src{{sep}}main{{sep}}AndroidManifest.xml")
+        app-build-gradle-path (<< "{{app-dir}}build.gradle")
+        res-dir (<< "{{app-dir}}src{{sep}}main{{sep}}resources{{sep}}values{{sep}}")
+        manifest-path (<< "{{app-dir}}src{{sep}}main{{sep}}AndroidManifest.xml")
         ]
     (println "adding files to android project...")
+    (clojure.java.io/make-parents (str res-dir "files"))
+
     (add-root-build-gradle root-build-gradle-path)
     (add-app-build-gradle app-build-gradle-path package-name)
-    (clojure.java.io/make-parents (str res-dir "files"))
     (add-styles-res res-dir)
     (add-manifest manifest-path package-name)
+    (add-properties-gradle (<< "{{proj-dir}}gradle.properties"))
     (println "project filled!")
     ))

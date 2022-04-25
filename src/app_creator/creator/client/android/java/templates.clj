@@ -9,13 +9,14 @@
 
 (def sep File/separator)
 (def current-gradle-version "4.0.2")
+(def gradle-properties "android.useAndroidX=true")
 
 (def root-build-gradle
   (->> ["buildscript {"
         ""
         "    repositories {"
         "        google()"
-        "        jcenter()"
+        "        mavenCentral()"
         "    }"
         "    dependencies {"
         "        classpath 'com.android.tools.build:gradle:{{current-gradle-version}}'"
@@ -25,7 +26,7 @@
         "allprojects {"
         "    repositories {"
         "        google()"
-        "        jcenter()"
+        "        mavenCentral()"
         "    }"
         "}"
         ""
@@ -39,11 +40,11 @@
   (->> ["apply plugin: 'com.android.application'"
         ""
         "android {"
-        "    compileSdkVersion 30"
+        "    compileSdkVersion 31"
         "    defaultConfig {"
         "        applicationId \"{{package-name}}\""
         "        minSdkVersion 16"
-        "        targetSdkVersion 25"
+        "        targetSdkVersion 31"
         "        versionCode 1"
         "        versionName \"1.0\""
         "    }"
@@ -51,14 +52,13 @@
         "        release {"
         "            minifyEnabled false"
         "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'"
-        "        classpath 'com.android.tools.build:gradle:{{current-gradle-version}}'"
         "        }"
         "    }"
         "}"
         ""
         "dependencies {"
-        "    implementation 'com.android.support.constraint:constraint-layout:1.1.2'"
-        "    implementation 'com.android.support:appcompat-v7:25.3.1'"
+        "    implementation 'com.android.support.constraint:constraint-layout:2.0.4'"
+        "    implementation 'androidx.appcompat:appcompat:1.4.1'"
         "}"]
        (string/join \newline)
        (<<)))
@@ -78,6 +78,7 @@
   (->> ["<?xml version=\"1.0\" encoding=\"utf-8\"?>"
         "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\""
         "    package=\"{{package-name}}\">"
+        "    <uses-permission android:name=\"android.permission.INTERNET\" />"
         ""
         "    <application"
         "        android:label=\"Demo App\""

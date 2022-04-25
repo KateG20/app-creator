@@ -42,10 +42,11 @@
       (clojure.java.io/make-parents (<< "{{proj-dir}}files"))
       ; Вызываем выполнение этого файла (создается клиент)
       ;(println (:out (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat"))))
-      (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat"))
+
+      (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat")) ; todo
+
       ;(add-build-gradle (<< "{{proj-dir}}build.gradle"))  ;todo убрать
-      (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))
-      ))
+      (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))))
 
   (println "android project created!")
   ; Заполняем внутренности клиента
