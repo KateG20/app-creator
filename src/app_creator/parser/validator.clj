@@ -115,7 +115,8 @@
      [:map {:closed true}
       [:proj-name string?]
       [:language (restrict-enum ["java"] :in-work true)]
-      [:package-name string?]
+      [:package-name [:fn {:error/message msg/package-name-error}
+                      (fn [name] (and (string? name) (string/includes? name ".")))]]
       [:test-framework (restrict-enum ["junit" "testng" "spock" "junit-jupiter"])]
       [:endpoints
        [:sequential
