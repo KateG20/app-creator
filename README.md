@@ -1,14 +1,23 @@
 # app-creator
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure app designed to easily create:
+- scripts for creating database (currently: only for Postgresql)
+- server projects with handlers (currently: only with Spring Framework)
+- client projects with API requests (currently: only mobile app for Android)
+- files for your apps and databases quick containerization (currently: only with Docker)
 
 ## Usage
 
-FIXME
+```
+>> app-creator start
+               -i my_data.yml 
+               -o my_output
+```
+For more information, use `-h` or `--help` option.
 
 ## License
 
-Copyright © 2021 FIXME
+Copyright © 2022
 
 This program and the accompanying materials are made available under the
 terms of the Eclipse Public License 2.0 which is available at
