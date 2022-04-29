@@ -8,7 +8,13 @@
 (sutil/turn-off-escaping!)
 
 (def sep File/separator)
+
 (def current-gradle-version "7.0.4")
+(def current-constraint-layout-version "2.0.4")
+(def current-app-compat-version "1.4.1")
+(def current-retrofit-version "2.8.1")
+(def current-retrofit-gson-version "2.8.1")
+
 (def gradle-properties
   (->> ["android.useAndroidX=true"
         "android.enableJetifier=true"]
@@ -84,8 +90,11 @@
         "}"
         ""
         "dependencies {"
-        "    implementation 'com.android.support.constraint:constraint-layout:2.0.4'"
-        "    implementation 'androidx.appcompat:appcompat:1.4.1'"
+        "    implementation 'com.android.support.constraint:constraint-layout:{{current-constraint-layout-version}}'"
+        "    implementation 'androidx.appcompat:appcompat:{{current-app-compat-version}}'"
+        ""
+        "    implementation 'com.squareup.retrofit2:retrofit:{{current-retrofit-version}}'"
+        "    implementation 'com.squareup.retrofit2:converter-gson:{{current-retrofit-gson-version}}'"
         "}"]
        (string/join \newline)
        (<<)))
@@ -161,6 +170,91 @@
         "        app:layout_constraintTop_toTopOf=\"parent\" />"
         ""
         "    </android.support.constraint.ConstraintLayout>"
+        ]
+       (string/join \newline)
+       (<<)))
+
+(defn network-service [package-name base-url]
+  (->> ["package {{package-name}};"
+        ""
+        "public class NetworkService {"
+        "    private static NetworkService mInstance;"
+        "    private static final String BASE_URL = \"{{base-url}}\";"
+        "    private Retrofit mRetrofit;"
+        ""
+        "    private NetworkService() {"
+        "        mRetrofit = new Retrofit.Builder()"
+        "                 .baseUrl(BASE_URL)"
+        "                 .addConverterFactory(GsonConverterFactory.create())"
+        "                 .build();"
+        "        }"
+        ""
+        "    public static NetworkService getInstance() {"
+        "        if (mInstance == null) {"
+        "             mInstance = new NetworkService();"
+        "        }"
+        "        return mInstance;"
+        "    }"
+        ""
+        "    public MyApi getApi() { "
+        "        return mRetrofit.create(MyApi.class);"
+        "    }"
+        "}"
+        ]
+       (string/join \newline)
+       (<<)))
+
+(defn api-interface [package-name requests entity-imports]
+  (->> [
+        "package {{package-name}};"
+        ""
+        "import retrofit2.Call;"
+        "import retrofit2.http.GET;"
+        "import retrofit2.http.Query;"
+        ;"{{entity-imports}}"
+        ""
+        "public interface MyApi {"
+        ""
+        "    // Change and add methods as per your needs"
+        "{{requests}}"
+        "}"
+        ]
+       (string/join \newline)
+       (<<)))
+
+(defn request [name uri type entity]
+  (let [type (string/upper-case type)]
+    (->> [
+          "    @{{type}}(\"{{uri}}\")"
+          "    Call<{{entity}}> {{name}}();"
+          ""
+          ""
+          ]
+         (string/join \newline)
+         (<<))))
+
+(defn pojo [package-name entity]
+  (->> [
+        "package {{package-name}};"
+        ""
+        "import com.google.gson.annotations.Expose;"
+        "import com.google.gson.annotations.SerializedName;"
+        ""
+        "public class {{entity}} {"
+        "    @SerializedName(\"id\")"
+        "    @Expose"
+        "    private int id;"
+        ""
+        "    public int getId() {"
+        "        return id;"
+        "    }"
+        ""
+        "    public void setId(int id) {"
+        "        this.id = id;"
+        "    }"
+        ""
+        "    // your fields here"
+        "}"
         ]
        (string/join \newline)
        (<<)))

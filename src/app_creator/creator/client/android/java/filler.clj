@@ -45,16 +45,46 @@
           :append true)
     bat-path))
 
-;(defn delete-app-class [path package-dir]
-;  (let [bat-path (str path sep "delete.bat")]
-;    (spit bat-path (templates/delete-app-class package-dir) :append true)
-;    (cmd/sh bat-path)))
-
 (defn add-main-activity [path package-name]
   (spit path (templates/main-activity package-name)))
 
+(defn create-network-service [path package-name host]
+  (spit path (templates/network-service package-name host)))
+
+(defn create-requests [requests]
+  (apply str
+         (for [req requests
+               :let [{:keys [req-name uri type entity]} req]]
+           (templates/request req-name uri type entity))))
+
+(defn create-entity-imports [package-name requests]
+  "Поступает вектор реквестов - это мапы, в числе ключей которых есть :entity,
+  из которых нужно составить список импортов для шапки java-файла"
+  (reduce (fn [cur next] (str cur "import " package-name "." (:entity next) ";\n"))
+          ""
+          requests))
+
+(defn create-api-interface [path package-name requests]
+  "В интерфейс также нужно залить импорты для всех сущностей, которые будут использоваться
+  в реквестах. Поэтому отдельно создается комплект импортов entity-imports"
+  (let [requests (create-requests (vec requests))
+        ;entity-imports (create-entity-imports package-name (vec requests))
+        entity-imports nil
+        ]
+    (spit path (templates/api-interface package-name requests entity-imports))))
+
+(defn create-pojos [path package-name requests]
+  "Для сущности из каждого реквеста проверяет, существует ли уже POJO для нее.
+  Если нет, создает и заливает туда его"
+  (dorun (for [req requests
+               :let [{:keys [entity]} req
+                     pojo-file-name (str path entity ".java")]]
+           (if (not (.exists (io/as-file pojo-file-name)))
+             (let [pojo (templates/pojo package-name entity)]
+               (spit pojo-file-name pojo))))))
+
 (defn fill [specs out-path]
-  (let [{:keys [proj-name package-name endpoints]} specs
+  (let [{:keys [proj-name package-name host requests]} specs
         package-path (string/replace package-name #"\." "/")
         proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")
         app-dir (<< "{{proj-dir}}app{{sep}}")
@@ -67,7 +97,8 @@
         manifest-path (<< "{{app-dir}}src{{sep}}main{{sep}}AndroidManifest.xml")
         props-path (<< "{{proj-dir}}gradle.properties")
         activity-path (<< "{{package-dir}}MainActivity.java")
-        ]
+        network-service-path (<< "{{package-dir}}NetworkService.java")
+        api-path (<< "{{package-dir}}MyApi.java")]
     (println "adding files to android project...")
 
     ; create directories for values and layout in resources
@@ -82,12 +113,20 @@
       (io/delete-file del-path true))
 
     ; add and/or fill necessary files
+    (println "creating files with configs...")
     (add-root-build-gradle root-build-gradle-path)
     (add-app-build-gradle app-build-gradle-path package-name)
     (add-properties-gradle props-path)
     (add-styles-res values-dir)
     (add-manifest manifest-path package-name)
+
+    (println "creating files for activities...")
     (add-main-activity activity-path package-name)
     (add-main-activity-layout layout-dir)
+
+    (println "creating files for api...")
+    (create-network-service network-service-path package-name host)
+    (create-api-interface api-path package-name requests)
+    (create-pojos package-dir package-name requests)
 
     (println "project filled!")))
