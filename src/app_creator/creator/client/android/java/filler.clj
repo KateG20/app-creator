@@ -48,8 +48,8 @@
 (defn add-main-activity [path package-name]
   (spit path (templates/main-activity package-name)))
 
-(defn create-network-service [path package-name host]
-  (spit path (templates/network-service package-name host)))
+(defn create-network-service [path package-name host port]
+  (spit path (templates/network-service package-name host port)))
 
 (defn create-requests [requests]
   (apply str
@@ -84,7 +84,7 @@
                (spit pojo-file-name pojo))))))
 
 (defn fill [specs out-path]
-  (let [{:keys [proj-name package-name host requests]} specs
+  (let [{:keys [proj-name package-name host port requests]} specs
         package-path (string/replace package-name #"\." "/")
         proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")
         app-dir (<< "{{proj-dir}}app{{sep}}")
@@ -125,7 +125,7 @@
     (add-main-activity-layout layout-dir)
 
     (println "creating files for api...")
-    (create-network-service network-service-path package-name host)
+    (create-network-service network-service-path package-name host port)
     (create-api-interface api-path package-name requests)
     (create-pojos package-dir package-name requests)
 

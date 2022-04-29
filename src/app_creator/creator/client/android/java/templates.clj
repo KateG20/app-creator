@@ -174,13 +174,17 @@
        (string/join \newline)
        (<<)))
 
-(defn network-service [package-name base-url]
-  (->> ["package {{package-name}};"
+(defn network-service [package-name host port]
+  (let [host (if (= host "localhost") "127.0.0.1" host)]
+    (->> ["package {{package-name}};"
+        ""
+        "import retrofit2.Retrofit;"
+        "import retrofit2.converter.gson.GsonConverterFactory;"
         ""
         "public class NetworkService {"
         "    private static NetworkService mInstance;"
-        "    private static final String BASE_URL = \"{{base-url}}\";"
-        "    private Retrofit mRetrofit;"
+        "    private static final String BASE_URL = \"http://{{host}}:{{port}}/\";"
+        "    private final Retrofit mRetrofit;"
         ""
         "    private NetworkService() {"
         "        mRetrofit = new Retrofit.Builder()"
@@ -202,15 +206,14 @@
         "}"
         ]
        (string/join \newline)
-       (<<)))
+       (<<))))
 
 (defn api-interface [package-name requests entity-imports]
   (->> [
         "package {{package-name}};"
         ""
         "import retrofit2.Call;"
-        "import retrofit2.http.GET;"
-        "import retrofit2.http.Query;"
+        "import retrofit2.http.*;"
         ;"{{entity-imports}}"
         ""
         "public interface MyApi {"
