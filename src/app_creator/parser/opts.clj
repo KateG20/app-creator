@@ -8,8 +8,11 @@
 (def packaging-opts ["jar" "war" "pom" "ear" "rar" "par"])
 (def java-v-opts ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])
 (def col-type-opts ["bool" "number" "string" "date"])
-(def mapping-opts ["post" "put" "get" "patch" "delete"])
-(def client-opts ["android"])
+(def server-mapping-opts ["post" "put" "get" "patch" "delete"])
+(def client-mapping-opts ["post" "put" "get" "delete"])
+(def client-type-opts ["android"])
+(def client-language-opts ["java"])
+(def test-framework-opts ["junit" "testng" "spock" "junit-jupiter"])
 (def deps-opts ["activemq" "actuator" "amqp" "artemis" "azure-active-directory" "azure-cosmos-db" "azure-keyvault-secrets"
                 "azure-storage" "azure-support" "batch" "cache" "camel" "cloud-bus" "cloud-cloudfoundry-discovery"
                 "cloud-config-client" "cloud-config-server" "cloud-contract-stub-runner" "cloud-contract-verifier"

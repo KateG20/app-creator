@@ -104,26 +104,36 @@
             [:uri [:fn {:error/message msg/uri-path-error}
                    (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
 
-            [:mapping (restrict-enum o/mapping-opts)]]]]]]]]]]])
+            [:mapping (restrict-enum o/server-mapping-opts)]]]]]]]]]]])
 
 (def client-schema
   [:client
    [:map {:closed        true
           ; if map keys are not from allowed list:
-          :error/message (restrict-error-msg o/client-opts :in-work true)}
+          :error/message (restrict-error-msg o/client-type-opts :in-work true)}
     [:android {:optional true}
      [:map {:closed true}
       [:proj-name string?]
-      [:language (restrict-enum ["java"] :in-work true)]
+      [:language (restrict-enum o/client-language-opts :in-work true)]
       [:package-name [:fn {:error/message msg/package-name-error}
                       (fn [name] (and (string? name) (string/includes? name ".")))]]
-      [:test-framework (restrict-enum ["junit" "testng" "spock" "junit-jupiter"])]
-      [:endpoints
+      [:test-framework (restrict-enum o/test-framework-opts)]
+      [:host [:fn {:error/message msg/host-error}
+                  (fn [host] (and (string? host)
+                                  (or
+                                    (= "localhost" host)
+                                    (re-matches r/ip-regex host))))]]
+      [:port [:fn {:error/message msg/port-error}
+                  (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
+      [:requests
        [:sequential
         [:map {:closed true}
-         [:name string?]
-         [:endpoint string?]
-         [:type string?]]]]]]]])
+         [:req-name string?]
+         [:uri [:fn {:error/message msg/uri-path-error}
+                (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
+         [:type (restrict-enum o/client-mapping-opts)]
+         [:entity [:fn {:error/message msg/entity-name-error}
+                   (fn [name] (and (string? name) (re-matches r/entity-regex name)))]]]]]]]]])
 
 (def input-schema
   [:map {:closed true}
