@@ -5,6 +5,7 @@
          '[malli.error :as me]
          '[clojure.string :as string]
          '[app-creator.parser.messages :as msg]
+         '[clojure.java.io :as io]
          '[app-creator.parser.regex :as r]
          '[app-creator.parser.opts :as o])
 
@@ -188,7 +189,13 @@
          [:image-name string?]
          [:dir-name string?]
          [:jar-path [:fn (error-fn msg/jar-path-error)
-                     (fn [name] (and (string? name) (re-matches r/jar-path-regex name)))]]]]]
+                     (fn [name] (and (string? name)
+                                     (re-matches r/jar-path-regex name)
+                                     ; "jar не обязательно должен существовать; может, мы хотим заюзать
+                                     ; создаваемый проект" - неверно. Создаваемый проект еще надо забилдить,
+                                     ; такая опция не встроена, - todo
+                                     ; значит, safer будет требовать существование джарника
+                                     (.exists (io/as-file name))))]]]]]
       [:nginx {:optional true}
        [:sequential
         [:map {:closed true}
