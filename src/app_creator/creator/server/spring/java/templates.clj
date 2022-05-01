@@ -11,7 +11,7 @@
 
 (defn path-to-props [out-path proj-name group artifact lang]
   (cond
-    (= lang "java")
+    (= lang "java")                                         ; add other languages here
     (let [group (string/replace group #"\." "/")]
       (-> "{{out-path}}/{{proj-name}}/src/main/resources/application.properties"
           (<<)
@@ -19,7 +19,7 @@
 
 (defn path-to-code [out-path proj-name group artifact lang]
   (cond
-    (= lang "java")
+    (= lang "java")                                         ; add other languages here
     (let [group (string/replace group #"\." "/")]
       (-> "{{out-path}}/{{proj-name}}/src/main/java/{{group}}/{{artifact}}/"
           (<<)
@@ -154,7 +154,7 @@
           "        this.{{service-var-name}} = {{service-var-name}};"
           "    }"
           ""
-          "    // Change these methods as per your needs"
+          "    // Change and add methods as per your needs"
           "{{requests}}"
           "}"]
          (string/join \newline)
