@@ -8,6 +8,43 @@
          '[app-creator.parser.regex :as r]
          '[app-creator.parser.opts :as o])
 
+(defn find-error-paths [data]
+  "Находит все пути от корня до листьев в ациклическом графе, где листья - строки,
+  а другие ноды могут быть векторы или мапы. Возвращает всегда вектор строк -
+  найденных для данной вершины путей. Форматирует по пути"
+
+  (if (string? data)
+    [(str "\nError message: \"" data "\"\n")]
+    (if (vector? data)
+      (reduce
+        (fn [prev new]
+          (->> new
+               (find-error-paths)
+               (concat prev)
+               (vec)))
+        []
+        data)
+      (if (map? data)
+        (reduce-kv (fn [prev key val]
+                     (->> val
+                          (find-error-paths)
+                          (reduce
+                            (fn [prev new]
+                              (let [key (as-> key k
+                                              (str k)
+                                              (if (= ":" (subs k 0 1))
+                                                (subs k 1) k)
+                                              (if (every? #(Character/isDigit ^char %) k)
+                                                (str "element " (+ 1 (Integer/parseInt k))) k))
+                                    sep (if (= (subs new 0 1) "\n") "" " >> ")]
+                                (conj prev (str key sep new))))
+                            [])
+                          (concat prev)
+                          (vec)))
+                   []
+                   data)
+        data))))
+
 (defn restrict-error-msg [elems & {:keys [in-work] :or {in-work false}}]
   "Создает сообщение об недопустимом значении, перечисляя допустимые"
   (as-> elems e
@@ -21,8 +58,11 @@
         enum (map str elems)]
     (vec (concat [:enum {:error/message error-message}] enum))))
 
+;(defmacro is-correct [regex]
+;  `(fn [~'s] (and (string? s) (re-matches ~regex s))))
+
 (def db-schema
-  [:db
+  [:db {:optional true}
    [:map {:closed        true
           ; if map keys are not from allowed list:
           :error/message (restrict-error-msg o/dbms-opts :in-work true)}
@@ -54,7 +94,7 @@
    ])
 
 (def server-schema
-  [:server
+  [:server {:optional true}
    [:map {:closed        true
           ; if map keys are not from allowed list:
           :error/message (restrict-error-msg o/server-opts :in-work true)}
@@ -107,7 +147,7 @@
             [:mapping (restrict-enum o/server-mapping-opts)]]]]]]]]]]])
 
 (def client-schema
-  [:client
+  [:client {:optional true}
    [:map {:closed        true
           ; if map keys are not from allowed list:
           :error/message (restrict-error-msg o/client-type-opts :in-work true)}
@@ -135,68 +175,49 @@
          [:entity [:fn {:error/message msg/entity-name-error}
                    (fn [name] (and (string? name) (re-matches r/entity-regex name)))]]]]]]]]])
 
+(def containerization-schema
+  [:containerization {:optional true}
+   [:map {:closed        true
+          ; if map keys are not from allowed list:
+          :error/message (restrict-error-msg o/cont-opts :in-work true)}
+    [:docker {:optional true}
+     [:map {:closed true}
+      [:jars {:optional true}
+       [:sequential
+        [:map {:closed true}
+         [:image-name string?]
+         [:dir-name string?]
+         [:jar-path [:fn {:error/message msg/jar-path-error}
+                     (fn [name] (and (string? name) (re-matches r/jar-path-regex name)))]]
+         ]]]
+      [:nginx {:optional true}
+       [:sequential
+        [:map {:closed true}
+         [:image-name string?]
+         [:dir-name string?]
+         [:backend-image-name string?]]]]
+      [:postgres {:optional true}
+       [:sequential
+        [:map {:closed true}
+         [:image-name string?]
+         [:password string?]]]]
+      [:network
+       [:map {:closed true}
+        [:network-name string?]]]]]]])
+
 (def input-schema
   [:map {:closed true}
-   [:info
-    [:map {:closed true}
-     [:app-name string?]
-     [:description :maybe string?]]]
    db-schema
    server-schema
-   client-schema])
-
-(defn find-error-paths [data]
-  "Находит все пути от корня до листьев в ациклическом графе, где листья - строки,
-  а другие ноды могут быть векторы или мапы. Возвращает всегда вектор строк -
-  найденных для данной вершины путей."
-
-  (if (string? data)
-    [(str "\nError message: \"" data "\"\n")]
-    (if (vector? data)
-      (reduce
-        (fn [prev new]
-          (->> new
-               (find-error-paths)
-               (concat prev)
-               (vec)))
-        []
-        data)
-      (if (map? data)
-        (reduce-kv (fn [prev key val]
-                     (->> val
-                          (find-error-paths)
-                          (reduce
-                            (fn [prev new]
-                              (let [key (as-> key k
-                                              (str k)
-                                              (if (= ":" (subs k 0 1))
-                                                (subs k 1) k)
-                                              (if (every? #(Character/isDigit ^char %) k)
-                                                (str "element " (+ 1 (Integer/parseInt k))) k))
-                                    sep (if (= (subs new 0 1) "\n") "" " >> ")]
-                                (conj prev (str key sep new))))
-                            [])
-                          (concat prev)
-                          (vec)))
-                   []
-                   data)
-        data))))
+   client-schema
+   containerization-schema])
 
 (defn explain [input]
-  ;(-> [:and [:map
-  ;           [:password string?]
-  ;           [:password2 string?]]
-  ;     [:fn {:error/message "passwords don't match"}
-  ;      '(fn [{:keys [password password2]}]
-  ;         (= password password2))]]
-  ;    (m/explain {:password "secret"
-  ;                :password2 "secret"})
-  ;    (me/humanize))
+  (clojure.pprint/pprint input)
   (-> input-schema
       (m/explain input)
       (me/humanize)
-      (find-error-paths))
-  )
+      (find-error-paths)))
 
 (def provided-schema                                        ; autogenerated by lib; incorrect imho
   [:vector

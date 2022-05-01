@@ -10,11 +10,16 @@
 
   (try
     (let [data (yaml/parse-string (slurp path))
-          errors (validator/explain data)]
+          errors (validator/explain data)
+          errors (if (some? errors)
+                   (vec (for [err errors
+                         :let [path-err (str "Path: " err)]]
+                     path-err))
+                   errors)]
       {:errors errors :data data})
 
     (catch ScannerException sc-e
-      {:errors [m/jar-path-error] :data nil})
+      {:errors [(str "Error message: " m/jar-path-error)] :data nil})
 
     (catch Exception e
       {:errors ["Something went wrong while parsing. Try again or contact us to solve issue"]}))

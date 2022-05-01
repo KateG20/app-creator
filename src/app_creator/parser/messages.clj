@@ -8,3 +8,4 @@
 (def package-name-error "incorrect android app package name: must contain at least one '.' (dot) character")
 (def uri-path-error "incorrect uri path")
 (def entity-name-error "incorrect entity name, must start with a capital letter")
+(def jar-path-error "incorrect jar path, must be path to jar-file with slashes (not backslashes)")

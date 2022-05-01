@@ -6,3 +6,4 @@
 (def method-name-regex #"^[a-z][\w]*$")
 (def uri-regex #"^(\/{1}\w+)+$")
 (def entity-regex #"^[A-Z][\w]*$")
+(def jar-path-regex #"^(?!.*\\).+\.jar$")
