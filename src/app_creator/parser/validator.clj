@@ -8,6 +8,8 @@
          '[app-creator.parser.regex :as r]
          '[app-creator.parser.opts :as o])
 
+(use 'selmer.parser)
+
 (defn find-error-paths [data]
   "Находит все пути от корня до листьев в ациклическом графе, где листья - строки,
   а другие ноды могут быть векторы или мапы. Возвращает всегда вектор строк -
@@ -58,6 +60,9 @@
         enum (map str elems)]
     (vec (concat [:enum {:error/message error-message}] enum))))
 
+(defn error-fn [msg]
+  {:error/fn (fn [{:keys [value]} _] (<< "'{{value}}': {{msg}}"))})
+
 ;(defmacro is-correct [regex]
 ;  `(fn [~'s] (and (string? s) (re-matches ~regex s))))
 
@@ -69,14 +74,11 @@
     [:postgresql {:optional true}
      [:map {:closed true}
       [:db-name string?]                                    ; любое, т.к. скрипт не запускается прогой. валидация на совести юзера
-      [:host [:fn {:error/message msg/host-error
-                   :error/path    [:db :host]}
+      [:host [:fn (error-fn msg/host-error)
               (fn [host]
                 (and (string? host)
-                     (or
-                       (= "localhost" host)
-                       (re-matches r/ip-regex host)
-                       (re-matches r/host-regex host))))]]
+                     (or (= "localhost" host)
+                         (re-matches r/ip-regex host))))]]
       [:username string?]
       [:password string?]
       [:tables
@@ -121,27 +123,25 @@
           [:type string?]
           [:username string?]
           [:password string?]
-          [:sql-host [:fn {:error/message msg/host-error}
+          [:sql-host [:fn (error-fn msg/host-error)
                       (fn [host] (and (string? host)
-                                      (or
-                                        (= "localhost" host)
-                                        (re-matches r/ip-regex host)
-                                        (re-matches r/host-regex host))))]]
-          [:sql-port [:fn {:error/message msg/port-error}
+                                      (or (= "localhost" host)
+                                          (re-matches r/ip-regex host))))]]
+          [:sql-port [:fn (error-fn msg/port-error)
                       (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
           [:db-name string?]]]]]
       [:controllers
        [:sequential
         [:map {:closed true}
-         [:controller-name [:fn {:error/message msg/controller-name-error}
+         [:controller-name [:fn (error-fn msg/controller-name-error)
                             (fn [name] (and (string? name) (re-matches r/controller-name-regex name)))]]
          [:requests
           [:sequential
            [:map {:closed true}
-            [:req-name [:fn {:error/message msg/method-name-error}
+            [:req-name [:fn (error-fn msg/method-name-error)
                         (fn [name] (and (string? name) (re-matches r/method-name-regex name)))]]
 
-            [:uri [:fn {:error/message msg/uri-path-error}
+            [:uri [:fn (error-fn msg/uri-path-error)
                    (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
 
             [:mapping (restrict-enum o/server-mapping-opts)]]]]]]]]]]])
@@ -155,24 +155,24 @@
      [:map {:closed true}
       [:proj-name string?]
       [:language (restrict-enum o/client-language-opts :in-work true)]
-      [:package-name [:fn {:error/message msg/package-name-error}
+      [:package-name [:fn (error-fn msg/package-name-error)
                       (fn [name] (and (string? name) (string/includes? name ".")))]]
       [:test-framework (restrict-enum o/test-framework-opts)]
-      [:host [:fn {:error/message msg/host-error}
-                  (fn [host] (and (string? host)
-                                  (or
-                                    (= "localhost" host)
-                                    (re-matches r/ip-regex host))))]]
-      [:port [:fn {:error/message msg/port-error}
-                  (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
+      [:host [:fn (error-fn msg/host-error)
+              (fn [host] (and (string? host)
+                              (or
+                                (= "localhost" host)
+                                (re-matches r/ip-regex host))))]]
+      [:port [:fn (error-fn msg/port-error)
+              (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
       [:requests
        [:sequential
         [:map {:closed true}
          [:req-name string?]
-         [:uri [:fn {:error/message msg/uri-path-error}
+         [:uri [:fn (error-fn msg/uri-path-error)
                 (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
          [:type (restrict-enum o/client-mapping-opts)]
-         [:entity [:fn {:error/message msg/entity-name-error}
+         [:entity [:fn (error-fn msg/entity-name-error)
                    (fn [name] (and (string? name) (re-matches r/entity-regex name)))]]]]]]]]])
 
 (def containerization-schema
@@ -187,9 +187,8 @@
         [:map {:closed true}
          [:image-name string?]
          [:dir-name string?]
-         [:jar-path [:fn {:error/message msg/jar-path-error}
-                     (fn [name] (and (string? name) (re-matches r/jar-path-regex name)))]]
-         ]]]
+         [:jar-path [:fn (error-fn msg/jar-path-error)
+                     (fn [name] (and (string? name) (re-matches r/jar-path-regex name)))]]]]]
       [:nginx {:optional true}
        [:sequential
         [:map {:closed true}
@@ -213,7 +212,6 @@
    containerization-schema])
 
 (defn explain [input]
-  (clojure.pprint/pprint input)
   (-> input-schema
       (m/explain input)
       (me/humanize)

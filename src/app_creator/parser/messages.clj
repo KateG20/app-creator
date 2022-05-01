@@ -1,6 +1,6 @@
 (ns app-creator.parser.messages)
 
-(def host-error "invalid ip-address or host name")
+(def host-error "invalid host, must be correct ip-address")
 (def port-error "invalid port number")
 (def controller-name-error (str "incorrect controller class name, must start with a capital letter "
                                 "and have a \"-Controller\" postfix"))
