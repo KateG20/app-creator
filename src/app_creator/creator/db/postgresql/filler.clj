@@ -8,11 +8,11 @@
 (def sep File/separator)
 
 (defn psql-script [db-name host username password out-path]
-  (spit (<< "{{out-path}}{{sep}}sql.bat")
-        (templates/sql-bat password host username db-name out-path)))
+  (spit (<< "{{out-path}}{{sep}}sql-scripts.bat")
+        (templates/sql-bat password host username db-name (str out-path sep "utils"))))
 
 (defn create-DB-script [db-name out-path]
-  (spit (<< "{{out-path}}{{sep}}createDB.sql")
+  (spit (<< "{{out-path}}{{sep}}utils{{sep}}createDB.sql")
         (templates/create-db db-name)))
 
 (defn adjust-type [opts]
@@ -35,15 +35,18 @@
                      (templates/create-table table-name columns)) tables)))
 
 (defn create-tables-script [tables out-path]
-  (spit (<< "{{out-path}}{{sep}}createTables.sql")
+  (spit (<< "{{out-path}}{{sep}}utils{{sep}}createTables.sql")
         (create-table-script tables)))
 
 (defn create [specs out-path]
   "Создает скрипты для создания базы данных и таблиц и скрипт для их выполнения"
   (let [{:keys [db-name host username password tables]} specs]
     (psql-script db-name host username password out-path)
+    (println "creating scripts for creating database...")
     (create-DB-script db-name out-path)
-    (create-tables-script tables out-path)))
+    (println "creating scripts for creating tables...")
+    (create-tables-script tables out-path)
+    (println "scripts created!")))
 
 
 

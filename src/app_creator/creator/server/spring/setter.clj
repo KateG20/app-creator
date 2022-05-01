@@ -43,13 +43,14 @@
 (defn create [specs out-path]
   ; Заливаем в файл команду
   (println "creating spring server...")
-  (spit (<< "{{out-path}}{{sep}}springinit.bat")
+  (let [utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
+    (spit (<< "{{utils-path}}springinit.bat")
         (templates/spring-init
           (:proj-name (:project specs))
           (create-options specs)
           out-path))
   ; Вызываем выполнение этого файла (создается сервер)
-  (println (:out (cmd/sh (<< "{{out-path}}{{sep}}springinit.bat"))))
+  (println (:out (cmd/sh (<< "{{utils-path}}springinit.bat")))))
   (println "server project created!")
   ; Заполняем внутренности сервера
   (fulfill specs out-path))

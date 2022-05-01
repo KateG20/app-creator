@@ -1,4 +1,5 @@
-(ns app-creator.creator.creator)
+(ns app-creator.creator.creator
+  (:import (java.io File)))
 
 (require '[app-creator.parser.parser :as parser]
          '[app-creator.creator.db.postgresql.filler :as postgresql]
@@ -7,16 +8,19 @@
          '[app-creator.creator.client.android.setter :as android]
          '[app-creator.creator.containerization.docker.filler :as docker]
          '[app-creator.creator.adapter :as adapter]
-         '[app-creator.ui.cli :as ui])
+         '[app-creator.ui.cli :as ui]
+         '[clojure.java.io :as io])
 
 (defn create [in-path out-path]
   (let [{:keys [errors data]} (parser/parse-from-file in-path)]
     (println "PARSED DATA")
+    (io/make-parents (str out-path File/separator "utils" File/separator "files"))
+
     (cond
       (some? errors)
       (do (println "ERRORS FOUND")
           (println "Errors occurred while validating input file.\nPlease fix and try again.\n")
-          (dorun (map println errors))) ; todo лучше "Path" добавлять где-то раньше
+          (dorun (map println errors)))
 
       (some? data)
       (let [{:keys [info db server client containerization]} data]

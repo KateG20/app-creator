@@ -12,7 +12,7 @@
 (def sep File/separator)
 
 (defn create-options [specs]
-  (let [{:keys [proj-name language dsl-language package-name test-framework]} specs]
+  (let [{:keys [proj-name language package-name test-framework]} specs]
     (as-> {"project-name"   (or proj-name defaults/proj-name)
            "type"           (if (some? language) (str language "-application") defaults/language)
            "package"        (or package-name defaults/package-name)
@@ -31,11 +31,12 @@
 
 (defn create [specs out-path]
   (println "creating android project...")
-  (let [proj-name (:proj-name specs)]
+  (let [proj-name (:proj-name specs)
+        utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
     (->> specs
          (create-options)
          (templates/gradle-init proj-name out-path)
-         (spit (<< "{{out-path}}{{sep}}gradleinit.bat")))
+         (spit (<< "{{utils-path}}gradleinit.bat")))
 
     (let [proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")]
       ; Создается директория для проекта
@@ -43,12 +44,10 @@
       ; Вызываем выполнение этого файла (создается клиент)
       ;(println (:out (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat"))))
 
-      (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat")) ; todo
+      (cmd/sh (<< "{{utils-path}}gradleinit.bat")) ; todo
 
-      ;(add-build-gradle (<< "{{proj-dir}}build.gradle"))  ;todo убрать
       (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))))
 
   (println "android project created!")
   ; Заполняем внутренности клиента
-  (fulfill specs out-path)
-  )
+  (fulfill specs out-path))
