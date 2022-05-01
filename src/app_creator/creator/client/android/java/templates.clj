@@ -208,7 +208,7 @@
        (string/join \newline)
        (<<))))
 
-(defn api-interface [package-name requests entity-imports]
+(defn api-interface [package-name requests]
   (->> [
         "package {{package-name}};"
         ""
@@ -219,6 +219,7 @@
         "public interface MyApi {"
         ""
         "    // Change and add methods as per your needs"
+        ""
         "{{requests}}"
         "}"
         ]

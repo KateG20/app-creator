@@ -65,13 +65,13 @@
           requests))
 
 (defn create-api-interface [path package-name requests]
-  "В интерфейс также нужно залить импорты для всех сущностей, которые будут использоваться
-  в реквестах. Поэтому отдельно создается комплект импортов entity-imports"
+  "В интерфейс может быть нужно залить импорты для всех сущностей, которые будут использоваться
+  в реквестах. Поэтому отдельно можно создать комплект импортов entity-imports и передать его
+  в функцию. У нас сейчас всё в одном пакете, поэтому импорты не требуются, но вдруг"
   (let [requests (create-requests (vec requests))
         ;entity-imports (create-entity-imports package-name (vec requests))
-        entity-imports nil
         ]
-    (spit path (templates/api-interface package-name requests entity-imports))))
+    (spit path (templates/api-interface package-name requests))))
 
 (defn create-pojos [path package-name requests]
   "Для сущности из каждого реквеста проверяет, существует ли уже POJO для нее.
@@ -103,7 +103,7 @@
 
     ; create directories for values and layout in resources
     (dorun (for [dir [values-dir layout-dir]]
-             (clojure.java.io/make-parents (str dir "files"))))
+             (io/make-parents (str dir "files"))))
 
     ; delete unnecessary "resources" folder and "App.java" file
     (let [del-path (do
