@@ -1,7 +1,7 @@
-# app-creator
+# App-creator
 
 A Clojure app designed to easily create:
-- scripts for creating database (currently: only for Postgresql)
+- scripts for creating and filling databases (currently: only for Postgresql)
 - server projects with handlers (currently: only with Spring Framework)
 - client projects with API requests (currently: only mobile app for Android)
 - files for your apps and databases quick containerization (currently: only with Docker)
@@ -13,11 +13,12 @@ A Clojure app designed to easily create:
                -i my_data.yml 
                -o my_output
 ```
-For more information, use `-h` or `--help` option.
+For more information about command format, use `-h` or `--help` option.
 
-Output is a correct absolute path to directory with quotes.
+Here, output is a correct absolute path to directory with quotes.
 
 Input is a correct absolute path to existing .yml/.yaml-file with quotes. 
+It contains all the information about what you need to create.
 Contents of the input file **must have the following format**:
 
 ```yaml
@@ -114,8 +115,10 @@ containerization: # specifications for containerization; optional
     network: # specifications for network for all containers, mandatory
         network-name: kate-network
 ```
-To find more information about Spring project initializing properties, please 
+To find more about Spring project initializing properties, please 
 read [spring init docs](https://docs.spring.io/spring-boot/docs/current/reference/html/cli.html#cli.using-the-cli.initialize-new-project).
+
+Postgresql keywords [naming rules](https://www.postgresql.org/docs/7.0/syntax525.htm) may also be useful.
 
 ## License
 
