@@ -3,7 +3,7 @@
 (def dbms-opts ["postgresql"])
 (def server-opts ["spring"])
 (def build-opts ["maven" "gradle"])
-(def lang-opts ["java" "kotlin" "groovy"])
+(def lang-opts ["java"])                                    ; ["java" "kotlin" "groovy"])
 (def boot-v-opts ["2.5.11" "2.5.12" "2.6.5" "2.6.6" "2.7.0" "3.0.0"])
 (def packaging-opts ["jar" "war" "pom" "ear" "rar" "par"])
 (def java-v-opts ["1.8" "8" "9" "10" "11" "12" "13" "14" "15" "16" "17"])
