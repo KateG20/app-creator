@@ -3,7 +3,7 @@
 (defmacro create-db []
   '(let [{:keys [postgresql]} db]                           ; add other types into :keys
      (and (some? postgresql)
-          (postgresql/create (:postgresql db) out-path))
+          (postgresql/create postgresql out-path))
 
      ; add redirections for other types here
      ))
@@ -19,7 +19,7 @@
 (defmacro create-server []
   '(let [{:keys [spring]} server]                           ; add other types into :keys
      (and (some? spring)
-          (spring/create (:spring server) out-path))
+          (spring/create spring out-path))
 
      ; add redirections for other types here
      ))
@@ -27,7 +27,7 @@
 (defmacro create-client []
   '(let [{:keys [android]} client]                           ; add other types into :keys
      (and (some? android)
-          (android/create (:android client) out-path))
+          (android/create android out-path))
 
      ; add redirections for other types here
      ))
@@ -35,7 +35,7 @@
 (defmacro containerize []
   '(let [{:keys [docker]} containerization]                           ; add other types into :keys
      (and (some? docker)
-          (docker/create (:docker containerization) out-path)) ;todo убрать ки-функцию?
+          (docker/create docker out-path))
 
      ; add redirections for other types here
      ))
