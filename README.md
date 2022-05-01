@@ -6,6 +6,12 @@ A Clojure app designed to easily create:
 - client projects with API requests (currently: only mobile app for Android)
 - files for your apps and databases quick containerization (currently: only with Docker)
 
+**Notice.** While server and client projects will be created and filled and be ready for use, 
+the resulting sql-commands, as well as the commands for running containers, 
+will not be called. You will just get .bat-files with scripts which you can edit and run
+whenever you want. This is because it's *highly likely* that you will need to edit or 
+concrete something in the generated data before running containers or creating databases.
+
 ## Usage
 
 ```
