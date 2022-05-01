@@ -12,8 +12,8 @@
 (defn jar-dockerfile [jar-path]
   (->> [
         "FROM {{current-jdk-image}}"
-        "COPY {{jar-path}} ."
-        "CMD [\"java\", \"-jar\", {{jar-path}}]"
+        "COPY \"{{jar-path}}\" ."
+        "CMD [\"java\", \"-jar\", \"{{jar-path}}\"]"
         ]
        (string/join \newline)
        (<<)))
