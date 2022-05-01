@@ -187,6 +187,7 @@
        [:sequential
         [:map {:closed true}
          [:image-name string?]
+         [:container-name string?]
          [:dir-name string?]
          [:jar-path [:fn (error-fn msg/jar-path-error)
                      (fn [name] (and (string? name)
@@ -200,12 +201,13 @@
        [:sequential
         [:map {:closed true}
          [:image-name string?]
+         [:container-name string?]
          [:dir-name string?]
          [:backend-image-name string?]]]]
       [:postgres {:optional true}
        [:sequential
         [:map {:closed true}
-         [:image-name string?]
+         [:container-name string?]
          [:password string?]]]]
       [:network
        [:map {:closed true}

@@ -8,11 +8,76 @@
 
 (def sep File/separator)
 
-(defn create [specs out-path]
-  (let [{:keys [jar-paths]} specs
-        docker-path (<< "{{out-path}}{{sep}}docker{{sep}}")]
+(defn build-jar-images [dirs-path bat-path jars]
+  (map (fn [jar] (let [{:keys [image-name dir-name jar-path]} jar
+                       dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
+                   ; Создание директории для докерфайла, чтобы потом в ней сбилдить образ
+                   (io/make-parents (<< "{{dockerfile-dir}}{{sep}}files"))
+                   ; Заполняем докерфайл
+                   (spit (<< "{{dockerfile-dir}}{{sep}}Dockerfile")
+                         (templates/jar-dockerfile jar-path))
+                   ; Вписываем инструкцию по билду в большой батник
+                   (spit bat-path (templates/build-image dockerfile-dir image-name) :append true)))
+       jars))
 
-    (println "in cont!")
-    ;(io/make-parents (<< "{{docker-path}}files"))
-    ;(map (fn [jar] (spit docker-path (templates/jar-dockerfile ))))
-    ))
+(defn build-nginx-images [dirs-path bat-path nginx]
+  (map (fn [n] (let [{:keys [image-name dir-name backend-image-name]} n
+                     dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
+                 ; Создание директории для докерфайла, чтобы потом в ней сбилдить образ
+                 (io/make-parents (<< "{{dockerfile-dir}}{{sep}}files"))
+                 ; Заполняем докерфайл
+                 (spit (<< "{{dockerfile-dir}}{{sep}}Dockerfile")
+                       templates/nginx-dockerfile)
+                 ; Создаем nginx.conf
+                 (spit (<< "{{dockerfile-dir}}{{sep}}nginx.conf")
+                       (templates/nginx-conf backend-image-name))
+                 ; Вписываем инструкцию по билду в большой батник
+                 (spit bat-path (templates/build-image dockerfile-dir image-name) :append true)))
+       nginx))
+
+(defn create-network [dirs-path bat-path network-name]
+  (spit bat-path (templates/create-network dirs-path network-name) :append true))
+
+(defn create-jar-containers [bat-path network-name jars]
+  (map (fn [jar] (let [{:keys [image-name container-name]} jar]
+                   (spit bat-path
+                         (templates/run-jar-container network-name container-name image-name)
+                         :append true)))
+       jars))
+
+(defn create-nginx-containers [bat-path network-name nginx]
+  (map (fn [n] (let [{:keys [image-name container-name]} n]
+                   (spit bat-path
+                         (templates/run-nginx-container network-name container-name image-name)
+                         :append true)))
+       nginx))
+
+(defn create-postgres-containers [bat-path network-name postgres]
+  (map (fn [p] (let [{:keys [container-name password]} p]
+                 (spit bat-path
+                       (templates/run-postgres-container network-name container-name password)
+                       :append true)))
+       postgres))
+
+(defn create [specs out-path]
+  (let [{:keys [jars nginx postgres network]} specs
+        network-name (:network-name network)
+        docker-path (<< "{{out-path}}{{sep}}docker-dirs")
+        bat-path (<< "{{out-path}}{{sep}}run-containers.bat")]
+
+    ; На всякий случай чистим батник
+    (spit bat-path "")
+
+    (io/make-parents (<< "{{docker-path}}{{sep}}files"))
+
+    ; Собираем образы
+    (build-jar-images docker-path bat-path jars)
+    (build-nginx-images docker-path bat-path nginx)
+
+    ; Создаем сеть
+    (create-network docker-path bat-path network-name)
+
+    ; Запускаем контейнеры
+    (create-jar-containers bat-path network-name jars)
+    (create-nginx-containers bat-path network-name nginx)
+    (create-postgres-containers bat-path network-name postgres)))
