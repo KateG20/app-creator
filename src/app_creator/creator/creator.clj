@@ -5,6 +5,7 @@
          '[app-creator.creator.server.spring.setter :as spring]
          '[app-creator.creator.server.spring.java.filler :as java]
          '[app-creator.creator.client.android.setter :as android]
+         '[app-creator.creator.containerization.docker.filler :as docker]
          '[app-creator.creator.adapter :as adapter]
          '[app-creator.ui.cli :as ui])
 
@@ -15,10 +16,10 @@
       (some? errors)
       (do (println "ERRORS FOUND")
           (println "Errors occurred while validating input file.\nPlease fix and try again.\n")
-          (dorun (map #(println (str "Path: " %)) errors))) ; todo лучше "Path" добавлять где-то раньше
+          (dorun (map println errors))) ; todo лучше "Path" добавлять где-то раньше
 
       (some? data)
-      (let [{:keys [info db server client]} data]
+      (let [{:keys [info db server client containerization]} data]
         (println "NO ERRORS FOUND")
         (and (some? db)                                     ; names: db, out-path - it's important
              (adapter/create-db))
@@ -26,8 +27,11 @@
         (and (some? server)                                 ; names: server, out-path - it's important
              (adapter/create-server))
 
-        (and (some? client)                                  ; names: front, out-path - it's important
+        (and (some? client)                                  ; names: client, out-path - it's important
              (adapter/create-client))
+
+        (and (some? containerization)                        ; names: containerization, out-path - it's important
+             (adapter/containerize))
         )
       ))
   (println "FINISHED"))

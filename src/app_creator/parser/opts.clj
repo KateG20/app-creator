@@ -13,6 +13,7 @@
 (def client-type-opts ["android"])
 (def client-language-opts ["java"])
 (def test-framework-opts ["junit" "testng" "spock" "junit-jupiter"])
+(def cont-opts ["docker"])
 (def deps-opts ["activemq" "actuator" "amqp" "artemis" "azure-active-directory" "azure-cosmos-db" "azure-keyvault-secrets"
                 "azure-storage" "azure-support" "batch" "cache" "camel" "cloud-bus" "cloud-cloudfoundry-discovery"
                 "cloud-config-client" "cloud-config-server" "cloud-contract-stub-runner" "cloud-contract-verifier"

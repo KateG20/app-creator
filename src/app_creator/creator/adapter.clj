@@ -32,4 +32,12 @@
      ; add redirections for other types here
      ))
 
+(defmacro containerize []
+  '(let [{:keys [docker]} containerization]                           ; add other types into :keys
+     (and (some? docker)
+          (docker/create (:docker containerization) out-path)) ;todo убрать ки-функцию?
+
+     ; add redirections for other types here
+     ))
+
 
