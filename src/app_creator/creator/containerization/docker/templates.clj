@@ -23,7 +23,6 @@
         "cd \"{{dockerfile-dir}}\""
         "docker build -t {{image-name}} ."
         "\n"
-        "\n"
         ]
        (string/join \newline)
        (<<)))
@@ -73,31 +72,31 @@
 
 (defn run-jar-container [network-name container-name image-name]
   (->> [
-        "docker run --network {{network-name}} --restart=always -e JAVA_TOOL_OPTIONS=\"-Xmx400M\" "
+        "docker run --network {{network-name}} --restart=always -e JAVA_TOOL_OPTIONS=\"-Xmx400M\""
         "--name {{container-name}} -d {{image-name}}:latest"
         "\n"
         "\n"
         ]
-       (string/join \newline)
+       (string/join " ")
        (<<)))
 
 (defn run-nginx-container [network-name container-name image-name]
   (->> [
-        "docker run -p 80:80 --restart=always --name {{container-name}} "
+        "docker run -p 80:80 --restart=always --name {{container-name}}"
         "--network {{network-name}} {{image-name}}"
         "\n"
         "\n"
         ]
-       (string/join \newline)
+       (string/join " ")
        (<<)))
 
 (defn run-postgres-container [network-name container-name password]
   (->> [
-        "docker run -d -p 5432:5432 --name {{container-name}} -e "
-        "POSTGRES_PASSWORD={{password}} -e PGDATA=/var/lib/postgresql/data/pgdata "
-        "-v /custom/mount:/var/lib/postgresql/data --network {{network-name}} postgres "
+        "docker run -d -p 5432:5432 --name {{container-name}} -e"
+        "POSTGRES_PASSWORD={{password}} -e PGDATA=/var/lib/postgresql/data/pgdata"
+        "-v /custom/mount:/var/lib/postgresql/data --network {{network-name}} postgres"
         "\n"
         "\n"
         ]
-       (string/join \newline)
+       (string/join " ")
        (<<)))

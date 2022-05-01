@@ -11,7 +11,10 @@
 (defn build-jar-images [dirs-path bat-path jars]
   (dorun (map (fn [jar] (let [{:keys [image-name dir-name jar-path]} jar
                        dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
-                   ; Создание директории для докерфайла, чтобы потом в ней сбилдить образ
+                   ; Создание директории для докерфайла,
+                   ; чтобы потом в ней сбилдить образ
+                   ; На всякий случай удаление, но в целом оно не нужно - todo
+                   ;(io/delete-file (io/as-file dockerfile-dir))
                    (io/make-parents (<< "{{dockerfile-dir}}{{sep}}files"))
                    ; Заполняем докерфайл
                    (spit (<< "{{dockerfile-dir}}{{sep}}Dockerfile")
