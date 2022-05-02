@@ -108,18 +108,20 @@ client: # specifications for client creating; optional
 containerization: # specifications for containerization; optional
   docker: # currently, only docker platform can be used
     jars: # jar-files of projects that need to be containerized, optional
-      - image-name: kate-java # name of docker image
+      - image-name: pretty-java-image # name of docker image
+        container-name: pretty-java-container
         dir-name: java-dir # name of directory where to build docker image
         jar-path: "path/to.jar" # correct path to existing jar
     nginx: # similar specifications for nginx container, optional
-      - image-name: kate-nginx
+      - image-name: my-nginx-image
+        container-name: my-nginx-container
         dir-name: nginx-dir
-        backend-image-name: kate-java # name of image to deploy
+        backend-image-name: pretty-java-image # name of image to deploy
     postgres: # specifications for postgres container, optional
-      - image-name: kate-postgres
+      - container-name: my-postgres
         password: pwd
     network: # specifications for network for all containers, mandatory
-        network-name: kate-network
+        network-name: my-network
 ```
 To find more about Spring project initializing properties, please 
 read [spring init docs](https://docs.spring.io/spring-boot/docs/current/reference/html/cli.html#cli.using-the-cli.initialize-new-project).
