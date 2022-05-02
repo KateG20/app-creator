@@ -20,13 +20,12 @@
                      entity-name (templates/entity-name controller-name)]]
            (templates/request req-name uri mapping service-var-name entity-name))))
 
-; TODO попробовать обобщить некоторые методы
-(defn create-controllers [controllers group artifact path]
+(defn create-controllers [controllers packages path]
   (create-dir path "controller")
   (dorun (for [controller controllers
                :let [{:keys [controller-name requests]} controller
                      requests (create-requests (vec requests) controller-name)
-                     controllers (templates/controller group artifact controller-name requests)
+                     controllers (templates/controller packages controller-name requests)
                      file-name (<< "{{path}}controller{{sep}}{{controller-name}}.java")]]
            (spit file-name controllers))))
 
@@ -38,7 +37,7 @@
                      entity-name (templates/entity-name controller-name)]]
            (templates/service-method entity-name method-name :implementation? implementation?))))
 
-(defn create-services [controllers group artifact path]
+(defn create-services [controllers packages path]
   (create-dir path "service")
   (dorun (for [controller controllers
                :let [{:keys [controller-name requests]} controller
@@ -49,8 +48,8 @@
                      service-interface-methods (create-service-methods (vec requests) controller-name)
                      service-impl-methods (create-service-methods (vec requests) controller-name :implementation? true)
 
-                     service-interface (templates/service-interface group artifact service-name entity-name service-interface-methods)
-                     service-impl (templates/service-impl group artifact service-name-impl service-name entity-name service-impl-methods)
+                     service-interface (templates/service-interface packages service-name entity-name service-interface-methods)
+                     service-impl (templates/service-impl packages service-name-impl service-name entity-name service-impl-methods)
 
                      file-name-interface (<< "{{path}}service{{sep}}{{service-name}}.java")
                      file-name-impl (<< "{{path}}service{{sep}}{{service-name-impl}}.java")]]
@@ -58,14 +57,23 @@
              (spit file-name-interface service-interface)
              (spit file-name-impl service-impl)))))
 
-(defn create-entities [controllers group artifact path]
+(defn create-entities [controllers packages path]
   (create-dir path "entity")
   (dorun (for [controller controllers
                :let [{:keys [controller-name]} controller
                      entity-name (templates/entity-name controller-name)
-                     entities (templates/entity group artifact entity-name)
+                     entity (templates/entity packages entity-name)
                      file-name (<< "{{path}}entity{{sep}}{{entity-name}}.java")]]
-           (spit file-name entities))))
+           (spit file-name entity))))
+
+(defn create-repos [controllers packages path]
+  (create-dir path "repository")
+  (dorun (for [controller controllers
+               :let [{:keys [controller-name]} controller
+                     entity-name (templates/entity-name controller-name)
+                     repo (templates/repo packages entity-name) ; todo можно заполнять методами
+                     file-name (<< "{{path}}repository{{sep}}{{entity-name}}Repository.java")]]
+           (spit file-name repo))))
 
 (defn create-properties [properties path]
   (let [props (templates/props properties)]
@@ -74,15 +82,18 @@
 (defn fill [specs out-path]
   (let [{:keys [project properties controllers]} specs
         {:keys [proj-name group artifact language]} project
+        packages (str group "." artifact)
         path (templates/path-to-code out-path proj-name group artifact language)
         props-path (templates/path-to-props out-path proj-name group artifact language)]
     (println "filling...")
     (println "creating controllers...")
-    (create-controllers controllers group artifact path)
+    (create-controllers controllers packages path)
     (println "creating services...")
-    (create-services controllers group artifact path)
+    (create-services controllers packages path)
     (println "creating entities...")
-    (create-entities controllers group artifact path)
+    (create-entities controllers packages path)
+    (println "creating repos...")
+    (create-repos controllers packages path)
     (println "creating properties...")
     (create-properties properties props-path)
     (println "filled")))

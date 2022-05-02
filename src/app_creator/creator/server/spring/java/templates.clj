@@ -34,24 +34,121 @@
         (if (false? var?) (string/capitalize $) $)
         (str $ "Service")))
 
-(defn props [props]
-  (let [{:keys [type username password sql-host sql-port db-name]} (:db props)]
-    (->> ["# Before deploying, replace sql-host with your further container name"
-          "spring.datasource.url=jdbc:{{type}}://{{sql-host}}:{{sql-port}}/{{db-name}}"
-          "spring.datasource.username={{username}}"
-          "spring.datasource.password={{password}}"
-          "spring.sql.init.mode=always"]
-       (string/join \newline)
-       (<<))))
-
 (defn entity-name [controller-name]
   (as-> controller-name $
         (count $)
         (- $ 10)
         (subs controller-name 0 $)))
 
-(defn entity [group artifact entity-name]
-  (->> ["package {{group}}.{{artifact}}.entity;"
+(defn anti-capitalize [name]
+  (let [f (subs name 0 1)
+        rest (subs name 1)]
+    (str (string/lower-case f) rest)))
+
+(defn controller [packages controller-name requests]
+  (let [service-class-name (service-name controller-name)
+        service-var-name (service-name controller-name :var? true)
+        entity-name (entity-name controller-name)]
+    (->> ["package {{packages}}.controller;"
+          ""
+          "import {{packages}}.entity.{{entity-name}};"
+          "import {{packages}}.service.{{service-class-name}};"
+          "import org.springframework.beans.factory.annotation.Autowired;"
+          "import org.springframework.http.HttpStatus;"
+          "import org.springframework.http.ResponseEntity;"
+          "import org.springframework.web.bind.annotation.*;"
+          ""
+          "@RestController"
+          "public class {{controller-name}} {"
+          ""
+          "    private final {{service-class-name}} {{service-var-name}};"
+          ""
+          "    @Autowired"
+          "    public {{controller-name}}({{service-class-name}} {{service-var-name}}) {"
+          "        this.{{service-var-name}} = {{service-var-name}};"
+          "    }"
+          ""
+          "    // Change and add methods as per your needs"
+          "{{requests}}"
+          "}"]
+         (string/join \newline)
+         (<<))))
+
+(defn request [req-name uri mapping service-var-name entity-name]
+  (let [mapping (string/capitalize mapping)]
+    (->> ["    @{{mapping}}Mapping(\"{{uri}}\")"
+          "    public ResponseEntity<Object> {{req-name}}() { // Put your type instead of Object"
+          "        {{entity-name}} response = {{service-var-name}}.{{req-name}}();"
+          "        // Change if-statements contents"
+          "        if (response != null) {"
+          "            return new ResponseEntity<>(response, HttpStatus.OK);"
+          "        } else {"
+          "            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Put your status"
+          "        }"
+          "    }"
+          ""]
+         (string/join \newline)
+         (<<))))
+
+(defn service-method [entity-name method-name & {:keys [implementation?] :or {implementation? false}}]
+  (let [type (string/capitalize type)
+        lower-entity-name (anti-capitalize entity-name)]
+    (as-> "{{entity-name}} {{method-name}}()" $
+          (<< $)
+          (if (true? implementation?)
+            (->> ["    @Override"
+                  "    public {{$}} {"
+                  "        // Delete this line, uncomment the next and declare necessary method"
+                  "        // in {{entity-name}}Repository interface."
+                  "        return new {{entity-name}}();"
+                  "        // return {{lower-entity-name}}Repository.{{method-name}}();"
+                  "    }"
+                  ""
+                  ""]
+                 (string/join \newline)
+                 (<<))
+            (str "    " $ ";" \newline)))))
+
+; TODO объединить эти два шаблона
+(defn service-interface [packages service-name entity-name service-interface-methods]
+  (->> ["package {{packages}}.service;"
+        ""
+        "import {{packages}}.entity.{{entity-name}};"
+        ""
+        "public interface {{service-name}} {"
+        ""
+        "    // Change these methods as per your needs"
+        "{{service-interface-methods}}"
+        "}"]
+       (string/join \newline)
+       (<<)))
+
+(defn service-impl [packages service-name-impl service-name entity-name service-impl-methods]
+  (let [lower-entity-name (anti-capitalize entity-name)]
+    (->> ["package {{packages}}.service;"
+          ""
+          "import {{packages}}.repository.{{entity-name}}Repository;"
+          "import {{packages}}.entity.{{entity-name}};"
+          "import org.springframework.beans.factory.annotation.Autowired;"
+          "import org.springframework.stereotype.Service;"
+          ""
+          "@Service"
+          "public class {{service-name-impl}} implements {{service-name}} {"
+          ""
+          "private final {{entity-name}}Repository {{lower-entity-name}}Repository;"
+          ""
+          "@Autowired"
+          "public {{service-name-impl}}({{entity-name}}Repository {{lower-entity-name}}Repository) {"
+          "    this.{{lower-entity-name}}Repository = {{lower-entity-name}}Repository;"
+          "}"
+          ""
+          "    // Call JpaRepository methods. Change these methods as per your needs."
+          "{{service-impl-methods}}}"]
+         (string/join \newline)
+         (<<))))
+
+(defn entity [packages entity-name]
+  (->> ["package {{packages}}.entity;"
         ""
         "import lombok.NoArgsConstructor;"
         ""
@@ -72,90 +169,34 @@
        (string/join \newline)
        (<<)))
 
-; TODO объединить эти два шаблона
-(defn service-interface [group artifact service-name entity-name service-interface-methods]
-  (->> ["package {{group}}.{{artifact}}.service;"
+(defn repo [packages entity-name]
+  (->> [
+        "package {{packages}}.repository;"
         ""
-        "import {{group}}.{{artifact}}.entity.{{entity-name}};"
+        "import {{packages}}.entity.{{entity-name}};"
+        "import org.springframework.data.jpa.repository.JpaRepository;"
+        "import org.springframework.data.jpa.repository.Query;"
         ""
-        "public interface {{service-name}} {"
+        "/**"
+        "* Write your queries here. Some queries are already implemented in parent interface,"
+        "* find list <a href=\"https://docs.spring.io/spring-data/jpa/docs/current/api/org/"
+        "* springframework/data/jpa/repository/JpaRepository.html\">in the official documentation</a>"
+        "*/"
+        (str "public interface {{entity-name}}Repository extends JpaRepository<{{entity-name}}, Integer> {  "
+             "// change ID-type if you need")
         ""
-        "    // Change these methods as per your needs"
-        "{{service-interface-methods}}"
-        "}"]
+        ""
+        "}"
+        ]
        (string/join \newline)
        (<<)))
 
-(defn service-impl [group artifact service-name-impl service-name entity-name service-impl-methods]
-  (->> ["package {{group}}.{{artifact}}.service;"
-        ""
-        "import {{group}}.{{artifact}}.entity.{{entity-name}};"
-        "import org.springframework.stereotype.Service;"
-        ""
-        "@Service"
-        "public class {{service-name-impl}} implements {{service-name}} {"
-        ""
-        "    // Change these methods as per your needs"
-        "{{service-impl-methods}}}"]
-       (string/join \newline)
-       (<<)))
-
-(defn service-method [entity-name method-name & {:keys [implementation?] :or {implementation? false}}]
-  (let [type (string/capitalize type)]
-    (as-> "{{entity-name}} {{method-name}}()" $
-          (<< $)
-          (if (true? implementation?)
-            (->> ["    @Override"
-                  "    public {{$}} {"
-                  "        return new {{entity-name}}(); // instead of \"return new...\", connect with repo layer here"
-                  "    }"
-                  ""
-                  ""]
-                 (string/join \newline)
-                 (<<))
-            (str "    " $ ";" \newline)))))
-
-(defn request [req-name uri mapping service-var-name entity-name]
-  (let [mapping (string/capitalize mapping)]
-    (->> ["    @{{mapping}}Mapping(\"{{uri}}\")"
-          "    public ResponseEntity<Object> {{req-name}}() { // Put your type instead of Object"
-          "        {{entity-name}} response = {{service-var-name}}.{{req-name}}();"
-          "        // Change if-statements contents"
-          "        if (response != null) {"
-          "            return new ResponseEntity<>(response, HttpStatus.OK);"
-          "        } else {"
-          "            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Put your status"
-          "        }"
-          "    }"
-          ""]
-         (string/join \newline)
-         (<<))))
-
-(defn controller [group artifact controller-name requests]
-  (let [service-class-name (service-name controller-name)
-        service-var-name (service-name controller-name :var? true)
-        entity-name (entity-name controller-name)]
-    (->> ["package {{group}}.{{artifact}}.controller;"
-          ""
-          "import {{group}}.{{artifact}}.entity.{{entity-name}};"
-          "import {{group}}.{{artifact}}.service.{{service-class-name}};"
-          "import org.springframework.beans.factory.annotation.Autowired;"
-          "import org.springframework.http.HttpStatus;"
-          "import org.springframework.http.ResponseEntity;"
-          "import org.springframework.web.bind.annotation.*;"
-          ""
-          "@RestController"
-          "public class {{controller-name}} {"
-          ""
-          "    private final {{service-class-name}} {{service-var-name}};"
-          ""
-          "    @Autowired"
-          "    public {{controller-name}}({{service-class-name}} {{service-var-name}}) {"
-          "        this.{{service-var-name}} = {{service-var-name}};"
-          "    }"
-          ""
-          "    // Change and add methods as per your needs"
-          "{{requests}}"
-          "}"]
+(defn props [props]
+  (let [{:keys [type username password sql-host sql-port db-name]} (:db props)]
+    (->> ["# Before deploying, replace sql-host with your further container name"
+          "spring.datasource.url=jdbc:{{type}}://{{sql-host}}:{{sql-port}}/{{db-name}}"
+          "spring.datasource.username={{username}}"
+          "spring.datasource.password={{password}}"
+          "spring.sql.init.mode=always"]
          (string/join \newline)
          (<<))))
