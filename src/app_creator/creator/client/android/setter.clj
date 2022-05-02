@@ -46,7 +46,7 @@
       (let [{:keys [exit out err]} (cmd/sh (<< "{{utils-path}}gradleinit.bat"))]
         (cond
           (= exit 0)
-          (do (println (str "Client android project created successfully!\n" out))
+          (do (println (str "Client android project created successfully!\n"))
               (println "Filling created client project...")
               ; Заполняем внутренности клиента
               (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))

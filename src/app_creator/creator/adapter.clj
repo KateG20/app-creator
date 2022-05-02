@@ -25,7 +25,7 @@
      ))
 
 (defmacro create-client []
-  '(let [{:keys [android]} client]                           ; add other types into :keys
+  '(let [{:keys [android]} client]                          ; add other types into :keys
      (and (some? android)
           (android/create android out-path))
 
@@ -33,7 +33,7 @@
      ))
 
 (defmacro containerize []
-  '(let [{:keys [docker]} containerization]                           ; add other types into :keys
+  '(let [{:keys [docker]} containerization]                 ; add other types into :keys
      (and (some? docker)
           (docker/create docker out-path))
 

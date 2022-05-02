@@ -25,10 +25,10 @@
     (cond
       (some? errors)
       (do
-          (println (str "Something went wrong.\n"
-                        "Errors occurred while validating input file.\n"
-                        "Please fix them and try again.\n"))
-          (dorun (map println errors)))
+        (println (str "Something went wrong.\n"
+                      "Errors occurred while validating input file.\n"
+                      "Please fix them and try again.\n"))
+        (dorun (map println errors)))
 
       (some? data)
       (let [{:keys [info db server client containerization]} data]

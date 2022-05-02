@@ -4,13 +4,10 @@
          '[clojure.string :as string]
          '[clojure.java.io :as io])
 
-(def in-path-regex #"^(.+)(\.yaml|\.yml|.txt)$")            ; TODO CHANGE TXT TO YAML
+(def in-path-regex #"^(.+)(\.yaml|\.yml)$")                 ; TODO CHANGE TXT TO YAML
 (def out-path-regex #"^([^\.])+$")
 (defn required-opt-errs [opt-name]
   [(str "Required option " opt-name " must be specified.")])
-
-; C:/Users/Lenovo X1/Downloads/yaml.yaml
-; C:\Users\Lenovo X1\Downloads\yaml.yaml
 
 (def cli-options
   [["-i" "--in-path IN-PATH" "Absolute path to .yml/.yaml-file with description"
@@ -18,13 +15,13 @@
                "Must be correct absolute path to existing .yml/.yaml-file with quotes."]]
    ["-o" "--out-path OUT-PATH" "Absolute path to directory where the result will be"
     :validate [#(and (.isDirectory (io/file %)) (some? (re-matches out-path-regex %)))
-               "Must be correct absolute path to directory with quotes."]]
+               "Must be correct absolute path to existing directory with quotes."]]
    ["-h" "--help"]])
 
 (defn usage [options-summary]
   (->> ["Hello!"
         ""
-        "Usage: program-name action [options]"
+        "Usage: app-creator action [options]"
         ""
         "Options:"
         options-summary
@@ -65,14 +62,14 @@
       (and (= 1 (count arguments))
            (#{"start" "exit"} (first arguments)))
       (cond
-         (not (:in-path options))
-         {:exit-message (error-msg (required-opt-errs "--in-path"))}
+        (not (:in-path options))
+        {:exit-message (error-msg (required-opt-errs "--in-path"))}
 
-         (not (:out-path options))
-         {:exit-message (error-msg (required-opt-errs "--out-path"))}
+        (not (:out-path options))
+        {:exit-message (error-msg (required-opt-errs "--out-path"))}
 
-         :else
-         {:action (first arguments) :options options})
+        :else
+        {:action (first arguments) :options options})
 
       ; иначе считаем что пользователь тупой и просто выводим ему саммари
       :else
@@ -88,7 +85,7 @@
     (if exit-message                                        ; если пришло exit-message, выходит
       (exit (if ok? 0 1) exit-message)
       (case action                                          ; иначе смотрит, какое действие требуется
-        "start" {:in-path (:in-path options)
+        "start" {:in-path  (:in-path options)
                  :out-path (:out-path options)}
         ; more actions
         ))))
