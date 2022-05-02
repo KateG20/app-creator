@@ -30,7 +30,7 @@
   (spit path templates/settings-gradle))
 
 (defn create [specs out-path]
-  (println "creating android project...")
+  (println "Creating android project...")
   (let [proj-name (:proj-name specs)
         utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
     (->> specs
@@ -41,13 +41,25 @@
     (let [proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")]
       ; Создается директория для проекта
       (clojure.java.io/make-parents (<< "{{proj-dir}}files"))
-      ; Вызываем выполнение этого файла (создается клиент)
-      ;(println (:out (cmd/sh (<< "{{out-path}}{{sep}}gradleinit.bat"))))
 
-      (cmd/sh (<< "{{utils-path}}gradleinit.bat")) ; todo
+      ; Вызываем выполнение этого файла
+      (let [{:keys [exit out err]} (cmd/sh (<< "{{utils-path}}gradleinit.bat"))]
+        (cond
+          (= exit 0)
+          (do (println (str "Client android project created successfully!\n" out))
+              (println "Filling created client project...")
+              ; Заполняем внутренности клиента
+              (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))
 
-      (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))))
+              (if (fulfill specs out-path)
+                (do (println "Client project successfully filled!\n")
+                    true)
+                (do (println (str "Something went wrong while filling project. "
+                                  "Maybe, there are troubles with file paths. "
+                                  "Try again or contact us to solve issue."))
+                    false)))
 
-  (println "android project created!")
-  ; Заполняем внутренности клиента
-  (fulfill specs out-path))
+          :else
+          (do
+            (println (str "Something went wrong. Maybe, you do not have Android SDK or Gradle installed.\n" err))
+            false))))))

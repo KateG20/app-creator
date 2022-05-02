@@ -13,8 +13,8 @@
           errors (validator/explain data)
           errors (if (some? errors)
                    (vec (for [err errors
-                         :let [path-err (str "Path: " err)]]
-                     path-err))
+                              :let [path-err (str "Path: " err)]]
+                          path-err))
                    errors)]
       {:errors errors :data data})
 
@@ -22,6 +22,5 @@
       {:errors [(str "Error message: " m/jar-path-error)] :data nil})
 
     (catch Exception e
-      {:errors ["Something went wrong while parsing. Try again or contact us to solve issue"]}))
-  )
+      {:errors ["Something went wrong while parsing. Try again or contact us to solve issue."]})))
 

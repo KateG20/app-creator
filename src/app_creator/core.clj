@@ -6,6 +6,4 @@
   (try
     (creator/start args)
      (catch Exception e
-       (println "Exception message: " (.getMessage e))
-       ))
-  )
+       (println "Something went wrong. Exception message: " (.getMessage e)))))

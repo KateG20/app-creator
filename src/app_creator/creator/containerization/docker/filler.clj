@@ -63,7 +63,8 @@
        postgres)))
 
 (defn create [specs out-path]
-  (let [{:keys [jars nginx postgres network]} specs
+  (println "Creating containerization scripts...")
+  (try (let [{:keys [jars nginx postgres network]} specs
         network-name (:network-name network)
         docker-path (<< "{{out-path}}{{sep}}docker-dirs")
         bat-path (<< "{{out-path}}{{sep}}run-containers.bat")]
@@ -83,4 +84,11 @@
     ; Запускаем контейнеры
     (create-jar-containers bat-path network-name jars)
     (create-nginx-containers bat-path network-name nginx)
-    (create-postgres-containers bat-path network-name postgres)))
+    (create-postgres-containers bat-path network-name postgres)
+
+    (println "Containerization scripts created successfully!\n")
+    true)
+       (catch Exception e
+         (println (str "Something went wrong while creating containerization scripts. "
+                       "Try again or contact us to solve issue."))
+         false)))

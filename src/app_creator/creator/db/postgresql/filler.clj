@@ -40,13 +40,18 @@
 
 (defn create [specs out-path]
   "Создает скрипты для создания базы данных и таблиц и скрипт для их выполнения"
-  (let [{:keys [db-name host username password tables]} specs]
-    (psql-script db-name host username password out-path)
-    (println "creating scripts for creating database...")
-    (create-DB-script db-name out-path)
-    (println "creating scripts for creating tables...")
-    (create-tables-script tables out-path)
-    (println "scripts created!")))
+  (println "Creating sql-scripts...")
+  (try (let [{:keys [db-name host username password tables]} specs]
+         (psql-script db-name host username password out-path)
+         (create-DB-script db-name out-path)
+         (create-tables-script tables out-path)
+
+         (println "Sql-scripts created successfully!\n")
+         true)
+       (catch Exception e
+         (println (str "Something went wrong while creating sql-scripts. "
+                       "Try again or contact us to solve issue."))
+         false)))
 
 
 

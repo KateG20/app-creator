@@ -80,20 +80,15 @@
     (spit path props)))
 
 (defn fill [specs out-path]
-  (let [{:keys [project properties controllers]} specs
-        {:keys [proj-name group artifact language]} project
-        packages (str group "." artifact)
-        path (templates/path-to-code out-path proj-name group artifact language)
-        props-path (templates/path-to-props out-path proj-name group artifact language)]
-    (println "filling...")
-    (println "creating controllers...")
-    (create-controllers controllers packages path)
-    (println "creating services...")
-    (create-services controllers packages path)
-    (println "creating entities...")
-    (create-entities controllers packages path)
-    (println "creating repos...")
-    (create-repos controllers packages path)
-    (println "creating properties...")
-    (create-properties properties props-path)
-    (println "filled")))
+  (try (let [{:keys [project properties controllers]} specs
+             {:keys [proj-name group artifact language]} project
+             packages (str group "." artifact)
+             path (templates/path-to-code out-path proj-name group artifact language)
+             props-path (templates/path-to-props out-path proj-name group artifact language)]
+         (create-controllers controllers packages path)
+         (create-services controllers packages path)
+         (create-entities controllers packages path)
+         (create-repos controllers packages path)
+         (create-properties properties props-path)
+         true)
+       (catch Exception e false)))

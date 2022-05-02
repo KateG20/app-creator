@@ -42,15 +42,29 @@
 
 (defn create [specs out-path]
   ; Заливаем в файл команду
-  (println "creating spring server...")
+  (println "Creating server project...")
   (let [utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
     (spit (<< "{{utils-path}}springinit.bat")
-        (templates/spring-init
-          (:proj-name (:project specs))
-          (create-options specs)
-          out-path))
-  ; Вызываем выполнение этого файла (создается сервер)
-  (println (:out (cmd/sh (<< "{{utils-path}}springinit.bat")))))
-  (println "server project created!")
-  ; Заполняем внутренности сервера
-  (fulfill specs out-path))
+          (templates/spring-init
+            (:proj-name (:project specs))
+            (create-options specs)
+            out-path))
+    ; Вызываем выполнение этого файла
+    (let [{:keys [exit out err]} (cmd/sh (<< "{{utils-path}}springinit.bat"))]
+      (cond
+        (= exit 0)
+        (do (println (str "Server project created successfully!\n" out))
+            ; Заполняем внутренности сервера
+            (println "Filling created server project...")
+            (if (fulfill specs out-path)
+              (do (println "Server project successfully filled!\n")
+                  true)
+              (do (println (str "Something went wrong while filling project. "
+                                "Maybe, there are troubles with file paths. "
+                                "Try again or contact us to solve issue."))
+                  false)))
+
+        :else
+        (do
+          (println (str "Something went wrong. Maybe, you do not have Spring installed.\n" err))
+          false)))))
