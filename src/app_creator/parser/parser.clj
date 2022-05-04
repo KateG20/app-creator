@@ -13,20 +13,20 @@
     (let [data (yaml/parse-string (slurp path))
           errors (validator/explain data)
           errors (if (some? errors)
-                     (if (s/includes? (nth errors 0) "invalid type")
-                     [(str "Error message: " m/invalid-yaml-error)]
-                     (vec (for [err errors
-                                :let [path-err (str "Path: " err)]]
-                            path-err)))
+                   (vec (for [err errors
+                              :let [path-err (str "Path: " (if (= 0 (s/index-of err "\nError message"))
+                                                             "the very beginning of file"
+                                                             "") err)]]
+                          path-err))
                    errors)]
-      (clojure.pprint/pprint data)
+
       {:errors errors :data data})
 
     (catch ScannerException sc-e
       (println (.getMessage sc-e))
       {:errors [(str "Error message: cannot scan file contents. "
                      "Check correctness of YAML syntax and absence of backslashes, fix and try again.")]
-       :data nil})
+       :data   nil})
 
     (catch Exception e
       {:errors ["Something went wrong while parsing. Try again or contact us to solve issue."]})))

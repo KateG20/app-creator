@@ -48,6 +48,9 @@
                    data)
         data))))
 
+(defn error-fn [msg]
+  {:error/fn (fn [{:keys [value]} _] (<< "'{{value}}': {{msg}}"))})
+
 (defn restrict-error-msg [elems & {:keys [in-work] :or {in-work false}}]
   "Создает сообщение об недопустимом значении, перечисляя допустимые"
   (as-> elems e
@@ -59,10 +62,7 @@
   "Создает перечисление со всеми возможными значениями для malli, а также сообщение об ошибке"
   (let [error-message (restrict-error-msg elems :in-work in-work)
         enum (map str elems)]
-    (vec (concat [:enum {:error/message error-message}] enum))))
-
-(defn error-fn [msg]
-  {:error/fn (fn [{:keys [value]} _] (<< "'{{value}}': {{msg}}"))})
+    (vec (concat [:enum (error-fn error-message)] enum))))
 
 ;(defmacro is-correct [regex]
 ;  `(fn [~'s] (and (string? s) (re-matches ~regex s))))
@@ -93,8 +93,7 @@
             [:opts (restrict-enum o/col-type-opts)]]]]]]]]]
     ; other db types here, for example:
     ; [:mongo {:optional true} string?]
-    ]
-   ])
+    ]])
 
 (def server-schema
   [:server {:optional true}
