@@ -9,3 +9,4 @@
 (def uri-path-error "incorrect uri path")
 (def entity-name-error "incorrect entity name, must start with a capital letter")
 (def jar-path-error "incorrect jar path, must be path to jar-file with slashes (not backslashes)")
+(def invalid-yaml-error "file has incorrect YAML structure")

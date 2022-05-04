@@ -60,7 +60,7 @@
       ; и если есть обе необходимые опции (указаны оба пути),
       ; то возвращаем мапу, что нужно действие с таким-то аргументом и такими опциями
       (and (= 1 (count arguments))
-           (#{"start" "exit"} (first arguments)))
+           (#{"start"} (first arguments)))
       (cond
         (not (:in-path options))
         {:exit-message (error-msg (required-opt-errs "--in-path"))}
@@ -82,7 +82,7 @@
 (defn get-input [args]
   ; отправляет аргументы на валидацию
   (let [{:keys [action options exit-message ok?]} (validate-args args)]
-    (if exit-message                                        ; если пришло exit-message, выходит
+    (if exit-message                                        ; если пришло exit-message, выходит с нужным сообщением
       (exit (if ok? 0 1) exit-message)
       (case action                                          ; иначе смотрит, какое действие требуется
         "start" {:in-path  (:in-path options)
