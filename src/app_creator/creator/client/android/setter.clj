@@ -61,5 +61,5 @@
 
           :else
           (do
-            (println (str "Something went wrong. Maybe, you do not have Android SDK or Gradle installed.\n" err))
+            (println (str "Something went wrong. Maybe, you do not have Android SDK or Gradle or JDK installed.\n" err))
             false))))))
