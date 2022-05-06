@@ -39,7 +39,7 @@
        (string/join \newline)
        (<<)))
 
-(defn nginx-conf [backend-image-name]
+(defn nginx-conf [backend-cont-name]
   (->> [
         "events { }"
         "http {"
@@ -47,7 +47,7 @@
         "    listen 80;"
         "    location / {"
         "      resolver 127.0.0.11 ipv6=off valid=50s;"
-        "      set $backend \"{{backend-image-name}}:8080\";"
+        "      set $backend \"{{backend-cont-name}}:8080\";"
         "      proxy_set_header Host $host;"
         "      proxy_set_header X-Real-IP $remote_addr;"
         "      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;"
@@ -72,7 +72,7 @@
 
 (defn run-jar-container [network-name container-name image-name]
   (->> [
-        "docker run --network {{network-name}} --restart=always -e JAVA_TOOL_OPTIONS=\"-Xmx400M\""
+        "docker run --network {{network-name}} --restart=always -e JAVA_TOOL_OPTIONS=\"-Xmx512M\""
         "--name {{container-name}} -d {{image-name}}:latest"
         "\n"
         "\n"

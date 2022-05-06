@@ -33,17 +33,17 @@
       (some? data)
       (let [{:keys [info db server client containerization]} data]
         (println "Parsed, no errors found!\n")
-        ;(and (some? db)                                     ; names: db, out-path - it's important
-        ;     (safe (adapter/create-db) 'sql-scripts))
-        ;
-        ;(and (some? server)                                 ; names: server, out-path - it's important
-        ;     (safe (adapter/create-server) 'server))
-        ;
-        ;(and (some? client)                                 ; names: client, out-path - it's important
-        ;     (safe (adapter/create-client) 'client))
-        ;
-        ;(and (some? containerization)                       ; names: containerization, out-path - it's important
-        ;     (safe (adapter/containerize) 'containerization-scripts))
+        (and (some? db)                                     ; names: db, out-path - it's important
+             (safe (adapter/create-db) 'sql-scripts))
+
+        (and (some? server)                                 ; names: server, out-path - it's important
+             (safe (adapter/create-server) 'server))
+
+        (and (some? client)                                 ; names: client, out-path - it's important
+             (safe (adapter/create-client) 'client))
+
+        (and (some? containerization)                       ; names: containerization, out-path - it's important
+             (safe (adapter/containerize) 'containerization-scripts))
         )))
   (println "Finished!\n"))
 

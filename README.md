@@ -34,9 +34,9 @@ Contents of the input file **must have the following format**:
 db: # specifications for database creating scripts; optional  
   postgresql: # DBMS you want to use, currently only postgresql
     db-name: MyName # name of your database
-    host: localhost # ip-address of your database
-    username: funnyCat # username for your database
-    password: pwd # password for your database
+    host: localhost # ip-address of your machine
+    username: funnyCat # your postgres username
+    password: pwd # password for your user
     tables: # list of tables you want to create
       - table-name: t1 # table name must satisfy the requirements of postgresql
         columns:
@@ -67,7 +67,7 @@ server: # specifications for server creating; optional
         - security
         - web
     properties: 
-      db: # database to connect with 
+      db: # database to connect to
         type: postgresql
         username: funnyDog
         password: pwd
@@ -95,8 +95,8 @@ client: # specifications for client creating; optional
     language: java # project language, currently only java
     package-name: com.android_app_package # must contain at least one dot
     test-framework: junit
-    host: localhost
-    port: 8080
+    server-host: localhost
+    server-port: 8080
     # any number of requests
     requests:
       - req-name: getUser # name of request method
@@ -118,7 +118,7 @@ containerization: # specifications for containerization; optional
       - image-name: my-nginx-image
         container-name: my-nginx-container
         dir-name: nginx-dir
-        backend-image-name: pretty-java-image # name of image to deploy
+        backend-container-name: pretty-java-image # name of container with server
     postgres: # specifications for postgres container, optional
       - container-name: my-postgres
         password: pwd

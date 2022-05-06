@@ -24,7 +24,7 @@
               jars)))
 
 (defn build-nginx-images [dirs-path bat-path nginx]
-  (dorun (map (fn [n] (let [{:keys [image-name dir-name backend-image-name]} n
+  (dorun (map (fn [n] (let [{:keys [image-name dir-name backend-container-name]} n
                             dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
                         ; Создание директории для докерфайла, чтобы потом в ней сбилдить образ
                         (io/make-parents (<< "{{dockerfile-dir}}{{sep}}files"))
@@ -33,7 +33,7 @@
                               templates/nginx-dockerfile)
                         ; Создаем nginx.conf
                         (spit (<< "{{dockerfile-dir}}{{sep}}nginx.conf")
-                              (templates/nginx-conf backend-image-name))
+                              (templates/nginx-conf backend-container-name))
                         ; Вписываем инструкцию по билду в большой батник
                         (spit bat-path (templates/build-image dockerfile-dir image-name) :append true)))
               nginx)))

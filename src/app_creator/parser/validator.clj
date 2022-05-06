@@ -112,7 +112,7 @@
         [:proj-name {:optional true} string?]
         [:description {:optional true} string?]
         [:packaging {:optional true} (restrict-enum o/packaging-opts)]
-        [:java-version {:optional true} (restrict-enum o/java-v-opts)]
+        [:java-version {:optional true} [:and string? (restrict-enum o/java-v-opts)]]
         [:project-version {:optional true} string?]
         [:deps {:optional true}
          [:sequential (restrict-enum o/deps-opts)]]]]
@@ -158,12 +158,12 @@
       [:package-name [:fn (error-fn msg/package-name-error)
                       (fn [name] (and (string? name) (string/includes? name ".")))]]
       [:test-framework (restrict-enum o/test-framework-opts)]
-      [:host [:fn (error-fn msg/host-error)
+      [:server-host [:fn (error-fn msg/host-error)
               (fn [host] (and (string? host)
                               (or
                                 (= "localhost" host)
                                 (re-matches r/ip-regex host))))]]
-      [:port [:fn (error-fn msg/port-error)
+      [:server-port [:fn (error-fn msg/port-error)
               (fn [port] (and (int? port) (< 1 port) (< port 65535)))]]
       [:requests
        [:sequential

@@ -2,5 +2,5 @@
 
 (def proj-name "demo")
 (def language "java")
-(def package-name "demo")
+(def package-name "demo.example")
 (def test-framework "junit-jupiter")

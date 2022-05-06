@@ -84,7 +84,7 @@
                (spit pojo-file-name pojo))))))
 
 (defn fill [specs out-path]
-  (try (let [{:keys [proj-name package-name host port requests]} specs
+  (try (let [{:keys [proj-name package-name server-host server-port requests]} specs
              package-path (string/replace package-name #"\." "/")
              proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")
              app-dir (<< "{{proj-dir}}app{{sep}}")
@@ -121,7 +121,7 @@
          (add-main-activity activity-path package-name)
          (add-main-activity-layout layout-dir)
 
-         (create-network-service network-service-path package-name host port)
+         (create-network-service network-service-path package-name server-host server-port)
          (create-api-interface api-path package-name requests)
          (create-pojos package-dir package-name requests)
          true)
