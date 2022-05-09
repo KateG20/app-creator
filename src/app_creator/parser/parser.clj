@@ -29,5 +29,5 @@
        :data   nil})
 
     (catch Exception e
-      {:errors ["Something went wrong while parsing. Try again or contact us to solve issue."]})))
+      {:errors ["Error: unexpected error. Contact us to solve issue."]})))
 
