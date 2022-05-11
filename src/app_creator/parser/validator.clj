@@ -104,8 +104,8 @@
      [:map {:closed true}
       [:project
        [:map {:closed true}
-        [:build {:optional true} (restrict-enum o/build-opts)]
-        [:language {:optional true} (restrict-enum o/lang-opts)]
+        [:build {:optional true} (restrict-enum o/build-opts :in-work true)]
+        [:language {:optional true} (restrict-enum o/lang-opts :in-work true)]
         [:boot-version {:optional true} (restrict-enum o/boot-v-opts)]
         [:group {:optional true} string?]
         [:artifact {:optional true} string?]
@@ -168,7 +168,8 @@
       [:requests
        [:sequential
         [:map {:closed true}
-         [:req-name string?]
+         [:req-name [:fn (error-fn msg/method-name-error)
+                     (fn [name] (and (string? name) (re-matches r/method-name-regex name)))]]
          [:uri [:fn (error-fn msg/uri-path-error)
                 (fn [uri] (and (string? uri) (re-matches r/uri-regex uri)))]]
          [:type (restrict-enum o/client-mapping-opts)]
@@ -202,7 +203,7 @@
          [:image-name string?]
          [:container-name string?]
          [:dir-name string?]
-         [:backend-image-name string?]]]]
+         [:backend-container-name string?]]]]
       [:postgres {:optional true}
        [:sequential
         [:map {:closed true}

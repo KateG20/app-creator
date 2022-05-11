@@ -66,5 +66,7 @@
 
         :else
         (do
-          (println (str "Something went wrong. Maybe, you do not have Spring Boot or JDK installed.\n" err))
+          (println (str "Something went wrong. Maybe, you do not have Spring Boot or JDK installed.\n"
+                        ;err
+                        ))
           false)))))
