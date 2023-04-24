@@ -46,3 +46,5 @@
 
   :repl-options {:init-ns app-creator.server.core}
   :main app-creator.server.core)
+  ;:repl-options {:init-ns app-creator.core}
+  ;:main app-creator.core)

@@ -35,7 +35,8 @@
      "Incorrect value"]))
 
 (defn success-field []
-  (let [display (re-frame/subscribe [::subs/success-display])]
+  (let [display (re-frame/subscribe [::subs/success-display])
+        text (re-frame/subscribe [::subs/log-text])]
     [:div
      {:id    "success-field"
       :style {:color   "green"
@@ -75,7 +76,8 @@
        [:p "Enter your server language: " [server-lang-input-field]]
        [:input {:type "button"
                 :value "Create!"
-                :on-click #(re-frame/dispatch [::events/http-post])}]
+                :on-click #(re-frame/dispatch [
+                                               ::events/http-post])}]
        ;[:button.green
        ; {:on-click #(swap! state inc)}
        ; (str txt " " @state)]

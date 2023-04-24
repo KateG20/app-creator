@@ -33,6 +33,7 @@
 
       (some? data)
       (let [{:keys [info db server client containerization]} data]
+        (clojure.pprint/pprint data)
         (println "Parsed, no errors found!\n")
         (and (some? db)                                     ; names: db, out-path - it's important
              (safe (adapter/create-db) 'sql-scripts))

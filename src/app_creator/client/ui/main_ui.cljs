@@ -1,8 +1,19 @@
 (ns app-creator.client.ui.main-ui
   (:require [app-creator.client.ui.db :as db-ui]
             [app-creator.client.ui.server :as server-ui]
-            [app-creator.client.ui.client :as client-ui]))
+            [app-creator.client.ui.client :as client-ui]
+            [app-creator.client.events :as events]
+            [app-creator.client.subs :as subs]
+            [re-frame.core :as re-frame]))
 
+(defn log-field []
+    (let [display (re-frame/subscribe [::subs/log-field-display])
+          text (re-frame/subscribe [::subs/log-text])]
+      [:div
+       {:class "col-12 pt-5"
+        :style {:display @display}}
+       [:p @text]]
+      ))
 
 (defn main-ui []
   (fn []
@@ -50,13 +61,16 @@
            {:for "result-path", :class "label-name"}
            [:span {:class "content-name"} "Path to result"]]]]
         [:button
-         {:class "checkbox-comp-type final",
-          :type "button",
-          :name "create",
-          :id "create"}]
+         {:class    "checkbox-comp-type final",
+          :type     "button",
+          :name     "create",
+          :id       "create"
+          :on-click #(re-frame/dispatch [::events/http-post])}]
         [:label
          {:class "for-checkbox-comp-type final", :for "create"}
          "Create!"]
+
+        [log-field]
 
         [:div
          {:class "col-12 pt-5 mt-20"}

@@ -1,15 +1,11 @@
 (ns app-creator.client.ui.db)
 
-(defn db-ui []
+(defn choose-type []
   (fn []
-
     [:div
      [:div
-      {:class "col-12 pt-5 big-text"}
-      [:p {:class "mb-4 pb-2"} "1. Database"]]
-     [:div
-      {:class "col-12 pt-5"}
-      [:p {:class "mb-4 pb-2"} "Choose type"]]
+          {:class "col-12 pt-5"}
+          [:p {:class "mb-4 pb-2"} "Choose type"]]
 
      [:div
       {:class "col-12 pb-5"}
@@ -38,7 +34,17 @@
         :id    "clickhouse"}]
       [:label
        {:class "for-checkbox-comp-type", :for "clickhouse"}
-       "ClickHouse"]]
+       "ClickHouse"]]]))
+
+(defn db-ui []
+  (fn []
+
+    [:div
+     [:div
+      {:class "col-12 pt-5 big-text"}
+      [:p {:class "mb-4 pb-2"} "1. Database"]]
+
+     [choose-type]
 
      [:div
       {:class "col-12 pt-5 for-postgres center",
