@@ -9,7 +9,8 @@
          '[app-creator.creator.containerization.docker.filler :as docker]
          '[app-creator.creator.adapter :as adapter]
          '[app-creator.ui.cli :as ui]
-         '[clojure.java.io :as io])
+         '[clojure.java.io :as io]
+         '[taoensso.timbre :as log])
 
 (defn safe [action what?]
   (try action
@@ -46,6 +47,24 @@
              (safe (adapter/containerize) 'containerization-scripts))
         )))
   (println "Finished!\n"))
+
+(defn create-from-web [data]
+  (if (some? data)
+    (let [{:keys [info db server client containerization out-path]} data]
+      (log/info (str "Got data! " data))
+      ;(and (some? db)                                     ; names: db, out-path - it's important
+      ;     (safe (adapter/create-db) 'sql-scripts))
+      ;
+      ;(and (some? server)                                 ; names: server, out-path - it's important
+      ;     (safe (adapter/create-server) 'server))
+      ;
+      ;(and (some? client)                                 ; names: client, out-path - it's important
+      ;     (safe (adapter/create-client) 'client))
+      ;
+      ;(and (some? containerization)                       ; names: containerization, out-path - it's important
+      ;     (safe (adapter/containerize) 'containerization-scripts))
+      "success"
+      )))
 
 (defn start [args]
   ; Достаем аргументы из фронтенда
