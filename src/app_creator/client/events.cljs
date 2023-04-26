@@ -15,6 +15,8 @@
      :http-post-result-text "null info"
      :log-field-display     "none"
      :log-text              ""
+     :tables                [0 1 2 3]
+     :table-columns         [[0 0] [0 1] [0 2] [1 0] [1 1] [2 0] [3 0] [3 1]]
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -179,6 +181,16 @@
   ::process-response
   (fn [db [_ result]]
     (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
+
+(re-frame/reg-event-db
+  ::add-table-column-item
+  (fn [db [_ new-item]]
+    (update-in db [:table-columns] conj new-item)))
+
+(re-frame/reg-event-db
+  ::add-table-item
+  (fn [db [_ new-item]]
+    (update-in db [:tables] conj new-item)))
 
 
 

@@ -49,3 +49,13 @@
   ::log-text
   (fn [db _]
     (:log-text db)))
+
+(re-frame/reg-sub
+  ::table-columns
+  (fn [db _]
+    (:table-columns db)))
+
+(re-frame/reg-sub
+  ::tables
+  (fn [db _]
+    (:tables db)))
