@@ -4,8 +4,6 @@
             [app-creator.client.subs :as subs]
             [reagent.core :as reagent]))
 
-;(use 'selmer.parser)
-
 (defn choose-type []
   (fn []
     [:div
@@ -75,48 +73,33 @@
 (defn find-last-item-number-in-box [box vector]
   (second (last (filter #(= box (first %)) vector))))
 
+; Кнопка для добавления колонки в таблице
 (defn plus-table-row-button [box]
   (fn [box]
     (let [id (str "plus-column-" box)
           current-items (re-frame/subscribe [::subs/table-columns])
           new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
-          ;new-item (reagent/atom (table-column-item box new-col-num))
-          new-item-vec (reagent/atom [box new-col-num])
-          ]
+          new-item-vec (reagent/atom [box new-col-num])]
       [:div
        [:button {:type     "button", :name "plus", :id id
                  :on-click #(re-frame/dispatch [::events/add-table-column-item @new-item-vec])}]
        [:label {:class "plus-label mt-20", :for id} "+"]])))
 
+; Кнопка для добавления таблицы
 (defn plus-table-button []
   (fn []
-    (let [
-          ;id (str "plus-column-" box)
-          current-items (re-frame/subscribe [::subs/tables])
-          ;new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
-          ;new-item (reagent/atom (table-column-item box new-col-num))
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))
-          ]
-      ;[:div
-      ; [:button {:type     "button", :name "plus", :id id
-      ;           :on-click #(re-frame/dispatch [::events/add-table-column-item @new-item-vec])}]
-      ; [:label {:class "plus-label mt-20", :for id} "+"]]
-
+    (let [current-items (re-frame/subscribe [::subs/tables])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
-        {:type "button",
-         :name "plus-table",
-         :id   "plus-table"
+        {:type     "button",
+         :name     "plus-table",
+         :id       "plus-table"
          :on-click #(re-frame/dispatch [::events/add-table-item @new-item-vec])}]
-       [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]]
-      )))
+       [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]])))
 
-;(defn list-component []
-;  [:ul
-;   (for [item @(rf/subscribe [:items])]
-;     [:li item])])
-
+; Список колонок в таблице
 (defn table-box-columns [box]
   (fn [box]
     (let [all-items @(re-frame/subscribe [::subs/table-columns])
@@ -124,42 +107,34 @@
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
-         ;[:li item]
-         (table-column-item (first item) (second item))
-         )
-       ])
-    ))
+         (table-column-item (first item) (second item)))])))
 
+; Список таблиц
 (defn table-list []
   (let [tables (re-frame/subscribe [::subs/tables])]
-  (fn []
-    ;(into [:ul] (map #(vector :li (:text %)) @cats))
-    [:ul
-     {:class "db-list"}
-      (for [t @tables]
-        [:li
-         {:class "col-12 pb-5 opts-group center box"}
-         [:div
-          {:class "col-12 pb-5 input-field"}
-          [:input
-           {:type         "text",
-            :name         "text",
-            :id           "table-name-1",
-            :autocomplete "off",
-            :required     true}]
-          [:label
-           {:for "table-name-1", :class "label-name"}
-           [:span {:class "content-name"} "Table name"]]]
-         ;(table-box-columns t)
-         [table-box-columns t]
-         ;(plus-table-row-button t)
-         [plus-table-row-button t]
-         ])]
-      )))
+    (fn []
+      [:ul
+       {:class "db-list"}
+       (for [t @tables]
+         [:li
+          {:class "col-12 pb-5 opts-group center box"}
+          [:div
+           {:class "col-12 pb-5 input-field"}
+           [:input
+            {:type         "text",
+             :name         "text",
+             :id           "table-name-1",
+             :autocomplete "off",
+             :required     true}]
+           [:label
+            {:for "table-name-1", :class "label-name"}
+            [:span {:class "content-name"} "Table name"]]]
+          [table-box-columns t]
+          [plus-table-row-button t]
+          ])])))
 
 (defn db-ui []
   (fn []
-
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
@@ -229,189 +204,8 @@
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
         {:display "flex"}}
-       ;[:ul
-       ; {:class "db-list"}
-        [table-list]
-
-        ;[:li
-        ; {:class "col-12 pb-5 opts-group center box"}
-        ; [:div
-        ;  {:class "col-12 pb-5 input-field"}
-        ;  [:input
-        ;   {:type         "text",
-        ;    :name         "text",
-        ;    :id           "table-name-1",
-        ;    :autocomplete "off",
-        ;    :required     true}]
-        ;  [:label
-        ;   {:for "table-name-1", :class "label-name"}
-        ;   [:span {:class "content-name"} "Table name"]]]
-        ; [:ul
-        ;  {:class "db-col-list"}
-        ;  [:li
-        ;   {:class "table-row-li"}
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-name-1-1",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-name-1-1", :class "label-name"}
-        ;     [:span {:class "content-name"} "Column"]]]
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-type-1-1",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-type-1-1", :class "label-name"}
-        ;     [:span {:class "content-name"} "Type"]]]]
-        ;  [:li
-        ;   {:class "table-row-li"}
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-name-1-2",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-name-1-2", :class "label-name"}
-        ;     [:span {:class "content-name"} "Column"]]]
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-type-1-2",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-type-1-2", :class "label-name"}
-        ;     [:span {:class "content-name"} "Type"]]]]
-        ;  [:li
-        ;   {:class "table-row-li"}
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-name-1-3",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-name-1-3", :class "label-name"}
-        ;     [:span {:class "content-name"} "Column"]]]
-        ;   [:div
-        ;    {:class "col-12 pb-5 input-field"}
-        ;    [:input
-        ;     {:type         "text",
-        ;      :name         "text",
-        ;      :id           "col-type-1-3",
-        ;      :autocomplete "off",
-        ;      :required     true}]
-        ;    [:label
-        ;     {:for "col-type-1-3", :class "label-name"}
-        ;     [:span {:class "content-name"} "Type"]]]]]
-        ; [:button {:type "button", :name "plus", :id "plus-column-2"}]
-        ; [:label
-        ;  {:class "plus-label mt-20", :for "plus-column-2"}
-        ;  "+"]]
-
-        ;[:li
-        ; {:class "col-12 pb-5 opts-group center box"}
-        ; [:div
-        ;  {:class "col-12 pb-5 input-field"}
-        ;  [:input
-        ;   {:type         "text",
-        ;    :name         "text",
-        ;    :id           "table-name-2",
-        ;    :autocomplete "off",
-        ;    :required     true}]
-        ;  [:label
-        ;   {:for "table-name-2", :class "label-name"}
-        ;   [:span {:class "content-name"} "Table name"]]]
-        ;
-        ; ;[table-box-columns] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ;
-        ;
-        ; ;[:ul
-        ; ; {:class "db-col-list"}
-        ; ; (column-type-row)
-        ; ; [:li
-        ; ;  {:class "table-row-li"}
-        ; ;  [:div
-        ; ;   {:class "col-12 pb-5 input-field"}
-        ; ;   [:input
-        ; ;    {:type         "text",
-        ; ;     :name         "text",
-        ; ;     :id           "col-name-2-2",
-        ; ;     :autocomplete "off",
-        ; ;     :required     true}]
-        ; ;   [:label
-        ; ;    {:for "col-name-2-2", :class "label-name"}
-        ; ;    [:span {:class "content-name"} "Column"]]]
-        ; ;  [:div
-        ; ;   {:class "col-12 pb-5 input-field"}
-        ; ;   [:input
-        ; ;    {:type         "text",
-        ; ;     :name         "text",
-        ; ;     :id           "col-type-2-2",
-        ; ;     :autocomplete "off",
-        ; ;     :required     true}]
-        ; ;   [:label
-        ; ;    {:for "col-type-2-2", :class "label-name"}
-        ; ;    [:span {:class "content-name"} "Type"]]]]
-        ; ; [:li
-        ; ;  {:class "table-row-li"}
-        ; ;  [:div
-        ; ;   {:class "col-12 pb-5 input-field"}
-        ; ;   [:input
-        ; ;    {:type         "text",
-        ; ;     :name         "text",
-        ; ;     :id           "col-name-2-3",
-        ; ;     :autocomplete "off",
-        ; ;     :required     true}]
-        ; ;   [:label
-        ; ;    {:for "col-name-2-3", :class "label-name"}
-        ; ;    [:span {:class "content-name"} "Column"]]]
-        ; ;  [:div
-        ; ;   {:class "col-12 pb-5 input-field"}
-        ; ;   [:input
-        ; ;    {:type         "text",
-        ; ;     :name         "text",
-        ; ;     :id           "col-type-2-3",
-        ; ;     :autocomplete "off",
-        ; ;     :required     true}]
-        ; ;   [:label
-        ; ;    {:for "col-type-2-3", :class "label-name"}
-        ; ;    [:span {:class "content-name"} "Type"]]]]]
-        ;
-        ; ;[:button {:type "button", :name "plus", :id "plus-column-2"}]
-        ; ;[:label
-        ; ; {:class "plus-label mt-20", :for "plus-column-2"}
-        ; ; "+"]
-        ;
-        ; (plus-table-row-button 2)
-        ; ]
-        ;]
-       ]
-      [plus-table-button]
-      ;[:div
-      ; {:class "col-12 pt-5 button-center"}
-      ; [:button
-      ;  {:type "button",
-      ;   :name "plus-table",
-      ;   :id   "plus-table"}]
-      ; [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]]
-      ]
+       [table-list]]
+      [plus-table-button]]
 
      [:div
       {:class "col-12 pt-5 for-mongodb center", :style      ;"display: none;"
@@ -422,6 +216,4 @@
        :style                                               ;"display: none;"
        {:display "none"}}
       "Coming soon!"]
-     ]
-
-    ))
+     ]))
