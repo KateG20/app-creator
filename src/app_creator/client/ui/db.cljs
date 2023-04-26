@@ -131,12 +131,12 @@
     ))
 
 (defn table-list []
-  (let [tables @(re-frame/subscribe [::subs/tables])]
+  (let [tables (re-frame/subscribe [::subs/tables])]
   (fn []
     ;(into [:ul] (map #(vector :li (:text %)) @cats))
     [:ul
      {:class "db-list"}
-      (for [t tables]
+      (for [t @tables]
         [:li
          {:class "col-12 pb-5 opts-group center box"}
          [:div
