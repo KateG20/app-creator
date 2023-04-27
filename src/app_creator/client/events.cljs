@@ -23,6 +23,10 @@
      :jar-conts             [0]
      :nginx-conts           [0]
      :postgres-conts        [0]
+     :checked               {:db     "postgres"
+                             :server "spring"
+                             :client "android"
+                             :deploy "docker"}
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -235,6 +239,12 @@
   ::add-postgres-cont-item
   (fn [db [_ new-item]]
     (update-in db [:postgres-conts] conj new-item)))
+
+; Отмечает выбранный тип бд (new-value = тип)
+(re-frame/reg-event-db
+  ::change-db-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :db] new-value)))
 
 
 

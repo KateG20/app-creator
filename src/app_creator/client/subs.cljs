@@ -97,3 +97,9 @@
   ::postgres-conts
   (fn [db _]
     (:postgres-conts db)))
+
+; Список postgres-контейнеров
+(re-frame/reg-sub
+  ::db-checked
+  (fn [db _]
+    (:db (:checked db))))

@@ -11,12 +11,4 @@
            :modules {:main {:init-fn app-creator.client.core/run}}
            :dev {:output-dir "resources/public/js"}
            :release {:output-dir "resources/public_release/js"}
-           :asset-path "/js"}
-  ;:server {:target :node-script
-  ;         :output-to "target/main.js"
-  ;         :main shadow.core/main}
-  ;:app {:target :browser
-  ;      :output-dir "public/js"
-  ;      :asset-path "/js"
-  ;      :modules {:main {:entries [my.app]}}}
-  }}
+           :asset-path "/js"}}}

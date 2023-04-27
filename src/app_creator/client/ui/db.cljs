@@ -5,7 +5,8 @@
             [reagent.core :as reagent]))
 
 (defn choose-type []
-  (fn []
+  (let [db-checked (re-frame/subscribe [::subs/db-checked])]
+    (fn []
     [:div
      [:div
       {:class "col-12 pt-5"}
@@ -18,7 +19,8 @@
         :type  "radio",
         :name  "db-type",
         :id    "postgres",
-        ;:checked ""
+        :checked (= @db-checked "postgres")
+        :on-click #(re-frame/dispatch [::events/change-db-checked "postgres"])
         }]
       [:label
        {:class "for-checkbox-comp-type", :for "postgres"}
@@ -27,7 +29,9 @@
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "db-type",
-        :id    "mongodb"}]
+        :id    "mongodb"
+        :checked (= @db-checked "mongodb")
+        :on-click #(re-frame/dispatch [::events/change-db-checked "mongodb"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "mongodb"}
        "MongoDB"]
@@ -35,10 +39,12 @@
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "db-type",
-        :id    "clickhouse"}]
+        :id    "clickhouse"
+        :checked (= @db-checked "clickhouse")
+        :on-click #(re-frame/dispatch [::events/change-db-checked "clickhouse"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "clickhouse"}
-       "ClickHouse"]]]))
+       "ClickHouse"]]])))
 
 ; Колонка таблицы (строка в боксе)
 (defn table-column-item [box row]
