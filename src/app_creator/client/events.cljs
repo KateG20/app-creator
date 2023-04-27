@@ -252,7 +252,8 @@
 (re-frame/reg-event-db
   ::db-host-text-change
   (fn [db [_ new-host-value]]
-    (let [is-valid (some? (v/valid-host? new-host-value))]
+    (let [new-host-value (v/trim-input new-host-value)
+          is-valid (some? (v/valid-host? new-host-value))]
       (-> db
           (assoc-in [:data :db :postgresql :host] new-host-value)
           (assoc-in [:valid :db :host] is-valid)
