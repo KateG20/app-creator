@@ -209,7 +209,8 @@
                      {:class "content-name"
                       :style {:color "red"}}
                      {:class "content-name"})
-             "Host"]]]
+             "Host"]]
+           ]
           [:div
            {:class "col-12 pb-5 input-field"}
            [:input

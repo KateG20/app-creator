@@ -247,7 +247,8 @@
 ;------------------------------------------------------------------------------------------------------
 
 (defn cont-ui []
-  (fn []
+  (let [deploy-checked (re-frame/subscribe [::subs/deploy-checked])]
+    (fn []
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
@@ -263,22 +264,24 @@
         :type  "radio",
         :name  "deploy-type",
         :id    "docker",
-        ;:checked ""
+        :checked  (= @deploy-checked "docker")
+        :on-click #(re-frame/dispatch [::events/change-deploy-checked "docker"])
         }]
       [:label {:class "for-checkbox-comp-type", :for "docker"} "Docker"]
       [:input
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "deploy-type",
-        :id    "vagrant"}]
+        :id    "vagrant"
+        :checked  (= @deploy-checked "vagrant")
+        :on-click #(re-frame/dispatch [::events/change-deploy-checked "vagrant"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "vagrant"}
        "Vagrant"]]
 
      [:div
-      {:class "col-12 pt-5 for-docker center", :style       ;"display: block;"
-       {:display "block"}}
-      ;[:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Network"]]
+      {:class "col-12 pt-5 for-docker center", :style
+       {:display (if (= @deploy-checked "docker") "block" "none")}}
 
       [:div
        {:class "col-12 pt-5 header-with-help"}
@@ -368,7 +371,5 @@
 
      [:div
       {:class "col-12 pt-5 for-vagrant center", :style
-       {:display "none"}}
-      "Coming soon!"]
-     ]
-    ))
+       {:display (if (= @deploy-checked "vagrant") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another platform."]])))

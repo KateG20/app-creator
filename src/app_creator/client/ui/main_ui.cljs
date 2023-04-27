@@ -22,8 +22,8 @@
       ))
 
 (defn main-ui []
-  (fn []
-
+  (let [out-path-valid (re-frame/subscribe [::subs/out-path-valid])]
+    (fn []
     [:div
      {:class "section over-hide z-bigger"}
      [:input
@@ -63,10 +63,24 @@
             :name "text",
             :id "result-path",
             :autocomplete "off",
-            :required true}]
+            :required true
+            :on-change    #(re-frame/dispatch [::events/out-path-text-change (-> % .-target .-value)])}]
+          ;[:label
+          ; {:for "result-path", :class "label-name"}
+          ; [:span {:class "content-name"} "Path to result"]]
           [:label
-           {:for "result-path", :class "label-name"}
-           [:span {:class "content-name"} "Path to result"]]]]
+           (if-not @out-path-valid
+             {:for "result-path", :class "label-name incorrect-label"
+              :style {:border-bottom-color "red"}}
+             {:for "result-path", :class "label-name"})
+           ;{:for "db-host", :class "label-name incorrect-label"
+           ; :style {:border-bottom-color "red"}}
+           [:span (if-not @out-path-valid
+                    {:class "content-name"
+                     :style {:color "red"}}
+                    {:class "content-name"})
+            "Path to result"]]
+          ]]
         [:button
          {:class    "checkbox-comp-type final",
           :type     "button",
@@ -88,4 +102,4 @@
           "moskva20013@gmail.com"]]
         ]
        ]]]
-    ))
+    )))

@@ -16,7 +16,7 @@
      :success-display       "none"
      :http-post-result-text "null info"
      ;:log-field-display     "none"
-     :log-text              "Finished!"
+     :log-text              ""
      :tables                [0 1]
      :table-columns         [[0 0] [0 1] [1 0]]
      :controllers           [0]
@@ -26,17 +26,19 @@
      :nginx-conts           [0]
      :postgres-conts        [0]
      :checked               {:db     "postgres"
-                             :server {:type "spring"
-                                      :build "gradle"
-                                      :lang "java"
-                                      :pack "jar"
+                             :server {:type   "spring"
+                                      :build  "gradle"
+                                      :lang   "java"
+                                      :pack   "jar"
                                       :boot-v "3.0.6"
                                       :java-v "17"}
                              :client {:type "android"
                                       :lang "java"
                                       :test "junit-jupiter"}
                              :deploy "docker"}
-     :valid                 {:db {:host true}}
+     :valid                 {:db       {:host true}
+                             :server   {:db-host true}
+                             :out-path true}
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -125,7 +127,8 @@
                                 ; :backend-container-name "does-not-matter"}
                                 ],
                                :postgres [{:container-name nil, :port nil, :password nil}],
-                               :network  {:network-name nil}}}}
+                               :network  {:network-name nil}}}
+                             :out-path nil}
      }))                                                    ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
@@ -170,17 +173,19 @@
 (re-frame/reg-event-fx
   ::http-post
   (fn [{:keys [db] :as cofx} [_ val]]
-    {:http-xhrio {:method          :post
-                  :uri             "http://localhost:80/api/v1/create"
-                  :params          (:data db)               ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
-                  ;:timeout         5000
-                  :headers         {"Content-Type" "application/json"}
-                  :format          (ajax/json-request-format)
-                  ;:response-format {:content-type "application/json" :description "JSON body"}
-                  ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
-                  :response-format (ajax/json-response-format {:keywords? true})
-                  :on-success      [::success-post-result]
-                  :on-failure      [::failure-post-result]}}))
+    (if-not (:all-valid db)
+      (assoc db :log-text "Some data is incorrect. Check it again!")
+      {:http-xhrio {:method          :post
+                    :uri             "http://localhost:80/api/v1/create"
+                    :params          (:data db)             ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
+                    ;:timeout         5000
+                    :headers         {"Content-Type" "application/json"}
+                    :format          (ajax/json-request-format)
+                    ;:response-format {:content-type "application/json" :description "JSON body"}
+                    ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
+                    :response-format (ajax/json-response-format {:keywords? true})
+                    :on-success      [::success-post-result]
+                    :on-failure      [::failure-post-result]}})))
 
 (re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
   ::http-get                                                ;; <-- the event id
@@ -316,6 +321,17 @@
           (assoc-in [:data :db :postgresql :host] new-host-value)
           (assoc-in [:valid :db :host] is-valid)
           (assoc db :all-valid is-valid)))))
+
+(re-frame/reg-event-db
+  ::out-path-text-change
+  (fn [db [_ new-path-value]]
+    (let [new-path-value (v/trim-input new-path-value)
+          is-valid (v/valid-dir? new-path-value)]
+      (-> db
+          (assoc-in [:data :out-path] new-path-value)
+          (assoc-in [:valid :out-path] is-valid)
+          (assoc db :all-valid is-valid)
+          (assoc db :log-text (str is-valid))))))
 
 
 

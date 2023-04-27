@@ -136,3 +136,13 @@
   ::db-host-valid
   (fn [db _]
     (:host (:db (:valid db)))))
+
+(re-frame/reg-sub
+  ::out-path-valid
+  (fn [db _]
+    (:out-path (:valid db))))
+
+(re-frame/reg-sub
+  ::data
+  (fn [db _]
+    (:data db)))
