@@ -7,44 +7,44 @@
 (defn choose-type []
   (let [db-checked (re-frame/subscribe [::subs/db-checked])]
     (fn []
-    [:div
-     [:div
-      {:class "col-12 pt-5"}
-      [:p {:class "mb-4 pb-2"} "Choose type"]]
+      [:div
+       [:div
+        {:class "col-12 pt-5"}
+        [:p {:class "mb-4 pb-2"} "Choose type"]]
 
-     [:div
-      {:class "col-12 pb-5"}
-      [:input
-       {:class "checkbox-comp-type",
-        :type  "radio",
-        :name  "db-type",
-        :id    "postgres",
-        :checked (= @db-checked "postgres")
-        :on-click #(re-frame/dispatch [::events/change-db-checked "postgres"])
-        }]
-      [:label
-       {:class "for-checkbox-comp-type", :for "postgres"}
-       "PostgreSQL"]
-      [:input
-       {:class "checkbox-comp-type",
-        :type  "radio",
-        :name  "db-type",
-        :id    "mongodb"
-        :checked (= @db-checked "mongodb")
-        :on-click #(re-frame/dispatch [::events/change-db-checked "mongodb"])}]
-      [:label
-       {:class "for-checkbox-comp-type", :for "mongodb"}
-       "MongoDB"]
-      [:input
-       {:class "checkbox-comp-type",
-        :type  "radio",
-        :name  "db-type",
-        :id    "clickhouse"
-        :checked (= @db-checked "clickhouse")
-        :on-click #(re-frame/dispatch [::events/change-db-checked "clickhouse"])}]
-      [:label
-       {:class "for-checkbox-comp-type", :for "clickhouse"}
-       "ClickHouse"]]])))
+       [:div
+        {:class "col-12 pb-5"}
+        [:input
+         {:class    "checkbox-comp-type",
+          :type     "radio",
+          :name     "db-type",
+          :id       "postgres",
+          :checked  (= @db-checked "postgres")
+          :on-click #(re-frame/dispatch [::events/change-db-checked "postgres"])
+          }]
+        [:label
+         {:class "for-checkbox-comp-type", :for "postgres"}
+         "PostgreSQL"]
+        [:input
+         {:class    "checkbox-comp-type",
+          :type     "radio",
+          :name     "db-type",
+          :id       "mongodb"
+          :checked  (= @db-checked "mongodb")
+          :on-click #(re-frame/dispatch [::events/change-db-checked "mongodb"])}]
+        [:label
+         {:class "for-checkbox-comp-type", :for "mongodb"}
+         "MongoDB"]
+        [:input
+         {:class    "checkbox-comp-type",
+          :type     "radio",
+          :name     "db-type",
+          :id       "clickhouse"
+          :checked  (= @db-checked "clickhouse")
+          :on-click #(re-frame/dispatch [::events/change-db-checked "clickhouse"])}]
+        [:label
+         {:class "for-checkbox-comp-type", :for "clickhouse"}
+         "ClickHouse"]]])))
 
 ; Колонка таблицы (строка в боксе)
 (defn table-column-item [box row]
@@ -141,7 +141,8 @@
           ])])))
 
 (defn db-ui []
-  (fn []
+  (let [db-checked (re-frame/subscribe [::subs/db-checked])]
+    (fn []
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
@@ -152,10 +153,27 @@
      [:div
       {:class "col-12 pt-5 for-postgres center",
        :style
-       {:display "block"}}
+       {:display (if (= @db-checked "postgres") "block" "none")}}
       [:div
        {:class "col-12 pt-5"}
-       [:p {:class "mb-4 pb-2"} "Properties"]]
+       [:p {:class "mb-4 pb-2"} "Properties"]
+       [:label {:class "plus-label mt-20 help-label"} "?"]
+       ]
+
+      [:div
+       {:class "col-12 pt-5 header-with-help"
+        ;:style {:display "flex"
+        ;        :justify-content "center"
+        ;        :align-items "center"}
+        }
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} "Properties"]
+       [:label {:class "plus-label mt-20 help-label" :for "prop-help"} "?"]
+       [:button {:class "help-button" :id "prop-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        [:p "abracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabra"]]
+       ]
 
       [:div
        {:class "col-12 pb-5 opts-group center"}
@@ -209,18 +227,17 @@
 
       [:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
       [:div
-       {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
-        {:display "flex"}}
+       {:class "col-12 pt-5 center opts",
+        :style {:display "flex"}}
        [table-list]]
       [plus-table-button]]
 
      [:div
-      {:class "col-12 pt-5 for-mongodb center", :style      ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
+      {:class "col-12 pt-5 for-mongodb center",
+       :style {:display (if (= @db-checked "mongodb") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another database type."]
      [:div
       {:class "col-12 pt-5 for-clickhouse center",
-       :style                                               ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
-     ]))
+       :style {:display (if (= @db-checked "clickhouse") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another database type."]
+     ])))
