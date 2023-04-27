@@ -124,41 +124,6 @@
        {:class "db-col-list"}
        (for [item our-box-items]
          (controller-method-item (first item) (second item)))
-       ;[:li
-       ; {:class "table-row-li"}
-       ; [:div
-       ;  {:class "col-12 pb-5 input-field"}
-       ;  [:input
-       ;   {:type         "text",
-       ;    :name         "text",
-       ;    :id           "col-request-1-2",
-       ;    :autocomplete "off",
-       ;    :required     true}]
-       ;  [:label
-       ;   {:for "col-request-1-2", :class "label-name"}
-       ;   [:span {:class "content-name"} "Method name"]]]
-       ; [:div
-       ;  {:class "col-12 pb-5 input-field"}
-       ;  [:input
-       ;   {:type         "text",
-       ;    :name         "text",
-       ;    :id           "col-url-1-2",
-       ;    :autocomplete "off",
-       ;    :required     true}]
-       ;  [:label
-       ;   {:for "col-url-1-2", :class "label-name"}
-       ;   [:span {:class "content-name"} "Request URL"]]]
-       ; [:div
-       ;  {:class "col-12 pb-5 input-field"}
-       ;  [:input
-       ;   {:type         "text",
-       ;    :name         "text",
-       ;    :id           "col-mapping-1-2",
-       ;    :autocomplete "off",
-       ;    :required     true}]
-       ;  [:label
-       ;   {:for "col-mapping-1-2", :class "label-name"}
-       ;   [:span {:class "content-name"} "Request type"]]]]
        ])))
 
 ; Список контроллеров (боксов)
@@ -183,8 +148,7 @@
           [:span {:class "content-name"} "Controller name"]]]
         [controller-box-methods c]
         [plus-controller-method-button c]
-        ])]
-      )))
+        ])])))
 
 (defn server-ui []
   (fn []
@@ -194,7 +158,6 @@
       [:p {:class "mb-4 pb-2"} "2. Server"]]
 
      [choose-type]
-
 
      [:div
       {:class "col-12 pt-5 for-spring center", :style       ;"display: block;"

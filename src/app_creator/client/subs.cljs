@@ -73,3 +73,9 @@
   ::controller-methods
   (fn [db _]
     (:controller-methods db)))
+
+; Список эндпоинтов у клиента
+(re-frame/reg-sub
+  ::client-endpoints
+  (fn [db _]
+    (:client-endpoints db)))

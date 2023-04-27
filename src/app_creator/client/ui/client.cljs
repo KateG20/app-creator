@@ -1,4 +1,119 @@
-(ns app-creator.client.ui.client)
+(ns app-creator.client.ui.client
+  (:require [re-frame.core :as re-frame]
+            [app-creator.client.events :as events]
+            [app-creator.client.subs :as subs]
+            [reagent.core :as reagent]))
+
+
+; Кнопка для добавления эндпоинта
+(defn plus-endpoint-button []
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/client-endpoints])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type "button",
+         :name "plus-client-endpoint",
+         :id   "plus-client-endpoint",
+         :on-click #(re-frame/dispatch [::events/add-client-endpoint-item @new-item-vec])}]
+       [:label
+        {:class "mb-4 pb-2 plus-label", :for "plus-client-endpoint"}
+        "+"]])))
+
+; Характеристики эндпоинтов (строки в боксе)
+(defn endpoint-box-chars [box]
+  (fn [box]
+    (let [
+          ;all-items @(re-frame/subscribe [::subs/controller-methods])
+          ;our-box-items (filter #(= box (first %)) all-items)
+          uri-id (str "uri-" box)
+          method-id (str "method-" box)
+          r-type-id (str "request-type-" box)
+          b-type-id (str "body-type-" box)]
+      ;[:ul
+      ; {:class "db-col-list"}
+      ; (for [item our-box-items]
+      ;   (controller-method-item (first item) (second item)))
+      ; ]
+      [:ul
+       {:class "db-col-list"}
+       [:li
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           uri-id,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for uri-id, :class "label-name"}
+          [:span {:class "content-name"} "URL"]]]]
+       [:li
+        {:class "pt-10"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           method-id,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for method-id, :class "label-name"}
+          [:span {:class "content-name"} "Method name"]]]]
+       [:li
+        {:class "pt-10"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           r-type-id,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for r-type-id, :class "label-name"}
+          [:span {:class "content-name"} "Request type"]]]]
+       [:li
+        {:class "pt-10"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           b-type-id,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for b-type-id, :class "label-name"}
+          [:span {:class "content-name"} "Body type"]]]]]
+      )))
+
+; Список эндпоинтов (боксов)
+(defn endpoint-list []
+  (let [endpoints (re-frame/subscribe [::subs/client-endpoints])]
+    (fn []
+      [:ul
+       {:class "db-list"}
+       (for [c @endpoints]
+         [:li
+          {:class "col-12 pb-5 opts-group center box"}
+          ;[:div
+          ; {:class "col-12 pb-5 input-field"}
+          ; [:input
+          ;  {:type         "text",
+          ;   :name         "text",
+          ;   :id           (str "endpoint-name-" c),
+          ;   :autocomplete "off",
+          ;   :required     true}]
+          ; [:label
+          ;  {:for (str "endpoint-name-" c), :class "label-name"}
+          ;  [:span {:class "content-name"} "Controller name"]]]
+          [endpoint-box-chars c]
+          ;[plus-controller-method-button c]
+          ])])))
 
 (defn client-ui []
   (fn []
@@ -175,182 +290,180 @@
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
         {:display "flex"}}
-       [:ul
-        {:class "db-list"}
-        [:li
-         {:class "col-12 pb-5 opts-group center box"}
-         [:ul
-          {:class "db-col-list"}
-          [:li
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "uri-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "uri-1", :class "label-name"}
-             [:span {:class "content-name"} "URL"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "method-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "method-1", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "request-type-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "request-type-1", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "body-type-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "body-type-1", :class "label-name"}
-             [:span {:class "content-name"} "Body type"]]]]]]
-        [:li
-         {:class "col-12 pb-5 opts-group center box"}
-         [:ul
-          {:class "db-col-list"}
-          [:li
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "uri-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "uri-2", :class "label-name"}
-             [:span {:class "content-name"} "URL"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "method-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "method-2", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "request-type-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "request-type-2", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "body-type-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "body-type-2", :class "label-name"}
-             [:span {:class "content-name"} "Body type"]]]]]]
-        [:li
-         {:class "col-12 pb-5 opts-group center box"}
-         [:ul
-          {:class "db-col-list"}
-          [:li
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "uri-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "uri-3", :class "label-name"}
-             [:span {:class "content-name"} "URL"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "method-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "method-3", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "request-type-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "request-type-3", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]
-          [:li
-           {:class "pt-10"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "body-type-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "body-type-3", :class "label-name"}
-             [:span {:class "content-name"} "Body type"]]]]]]]]
-      [:div
-       {:class "col-12 pt-5 button-center"}
-       [:button
-        {:type "button",
-         :name "plus-client-endpoint",
-         :id   "plus-client-endpoint"}]
-       [:label
-        {:class "mb-4 pb-2 plus-label", :for "plus-client-endpoint"}
-        "+"]]]
+       [endpoint-list]
+       ;[:ul
+       ; {:class "db-list"}
+       ; [:li
+       ;  {:class "col-12 pb-5 opts-group center box"}
+       ;  тут должен быть эндпоинт
+       ;  характеристики эндпоинта
+       ;  ;[:ul
+       ;  ; {:class "db-col-list"}
+       ;  ; [:li
+       ;  ;  [:div
+       ;  ;   {:class "col-12 pb-5 input-field"}
+       ;  ;   [:input
+       ;  ;    {:type         "text",
+       ;  ;     :name         "text",
+       ;  ;     :id           "uri-1",
+       ;  ;     :autocomplete "off",
+       ;  ;     :required     true}]
+       ;  ;   [:label
+       ;  ;    {:for "uri-1", :class "label-name"}
+       ;  ;    [:span {:class "content-name"} "URL"]]]]
+       ;  ; [:li
+       ;  ;  {:class "pt-10"}
+       ;  ;  [:div
+       ;  ;   {:class "col-12 pb-5 input-field"}
+       ;  ;   [:input
+       ;  ;    {:type         "text",
+       ;  ;     :name         "text",
+       ;  ;     :id           "method-1",
+       ;  ;     :autocomplete "off",
+       ;  ;     :required     true}]
+       ;  ;   [:label
+       ;  ;    {:for "method-1", :class "label-name"}
+       ;  ;    [:span {:class "content-name"} "Method name"]]]]
+       ;  ; [:li
+       ;  ;  {:class "pt-10"}
+       ;  ;  [:div
+       ;  ;   {:class "col-12 pb-5 input-field"}
+       ;  ;   [:input
+       ;  ;    {:type         "text",
+       ;  ;     :name         "text",
+       ;  ;     :id           "request-type-1",
+       ;  ;     :autocomplete "off",
+       ;  ;     :required     true}]
+       ;  ;   [:label
+       ;  ;    {:for "request-type-1", :class "label-name"}
+       ;  ;    [:span {:class "content-name"} "Request type"]]]]
+       ;  ; [:li
+       ;  ;  {:class "pt-10"}
+       ;  ;  [:div
+       ;  ;   {:class "col-12 pb-5 input-field"}
+       ;  ;   [:input
+       ;  ;    {:type         "text",
+       ;  ;     :name         "text",
+       ;  ;     :id           "body-type-1",
+       ;  ;     :autocomplete "off",
+       ;  ;     :required     true}]
+       ;  ;   [:label
+       ;  ;    {:for "body-type-1", :class "label-name"}
+       ;  ;    [:span {:class "content-name"} "Body type"]]]]]
+       ;   ]
+       ; [:li
+       ;  {:class "col-12 pb-5 opts-group center box"}
+       ;  [:ul
+       ;   {:class "db-col-list"}
+       ;   [:li
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "uri-2",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "uri-2", :class "label-name"}
+       ;      [:span {:class "content-name"} "URL"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "method-2",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "method-2", :class "label-name"}
+       ;      [:span {:class "content-name"} "Method name"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "request-type-2",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "request-type-2", :class "label-name"}
+       ;      [:span {:class "content-name"} "Request type"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "body-type-2",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "body-type-2", :class "label-name"}
+       ;      [:span {:class "content-name"} "Body type"]]]]]]
+       ; [:li
+       ;  {:class "col-12 pb-5 opts-group center box"}
+       ;  [:ul
+       ;   {:class "db-col-list"}
+       ;   [:li
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "uri-3",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "uri-3", :class "label-name"}
+       ;      [:span {:class "content-name"} "URL"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "method-3",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "method-3", :class "label-name"}
+       ;      [:span {:class "content-name"} "Method name"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "request-type-3",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "request-type-3", :class "label-name"}
+       ;      [:span {:class "content-name"} "Request type"]]]]
+       ;   [:li
+       ;    {:class "pt-10"}
+       ;    [:div
+       ;     {:class "col-12 pb-5 input-field"}
+       ;     [:input
+       ;      {:type         "text",
+       ;       :name         "text",
+       ;       :id           "body-type-3",
+       ;       :autocomplete "off",
+       ;       :required     true}]
+       ;     [:label
+       ;      {:for "body-type-3", :class "label-name"}
+       ;      [:span {:class "content-name"} "Body type"]]]]]]]
+        ]
+
+      [plus-endpoint-button]]
 
      [:div
       {:class "col-12 pt-5 for-ios center", :style          ;"display: none;"

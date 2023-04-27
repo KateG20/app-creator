@@ -19,6 +19,7 @@
      :table-columns         [[0 0] [0 1] [1 0]]
      :controllers                [0]
      :controller-methods         [[0 0] [0 1] [0 2]]
+     :client-endpoints [0 1]
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -207,6 +208,13 @@
   ::add-controller-method-item
   (fn [db [_ new-item]]
     (update-in db [:controller-methods] conj new-item)))
+
+; Добавляет эндпоинт клиента (new item = endpoint-num)
+(re-frame/reg-event-db
+  ::add-client-endpoint-item
+  (fn [db [_ new-item]]
+    (update-in db [:client-endpoints] conj new-item)))
+
 
 
 
