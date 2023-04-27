@@ -154,11 +154,11 @@
       {:class "col-12 pt-5 for-postgres center",
        :style
        {:display (if (= @db-checked "postgres") "block" "none")}}
-      [:div
-       {:class "col-12 pt-5"}
-       [:p {:class "mb-4 pb-2"} "Properties"]
-       [:label {:class "plus-label mt-20 help-label"} "?"]
-       ]
+      ;[:div
+      ; {:class "col-12 pt-5"}
+      ; [:p {:class "mb-4 pb-2"} "Properties"]
+      ; [:label {:class "plus-label mt-20 help-label"} "?"]
+      ; ]
 
       [:div
        {:class "col-12 pt-5 header-with-help"
@@ -172,7 +172,10 @@
        [:label {:class "plus-label mt-20 help-label" :for "prop-help"} "?"]
        [:button {:class "help-button" :id "prop-help" :style {:display "none"}}]
        [:div {:class "help-div box"}
-        [:p "abracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabraabracadabra"]]
+        [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
+         [:b "Host:"] " valid host of your PostgreSQL server" [:br]
+         [:b "Username:"] " your PostgreSQL username" [:br]
+         [:b "Password:"] " password for your PostgreSQL user" [:br]]]
        ]
 
       [:div

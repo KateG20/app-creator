@@ -878,6 +878,7 @@ li {
 .help-div {
     /*display: none;*/
     /*display: block;*/
+    visibility: hidden;
     opacity: 0;
     position: absolute;
     width: 350px;
@@ -910,8 +911,10 @@ li {
     /*z-index: 99 !important;*/
 }
 
-.help-button:hover + .help-div {
+.help-button:hover + .help-div,
+.help-div:hover {
     /*display: block;*/
+    visibility: visible;
     opacity: 1;
 }
 
