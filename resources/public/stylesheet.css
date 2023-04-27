@@ -870,11 +870,11 @@ li {
 
 .final {
     background-color: var(--green1) !important;
-    box-shadow: 0 8px 12px 0 rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 8px 8px 0 rgba(0, 0, 0, 0.2) !important;
 }
 
-.final ~ label:hover {
-    /*box-shadow: 0 16px 32px 0 rgba(0, 0, 0, 1);*/
+.final:hover {
+    box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.3) !important;
 }
 
 /*.for-postgres, .for-mongodb, .for-clickhouse {*/
