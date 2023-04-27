@@ -4,6 +4,8 @@
             [app-creator.client.subs :as subs]
             [reagent.core :as reagent]))
 
+;------------------------------------------------JAR containers-----------------------------------
+
 ; Характеристика контейнера (строки в боксе)
 (defn jar-cont-box-chars [box]
   (fn [box]
@@ -60,73 +62,18 @@
            :required     true}]
          [:label
           {:for jar-path, :class "label-name"}
-          [:span {:class "content-name"} "Path to JAR"]]]]]
-      )))
+          [:span {:class "content-name"} "Path to JAR"]]]]])))
 
 ; Список джар-контейнеров (боксов)
 (defn jar-conts-list []
   (let [jar-conts (re-frame/subscribe [::subs/jar-conts])]
     (fn []
-
       [:ul
        {:class "center no-marker"}
        (for [j @jar-conts]
        [:li
         {:class "box"}
-        [jar-cont-box-chars j]
-        ;[:div
-        ; {:class "col-12 pb-5 opts-group center no-pb"}
-        ; [:div
-        ;  {:class "col-12 pb-5 center no-pt"}
-        ;  [:div
-        ;   {:class "col-12 pb-5 input-field"}
-        ;   [:input
-        ;    {:type         "text",
-        ;     :name         "text",
-        ;     :id           "docker-jar-cont",
-        ;     :autocomplete "off",
-        ;     :required     true}]
-        ;   [:label
-        ;    {:for "docker-jar-cont", :class "label-name"}
-        ;    [:span {:class "content-name"} "Container name"]]]
-        ;  [:div
-        ;   {:class "col-12 pb-5 input-field"}
-        ;   [:input
-        ;    {:type         "text",
-        ;     :name         "text",
-        ;     :id           "docker-jar-img",
-        ;     :autocomplete "off",
-        ;     :required     true}]
-        ;   [:label
-        ;    {:for "docker-jar-img", :class "label-name"}
-        ;    [:span {:class "content-name"} "Image name"]]]
-        ;  [:div
-        ;   {:class "col-12 pb-5 input-field"}
-        ;   [:input
-        ;    {:type         "text",
-        ;     :name         "text",
-        ;     :id           "docker-jar-run-dir",
-        ;     :autocomplete "off",
-        ;     :required     true}]
-        ;   [:label
-        ;    {:for "docker-jar-run-dir", :class "label-name"}
-        ;    [:span {:class "content-name"} "Run directory name"]]]]
-        ; [:div
-        ;  {:class "col-12 pb-5 center no-pt full-w"}
-        ;  [:div
-        ;   {:class "col-12 pb-5 input-field"}
-        ;   [:input
-        ;    {:type         "text",
-        ;     :name         "text",
-        ;     :id           "docker-jar-path",
-        ;     :autocomplete "off",
-        ;     :required     true}]
-        ;   [:label
-        ;    {:for "docker-jar-path", :class "label-name"}
-        ;    [:span {:class "content-name"} "Path to JAR"]]]]]
-        ]
-       )]
-      )))
+        [jar-cont-box-chars j]])])))
 
 
 ; Кнопка для добавления джар-контейнера
@@ -142,6 +89,162 @@
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-jar-cont"}
         "+"]])))
+
+;------------------------------------------------NGINX containers-----------------------------------
+
+; Характеристика контейнера (строки в боксе)
+(defn nginx-cont-box-chars [box]
+  (fn [box]
+    (let [cont-name (str "docker-nginx-cont-name-" box)
+          img-name (str "docker-nginx-img-name-" box)
+          run-dir (str "docker-nginx-run-dir-" box)
+          back-cont (str "docker-ngx-back-cont-" box)]
+      [:div
+       {:class "col-12 pb-5 opts-group center no-pb"}
+       [:div
+        {:class "col-12 pb-5 center no-pt"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           cont-name,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for cont-name, :class "label-name"}
+          [:span {:class "content-name"} "Container name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           img-name,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for img-name, :class "label-name"}
+          [:span {:class "content-name"} "Image name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           run-dir,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for run-dir, :class "label-name"}
+          [:span {:class "content-name"} "Run directory name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           back-cont,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for back-cont, :class "label-name"}
+          [:span {:class "content-name"} "Backend container"]]]]])))
+
+; Список nginx-контейнеров (боксов)
+(defn nginx-conts-list []
+  (let [nginx-conts (re-frame/subscribe [::subs/nginx-conts])]
+    (fn []
+      [:ul
+       {:class "center no-marker"}
+       (for [n @nginx-conts]
+         [:li
+          {:class "box"}
+          [nginx-cont-box-chars n]])])))
+
+; Кнопка для добавления nginx-контейнера
+(defn plus-nginx-cont-button []
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/nginx-conts])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type "button", :name "plus-nginx-cont", :id "plus-nginx-cont"
+         :on-click #(re-frame/dispatch [::events/add-nginx-cont-item @new-item-vec])}]
+       [:label
+        {:class "mb-4 pb-2 plus-label", :for "plus-nginx-cont"}
+        "+"]])))
+
+;------------------------------------------------POSTGRES containers-----------------------------------
+
+; Характеристика контейнера (строки в боксе)
+(defn postgres-cont-box-chars [box]
+  (fn [box]
+    (let [cont-name (str "docker-pg-cont-name-" box)
+          pg-port (str "docker-pg-port-" box)
+          pg-pwd (str "docker-pg-pwd-" box)]
+      [:div
+       {:class "col-12 pb-5 opts-group center no-pb"}
+       [:div
+        {:class "col-12 pb-5 center no-pt"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           cont-name,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for cont-name, :class "label-name"}
+          [:span {:class "content-name"} "Container name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           pg-port,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for pg-port, :class "label-name"}
+          [:span {:class "content-name"} "DB port"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           pg-pwd,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for pg-pwd, :class "label-name"}
+          [:span {:class "content-name"} "DB password"]]]]])))
+
+; Список nginx-контейнеров (боксов)
+(defn postgres-conts-list []
+  (let [postgres-conts (re-frame/subscribe [::subs/postgres-conts])]
+    (fn []
+      [:ul
+       {:class "center no-marker"}
+       (for [n @postgres-conts]
+         [:li
+          {:class "box"}
+          [postgres-cont-box-chars n]])])))
+
+; Кнопка для добавления postgres-контейнера
+(defn plus-postgres-cont-button []
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/postgres-conts])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type "button", :name "plus-postgres-cont", :id "plus-postgres-cont"
+         :on-click #(re-frame/dispatch [::events/add-postgres-cont-item @new-item-vec])}]
+       [:label
+        {:class "mb-4 pb-2 plus-label", :for "plus-postgres-cont"}
+        "+"]])))
+
+;------------------------------------------------------------------------------------------------------
 
 (defn cont-ui []
   (fn []
@@ -201,116 +304,18 @@
       [:div
        {:class "col-12 pt-5 pt-10 mt-20"}
        [:p {:class "mb-4 pb-2"} "Nginx containers"]]
-      [:ul
-       {:class "center no-marker"}
-       [:li
-        {:class "box"}
-        [:div
-         {:class "col-12 pb-5 opts-group center no-pb"}
-         [:div
-          {:class "col-12 pb-5 center no-pt"}
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-ngx-cont",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-ngx-cont", :class "label-name"}
-            [:span {:class "content-name"} "Container name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-ngx-img",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-ngx-img", :class "label-name"}
-            [:span {:class "content-name"} "Image name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-ngx-run-dir",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-ngx-run-dir", :class "label-name"}
-            [:span {:class "content-name"} "Run directory name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-ngx-back-cont",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-ngx-back-cont", :class "label-name"}
-            [:span {:class "content-name"} "Backend container"]]]]]]]
-      [:div
-       {:class "col-12 pt-5 button-center"}
-       [:button
-        {:type "button", :name "plus-ngx-cont", :id "plus-ngx-cont"}]
-       [:label
-        {:class "mb-4 pb-2 plus-label", :for "plus-ngx-cont"}
-        "+"]]
+
+      [nginx-conts-list]
+      [plus-nginx-cont-button]
+
       [:div
        {:class "col-12 pt-5 pt-10 mt-20"}
        [:p {:class "mb-4 pb-2"} "Postgres containers"]]
-      [:ul
-       {:class "center no-marker"}
-       [:li
-        {:class "box"}
-        [:div
-         {:class "col-12 pb-5 opts-group center no-pb"}
-         [:div
-          {:class "col-12 pb-5 center no-pt"}
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-pg-cont",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-pg-cont", :class "label-name"}
-            [:span {:class "content-name"} "Container name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-pg-port",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-pg-port", :class "label-name"}
-            [:span {:class "content-name"} "DB port"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-pg-pwd",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-pg-pwd", :class "label-name"}
-            [:span {:class "content-name"} "DB password"]]]]]]]
-      [:div
-       {:class "col-12 pt-5 button-center"}
-       [:button
-        {:type "button", :name "plus-pg-cont", :id "plus-pg-cont"}]
-       [:label
-        {:class "mb-4 pb-2 plus-label", :for "plus-pg-cont"}
-        "+"]]]
+
+      [postgres-conts-list]
+      [plus-postgres-cont-button]
+
+      ]
 
      [:div
       {:class "col-12 pt-5 for-vagrant center", :style      ;"display: none;"

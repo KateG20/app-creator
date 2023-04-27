@@ -17,10 +17,12 @@
      :log-text              "Finished!"
      :tables                [0 1]
      :table-columns         [[0 0] [0 1] [1 0]]
-     :controllers                [0]
-     :controller-methods         [[0 0] [0 1] [0 2]]
-     :client-endpoints [0 1]
-     :jar-conts [0]
+     :controllers           [0]
+     :controller-methods    [[0 0] [0 1] [0 2]]
+     :client-endpoints      [0 1]
+     :jar-conts             [0]
+     :nginx-conts           [0]
+     :postgres-conts        [0]
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -221,6 +223,18 @@
   ::add-jar-cont-item
   (fn [db [_ new-item]]
     (update-in db [:jar-conts] conj new-item)))
+
+; Добавляет nginx-контейнер (new item = nginx-cont-num)
+(re-frame/reg-event-db
+  ::add-nginx-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:nginx-conts] conj new-item)))
+
+; Добавляет postgres-контейнер (new item = postgres-cont-num)
+(re-frame/reg-event-db
+  ::add-postgres-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:postgres-conts] conj new-item)))
 
 
 

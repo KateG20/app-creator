@@ -85,3 +85,15 @@
   ::jar-conts
   (fn [db _]
     (:jar-conts db)))
+
+; Список nginx-контейнеров
+(re-frame/reg-sub
+  ::nginx-conts
+  (fn [db _]
+    (:nginx-conts db)))
+
+; Список postgres-контейнеров
+(re-frame/reg-sub
+  ::postgres-conts
+  (fn [db _]
+    (:postgres-conts db)))
