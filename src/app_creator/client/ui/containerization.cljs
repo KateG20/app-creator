@@ -1,4 +1,147 @@
-(ns app-creator.client.ui.containerization)
+(ns app-creator.client.ui.containerization
+  (:require [re-frame.core :as re-frame]
+            [app-creator.client.events :as events]
+            [app-creator.client.subs :as subs]
+            [reagent.core :as reagent]))
+
+; Характеристика контейнера (строки в боксе)
+(defn jar-cont-box-chars [box]
+  (fn [box]
+    (let [cont-name (str "docker-jar-cont-name-" box)
+          img-name (str "docker-jar-img-name-" box)
+          run-dir (str "docker-jar-run-dir-" box)
+          jar-path (str "docker-jar-path-" box)]
+      [:div
+       {:class "col-12 pb-5 opts-group center no-pb"}
+       [:div
+        {:class "col-12 pb-5 center no-pt"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           cont-name,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for cont-name, :class "label-name"}
+          [:span {:class "content-name"} "Container name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           img-name,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for img-name, :class "label-name"}
+          [:span {:class "content-name"} "Image name"]]]
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           run-dir,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for run-dir, :class "label-name"}
+          [:span {:class "content-name"} "Run directory name"]]]]
+       [:div
+        {:class "col-12 pb-5 center no-pt full-w"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           jar-path,
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for jar-path, :class "label-name"}
+          [:span {:class "content-name"} "Path to JAR"]]]]]
+      )))
+
+; Список джар-контейнеров (боксов)
+(defn jar-conts-list []
+  (let [jar-conts (re-frame/subscribe [::subs/jar-conts])]
+    (fn []
+
+      [:ul
+       {:class "center no-marker"}
+       (for [j @jar-conts]
+       [:li
+        {:class "box"}
+        [jar-cont-box-chars j]
+        ;[:div
+        ; {:class "col-12 pb-5 opts-group center no-pb"}
+        ; [:div
+        ;  {:class "col-12 pb-5 center no-pt"}
+        ;  [:div
+        ;   {:class "col-12 pb-5 input-field"}
+        ;   [:input
+        ;    {:type         "text",
+        ;     :name         "text",
+        ;     :id           "docker-jar-cont",
+        ;     :autocomplete "off",
+        ;     :required     true}]
+        ;   [:label
+        ;    {:for "docker-jar-cont", :class "label-name"}
+        ;    [:span {:class "content-name"} "Container name"]]]
+        ;  [:div
+        ;   {:class "col-12 pb-5 input-field"}
+        ;   [:input
+        ;    {:type         "text",
+        ;     :name         "text",
+        ;     :id           "docker-jar-img",
+        ;     :autocomplete "off",
+        ;     :required     true}]
+        ;   [:label
+        ;    {:for "docker-jar-img", :class "label-name"}
+        ;    [:span {:class "content-name"} "Image name"]]]
+        ;  [:div
+        ;   {:class "col-12 pb-5 input-field"}
+        ;   [:input
+        ;    {:type         "text",
+        ;     :name         "text",
+        ;     :id           "docker-jar-run-dir",
+        ;     :autocomplete "off",
+        ;     :required     true}]
+        ;   [:label
+        ;    {:for "docker-jar-run-dir", :class "label-name"}
+        ;    [:span {:class "content-name"} "Run directory name"]]]]
+        ; [:div
+        ;  {:class "col-12 pb-5 center no-pt full-w"}
+        ;  [:div
+        ;   {:class "col-12 pb-5 input-field"}
+        ;   [:input
+        ;    {:type         "text",
+        ;     :name         "text",
+        ;     :id           "docker-jar-path",
+        ;     :autocomplete "off",
+        ;     :required     true}]
+        ;   [:label
+        ;    {:for "docker-jar-path", :class "label-name"}
+        ;    [:span {:class "content-name"} "Path to JAR"]]]]]
+        ]
+       )]
+      )))
+
+
+; Кнопка для добавления джар-контейнера
+(defn plus-jar-cont-button []
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/jar-conts])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type "button", :name "plus-jar-cont", :id "plus-jar-cont"
+         :on-click #(re-frame/dispatch [::events/add-jar-cont-item @new-item-vec])}]
+       [:label
+        {:class "mb-4 pb-2 plus-label", :for "plus-jar-cont"}
+        "+"]])))
 
 (defn cont-ui []
   (fn []
@@ -51,67 +194,10 @@
       [:div
        {:class "col-12 pt-5"}
        [:p {:class "mb-4 pb-2"} "JAR containers"]]
-      [:ul
-       {:class "center no-marker"}
-       [:li
-        {:class "box"}
-        [:div
-         {:class "col-12 pb-5 opts-group center no-pb"}
-         [:div
-          {:class "col-12 pb-5 center no-pt"}
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-jar-cont",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-jar-cont", :class "label-name"}
-            [:span {:class "content-name"} "Container name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-jar-img",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-jar-img", :class "label-name"}
-            [:span {:class "content-name"} "Image name"]]]
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-jar-run-dir",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-jar-run-dir", :class "label-name"}
-            [:span {:class "content-name"} "Run directory name"]]]]
-         [:div
-          {:class "col-12 pb-5 center no-pt full-w"}
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           "docker-jar-path",
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for "docker-jar-path", :class "label-name"}
-            [:span {:class "content-name"} "Path to JAR"]]]]]]]
-      [:div
-       {:class "col-12 pt-5 button-center"}
-       [:button
-        {:type "button", :name "plus-jar-cont", :id "plus-jar-cont"}]
-       [:label
-        {:class "mb-4 pb-2 plus-label", :for "plus-jar-cont"}
-        "+"]]
+
+      [jar-conts-list]
+      [plus-jar-cont-button]
+
       [:div
        {:class "col-12 pt-5 pt-10 mt-20"}
        [:p {:class "mb-4 pb-2"} "Nginx containers"]]

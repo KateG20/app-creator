@@ -79,3 +79,9 @@
   ::client-endpoints
   (fn [db _]
     (:client-endpoints db)))
+
+; Список джар-контейнеров
+(re-frame/reg-sub
+  ::jar-conts
+  (fn [db _]
+    (:jar-conts db)))

@@ -20,6 +20,7 @@
      :controllers                [0]
      :controller-methods         [[0 0] [0 1] [0 2]]
      :client-endpoints [0 1]
+     :jar-conts [0]
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -214,6 +215,12 @@
   ::add-client-endpoint-item
   (fn [db [_ new-item]]
     (update-in db [:client-endpoints] conj new-item)))
+
+; Добавляет джар-контейнер (new item = jar-cont-num)
+(re-frame/reg-event-db
+  ::add-jar-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:jar-conts] conj new-item)))
 
 
 
