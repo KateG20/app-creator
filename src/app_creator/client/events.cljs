@@ -1,13 +1,15 @@
 (ns app-creator.client.events
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.http-fx]
-            [ajax.core :as ajax]))
+            [ajax.core :as ajax]
+            [app-creator.client.ui.validator :as v]))
 
 ; Событие для изначальной инициации дб (вызывается потом в методе run, перед рендером)
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
-    {:text                  "initial text"
+    {:all-valid             true
+     :text                  "initial text"
      :error-display         "none"                          ;; returned value put into app-db
      :server-framework-text "default"
      :server-lang-text      "default"
@@ -27,6 +29,7 @@
                              :server "spring"
                              :client "android"
                              :deploy "docker"}
+     :valid                 {:db {:host true}}
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -245,6 +248,16 @@
   ::change-db-checked
   (fn [db [_ new-value]]
     (assoc-in db [:checked :db] new-value)))
+
+(re-frame/reg-event-db
+  ::db-host-text-change
+  (fn [db [_ new-host-value]]
+    (let [is-valid (some? (v/valid-host? new-host-value))]
+      (-> db
+          (assoc-in [:data :db :postgresql :host] new-host-value)
+          (assoc-in [:valid :db :host] is-valid)
+          (assoc db :all-valid is-valid)))
+    ))
 
 
 

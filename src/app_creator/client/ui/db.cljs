@@ -141,106 +141,116 @@
           ])])))
 
 (defn db-ui []
-  (let [db-checked (re-frame/subscribe [::subs/db-checked])]
+  (let [db-checked (re-frame/subscribe [::subs/db-checked])
+        host-valid (re-frame/subscribe [::subs/db-host-valid])]
     (fn []
-    [:div
-     [:div
-      {:class "col-12 pt-5 big-text"}
-      [:p {:class "mb-4 pb-2"} "1. Database"]]
-
-     [choose-type]
-
-     [:div
-      {:class "col-12 pt-5 for-postgres center",
-       :style
-       {:display (if (= @db-checked "postgres") "block" "none")}}
-      ;[:div
-      ; {:class "col-12 pt-5"}
-      ; [:p {:class "mb-4 pb-2"} "Properties"]
-      ; [:label {:class "plus-label mt-20 help-label"} "?"]
-      ; ]
-
       [:div
-       {:class "col-12 pt-5 header-with-help"
-        ;:style {:display "flex"
-        ;        :justify-content "center"
-        ;        :align-items "center"}
-        }
-       [:label {:class "plus-label mt-20 help-label"
-                :style {:visibility "hidden"}} "?"]
-       [:p {:class "mb-4 pb-2"} "Properties"]
-       [:label {:class "plus-label mt-20 help-label" :for "prop-help"} "?"]
-       [:button {:class "help-button" :id "prop-help" :style {:display "none"}}]
-       [:div {:class "help-div box"}
-        [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
-         [:b "Host:"] " valid host of your PostgreSQL server" [:br]
-         [:b "Username:"] " your PostgreSQL username" [:br]
-         [:b "Password:"] " password for your PostgreSQL user" [:br]]]
-       ]
-
-      [:div
-       {:class "col-12 pb-5 opts-group center"}
        [:div
-        {:class "col-12 pb-5 center no-pt"}
+        {:class "col-12 pt-5 big-text"}
+        [:p {:class "mb-4 pb-2"} "1. Database"]]
+
+       [choose-type]
+
+       [:div
+        {:class "col-12 pt-5 for-postgres center",
+         :style
+         {:display (if (= @db-checked "postgres") "block" "none")}}
+        ;[:div
+        ; {:class "col-12 pt-5"}
+        ; [:p {:class "mb-4 pb-2"} "Properties"]
+        ; [:label {:class "plus-label mt-20 help-label"} "?"]
+        ; ]
+
         [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           "db-name",
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for "db-name", :class "label-name"}
-          [:span {:class "content-name"} "DB name"]]]
+         {:class "col-12 pt-5 header-with-help"
+          ;:style {:display "flex"
+          ;        :justify-content "center"
+          ;        :align-items "center"}
+          }
+         [:label {:class "plus-label mt-20 help-label"
+                  :style {:visibility "hidden"}} "?"]
+         [:p {:class "mb-4 pb-2"} "Properties"]
+         [:label {:class "plus-label mt-20 help-label" :for "prop-help"} "?"]
+         [:button {:class "help-button" :id "prop-help" :style {:display "none"}}]
+         [:div {:class "help-div box"}
+          [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
+           [:b "Host:"] " valid host of your PostgreSQL server" [:br]
+           [:b "Username:"] " your PostgreSQL username" [:br]
+           [:b "Password:"] " password for your PostgreSQL user" [:br]]]]
+
         [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           "db-host",
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for "db-host", :class "label-name"}
-          [:span {:class "content-name"} "Host"]]]
-        [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           "db-username",
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for "db-username", :class "label-name"}
-          [:span {:class "content-name"} "Username"]]]
-        [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           "db-password",
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for "db-password", :class "label-name"}
-          [:span {:class "content-name"} "Password"]]]]]
+         {:class "col-12 pb-5 opts-group center"}
+         [:div
+          {:class "col-12 pb-5 center no-pt"}
+          [:div
+           {:class "col-12 pb-5 input-field"}
+           [:input
+            {:type         "text",
+             :name         "text",
+             :id           "db-name",
+             :autocomplete "off",
+             :required     true}]
+           [:label
+            {:for "db-name", :class "label-name"}
+            [:span {:class "content-name"} "DB name"]]]
+          [:div
+           {:class "col-12 pb-5 input-field"}
+           [:input
+            {:type         "text",
+             :name         "text",
+             :id           "db-host",
+             :autocomplete "off",
+             :required     true
+             :on-change    #(re-frame/dispatch [::events/db-host-text-change (-> % .-target .-value)])}]
+           [:label
+            (if-not @host-valid
+              {:for "db-host", :class "label-name incorrect-label"
+               :style {:border-bottom-color "red"}}
+              {:for "db-host", :class "label-name"})
+            ;{:for "db-host", :class "label-name incorrect-label"
+            ; :style {:border-bottom-color "red"}}
+            [:span (if-not @host-valid
+                     {:class "content-name"
+                      :style {:color "red"}}
+                     {:class "content-name"})
+             "Host"]]]
+          [:div
+           {:class "col-12 pb-5 input-field"}
+           [:input
+            {:type         "text",
+             :name         "text",
+             :id           "db-username",
+             :autocomplete "off",
+             :required     true}]
+           [:label
+            {:for "db-username", :class "label-name"}
+            [:span {:class "content-name"} "Username"]]]
+          [:div
+           {:class "col-12 pb-5 input-field"}
+           [:input
+            {:type         "text",
+             :name         "text",
+             :id           "db-password",
+             :autocomplete "off",
+             :required     true}]
+           [:label
+            {:for "db-password", :class "label-name"}
+            [:span {:class "content-name"} "Password"]]]]]
 
 
-      [:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
-      [:div
-       {:class "col-12 pt-5 center opts",
-        :style {:display "flex"}}
-       [table-list]]
-      [plus-table-button]]
+        [:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
+        [:div
+         {:class "col-12 pt-5 center opts",
+          :style {:display "flex"}}
+         [table-list]]
+        [plus-table-button]]
 
-     [:div
-      {:class "col-12 pt-5 for-mongodb center",
-       :style {:display (if (= @db-checked "mongodb") "block" "none")}}
-      "Coming soon!" [:br] "Please, choose another database type."]
-     [:div
-      {:class "col-12 pt-5 for-clickhouse center",
-       :style {:display (if (= @db-checked "clickhouse") "block" "none")}}
-      "Coming soon!" [:br] "Please, choose another database type."]
-     ])))
+       [:div
+        {:class "col-12 pt-5 for-mongodb center",
+         :style {:display (if (= @db-checked "mongodb") "block" "none")}}
+        "Coming soon!" [:br] "Please, choose another database type."]
+       [:div
+        {:class "col-12 pt-5 for-clickhouse center",
+         :style {:display (if (= @db-checked "clickhouse") "block" "none")}}
+        "Coming soon!" [:br] "Please, choose another database type."]
+       ])))

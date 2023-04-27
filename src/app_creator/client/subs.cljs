@@ -103,3 +103,9 @@
   ::db-checked
   (fn [db _]
     (:db (:checked db))))
+
+; Список postgres-контейнеров
+(re-frame/reg-sub
+  ::db-host-valid
+  (fn [db _]
+    (:host (:db (:valid db)))))
