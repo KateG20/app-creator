@@ -364,12 +364,10 @@
          [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
 
       [postgres-conts-list]
-      [plus-postgres-cont-button]
-
-      ]
+      [plus-postgres-cont-button]]
 
      [:div
-      {:class "col-12 pt-5 for-vagrant center", :style      ;"display: none;"
+      {:class "col-12 pt-5 for-vagrant center", :style
        {:display "none"}}
       "Coming soon!"]
      ]

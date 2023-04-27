@@ -26,8 +26,13 @@
      :nginx-conts           [0]
      :postgres-conts        [0]
      :checked               {:db     "postgres"
-                             :server "spring"
-                             :client "android"
+                             :server {:type "spring"
+                                      :build "gradle"
+                                      :lang "java"
+                                      :pack "jar"
+                                      :boot-v "3.0.6"
+                                      :java-v "17"}
+                             :client {:type "android"}
                              :deploy "docker"}
      :valid                 {:db {:host true}}
      :data                  {:db
@@ -249,6 +254,47 @@
   (fn [db [_ new-value]]
     (assoc-in db [:checked :db] new-value)))
 
+; Отмечает выбранный тип сервера (new-value = тип)
+(re-frame/reg-event-db
+  ::change-server-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :type] new-value)))
+
+(re-frame/reg-event-db
+  ::change-client-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :client :type] new-value)))
+
+(re-frame/reg-event-db
+  ::change-deploy-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :deploy] new-value)))
+
+(re-frame/reg-event-db
+  ::change-spring-build
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :build] new-value)))
+
+(re-frame/reg-event-db
+  ::change-spring-lang
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :lang] new-value)))
+
+(re-frame/reg-event-db
+  ::change-spring-pack
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :pack] new-value)))
+
+(re-frame/reg-event-db
+  ::change-spring-boot-v
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :boot-v] new-value)))
+
+(re-frame/reg-event-db
+  ::change-spring-java-v
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :server :java-v] new-value)))
+
 (re-frame/reg-event-db
   ::db-host-text-change
   (fn [db [_ new-host-value]]
@@ -257,8 +303,7 @@
       (-> db
           (assoc-in [:data :db :postgresql :host] new-host-value)
           (assoc-in [:valid :db :host] is-valid)
-          (assoc db :all-valid is-valid)))
-    ))
+          (assoc db :all-valid is-valid)))))
 
 
 

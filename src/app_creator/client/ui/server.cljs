@@ -5,7 +5,8 @@
             [reagent.core :as reagent]))
 
 (defn choose-type []
-  (fn []
+  (let [server-checked (re-frame/subscribe [::subs/server-checked])]
+    (fn []
     [:div
      [:div
       {:class "col-12 pt-5"}
@@ -17,8 +18,8 @@
         :type  "radio",
         :name  "server-type",
         :id    "spring",
-        ;:checked ""
-        }]
+        :checked  (= @server-checked "spring")
+        :on-click #(re-frame/dispatch [::events/change-server-checked "spring"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "spring"}
        "Spring Boot"]
@@ -26,16 +27,20 @@
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "server-type",
-        :id    "django"}]
+        :id    "django"
+        :checked  (= @server-checked "django")
+        :on-click #(re-frame/dispatch [::events/change-server-checked "django"])}]
       [:label {:class "for-checkbox-comp-type", :for "django"} "Django"]
       [:input
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "server-type",
-        :id    "nodejs"}]
+        :id    "nodejs"
+        :checked  (= @server-checked "nodejs")
+        :on-click #(re-frame/dispatch [::events/change-server-checked "nodejs"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "nodejs"}
-       "Node.js"]]]))
+       "Node.js"]]])))
 
 
 ; Метод запроса (строка в боксе)
@@ -151,7 +156,9 @@
         ])])))
 
 (defn server-ui []
-  (fn []
+  (let [server-checked (re-frame/subscribe [::subs/server-checked])
+        opts-checked (re-frame/subscribe [::subs/server-opts])]
+        (fn []
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
@@ -160,8 +167,9 @@
      [choose-type]
 
      [:div
-      {:class "col-12 pt-5 for-spring center", :style       ;"display: block;"
-       {:display "block"}}
+      {:class "col-12 pt-5 for-spring center",
+       :style
+       {:display (if (= @server-checked "spring") "block" "none")}}
 
       ;[:div
       ; {:class "col-12 pt-5"}
@@ -193,7 +201,8 @@
            :type  "radio",
            :name  "build-tool",
            :id    "gradle",
-           ;:checked ""
+           :checked  (= (:build @opts-checked) "gradle")
+           :on-click #(re-frame/dispatch [::events/change-spring-build "gradle"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "gradle"}
@@ -202,7 +211,9 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "build-tool",
-           :id    "maven"}]
+           :id    "maven"
+           :checked  (= (:build @opts-checked) "maven")
+           :on-click #(re-frame/dispatch [::events/change-spring-build "maven"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "maven"}
           "Maven"]]]
@@ -216,14 +227,17 @@
            :type  "radio",
            :name  "lang",
            :id    "java",
-           ;:checked ""
+           :checked  (= (:lang @opts-checked) "java")
+           :on-click #(re-frame/dispatch [::events/change-spring-lang "java"])
            }]
          [:label {:class "for-checkbox-comp-type", :for "java"} "Java"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "lang",
-           :id    "kotlin"}]
+           :id    "kotlin"
+           :checked  (= (:lang @opts-checked) "kotlin")
+           :on-click #(re-frame/dispatch [::events/change-spring-lang "kotlin"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "kotlin"}
           "Kotlin"]]]
@@ -237,14 +251,17 @@
            :type  "radio",
            :name  "packaging",
            :id    "jar",
-           ;:checked ""
+           :checked  (= (:pack @opts-checked) "jar")
+           :on-click #(re-frame/dispatch [::events/change-spring-pack "jar"])
            }]
          [:label {:class "for-checkbox-comp-type", :for "jar"} "Jar"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "packaging",
-           :id    "war"}]
+           :id    "war"
+           :checked  (= (:pack @opts-checked) "war")
+           :on-click #(re-frame/dispatch [::events/change-spring-pack "war"])}]
          [:label {:class "for-checkbox-comp-type", :for "war"} "War"]]]]
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
@@ -258,7 +275,9 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "boot-v",
-           :id    "3.1.0"}]
+           :id    "3.1.0"
+           :checked  (= (:boot-v @opts-checked) "3.1.0")
+           :on-click #(re-frame/dispatch [::events/change-spring-boot-v "3.1.0"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "3.1.0"}
           "3.1.0"]
@@ -266,7 +285,20 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "boot-v",
-           :id    "3.0.6"}]
+           :id    "3.0.7",
+           :checked  (= (:boot-v @opts-checked) "3.0.7")
+           :on-click #(re-frame/dispatch [::events/change-spring-boot-v "3.0.7"])
+           }]
+         [:label
+          {:class "for-checkbox-comp-type", :for "3.0.7"}
+          "3.0.7"]
+         [:input
+          {:class "checkbox-comp-type",
+           :type  "radio",
+           :name  "boot-v",
+           :id    "3.0.6"
+           :checked  (= (:boot-v @opts-checked) "3.0.6")
+           :on-click #(re-frame/dispatch [::events/change-spring-boot-v "3.0.6"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "3.0.6"}
           "3.0.6"]
@@ -274,28 +306,22 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "boot-v",
-           :id    "3.0.5",
-           ;:checked ""
-           }]
+           :id    "2.7.12"
+           :checked  (= (:boot-v @opts-checked) "2.7.12")
+           :on-click #(re-frame/dispatch [::events/change-spring-boot-v "2.7.12"])}]
          [:label
-          {:class "for-checkbox-comp-type", :for "3.0.5"}
-          "3.0.5"]
+          {:class "for-checkbox-comp-type", :for "2.7.12"}
+          "2.7.12"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "boot-v",
-           :id    "2.7.11"}]
+           :id    "2.7.11"
+           :checked  (= (:boot-v @opts-checked) "2.7.11")
+           :on-click #(re-frame/dispatch [::events/change-spring-boot-v "2.7.11"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "2.7.11"}
-          "2.7.11"]
-         [:input
-          {:class "checkbox-comp-type",
-           :type  "radio",
-           :name  "boot-v",
-           :id    "2.7.10"}]
-         [:label
-          {:class "for-checkbox-comp-type", :for "2.7.10"}
-          "2.7.10"]]]
+          "2.7.11"]]]
        [:div
         {:class "col-12 pb-5 opts-group center"}
         [:p {:class "mb-4 pb-2"} "Java Version"]
@@ -305,27 +331,34 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "java-v",
-           :id    "20"}]
+           :id    "20"
+           :checked  (= (:java-v @opts-checked) "20")
+           :on-click #(re-frame/dispatch [::events/change-spring-java-v "20"])}]
          [:label {:class "for-checkbox-comp-type", :for "20"} "20"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "java-v",
            :id    "17",
-           ;:checked ""
+           :checked  (= (:java-v @opts-checked) "17")
+           :on-click #(re-frame/dispatch [::events/change-spring-java-v "17"])
            }]
          [:label {:class "for-checkbox-comp-type", :for "17"} "17"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "java-v",
-           :id    "11"}]
+           :id    "11"
+           :checked  (= (:java-v @opts-checked) "11")
+           :on-click #(re-frame/dispatch [::events/change-spring-java-v "11"])}]
          [:label {:class "for-checkbox-comp-type", :for "11"} "11"]
          [:input
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "java-v",
-           :id    "8"}]
+           :id    "8"
+           :checked  (= (:java-v @opts-checked) "8")
+           :on-click #(re-frame/dispatch [::events/change-spring-java-v "8"])}]
          [:label {:class "for-checkbox-comp-type", :for "8"} "8"]]]]
       [:div
        {:class "col-12 pb-5 center no-pt"}
@@ -488,14 +521,14 @@
       [plus-controller-button]]
 
      [:div
-      {:class "col-12 pt-5 for-django center", :style       ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
+      {:class "col-12 pt-5 for-django center", :style
+       {:display (if (= @server-checked "django") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another framework."]
      [:div
-      {:class "col-12 pt-5 for-nodejs center", :style       ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
+      {:class "col-12 pt-5 for-nodejs center", :style
+       {:display (if (= @server-checked "nodejs") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another framework."]
      ]
-    ))
+    )))
 
 

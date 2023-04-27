@@ -98,13 +98,35 @@
   (fn [db _]
     (:postgres-conts db)))
 
-; Список postgres-контейнеров
+; Какая СУБД выбрана
 (re-frame/reg-sub
   ::db-checked
   (fn [db _]
     (:db (:checked db))))
 
-; Список postgres-контейнеров
+; Какой сервер фреймворк выбран
+(re-frame/reg-sub
+  ::server-checked
+  (fn [db _]
+    (:type (:server (:checked db)))))
+
+; Какая платформа клиента выбрана
+(re-frame/reg-sub
+  ::client-checked
+  (fn [db _]
+    (:type (:client (:checked db)))))
+
+(re-frame/reg-sub
+  ::deploy-checked
+  (fn [db _]
+    (:deploy (:checked db))))
+
+(re-frame/reg-sub
+  ::server-opts
+  (fn [db _]
+    (:server (:checked db))))
+
+; Верный ли хост для бд
 (re-frame/reg-sub
   ::db-host-valid
   (fn [db _]
