@@ -32,7 +32,9 @@
                                       :pack "jar"
                                       :boot-v "3.0.6"
                                       :java-v "17"}
-                             :client {:type "android"}
+                             :client {:type "android"
+                                      :lang "java"
+                                      :test "junit-jupiter"}
                              :deploy "docker"}
      :valid                 {:db {:host true}}
      :data                  {:db
@@ -294,6 +296,16 @@
   ::change-spring-java-v
   (fn [db [_ new-value]]
     (assoc-in db [:checked :server :java-v] new-value)))
+
+(re-frame/reg-event-db
+  ::change-android-lang
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :client :lang] new-value)))
+
+(re-frame/reg-event-db
+  ::change-android-test
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :client :test] new-value)))
 
 (re-frame/reg-event-db
   ::db-host-text-change

@@ -94,7 +94,9 @@
           [endpoint-box-chars e]])])))
 
 (defn client-ui []
-  (fn []
+  (let [client-checked (re-frame/subscribe [::subs/client-checked])
+        opts-checked (re-frame/subscribe [::subs/client-opts])]
+    (fn []
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
@@ -110,7 +112,8 @@
         :type  "radio",
         :name  "client-type",
         :id    "android",
-        ;:checked ""
+        :checked  (= @client-checked "android")
+        :on-click #(re-frame/dispatch [::events/change-client-checked "android"])
         }]
       [:label
        {:class "for-checkbox-comp-type", :for "android"}
@@ -119,13 +122,17 @@
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "client-type",
-        :id    "ios"}]
+        :id    "ios"
+        :checked  (= @client-checked "ios")
+        :on-click #(re-frame/dispatch [::events/change-client-checked "ios"])}]
       [:label {:class "for-checkbox-comp-type", :for "ios"} "iOS"]
       [:input
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "client-type",
-        :id    "flutter"}]
+        :id    "flutter"
+        :checked  (= @client-checked "flutter")
+        :on-click #(re-frame/dispatch [::events/change-client-checked "flutter"])}]
       [:label
        {:class "for-checkbox-comp-type", :for "flutter"}
        "Flutter"]
@@ -133,13 +140,15 @@
        {:class "checkbox-comp-type",
         :type  "radio",
         :name  "client-type",
-        :id    "web"}]
+        :id    "web"
+        :checked  (= @client-checked "web")
+        :on-click #(re-frame/dispatch [::events/change-client-checked "web"])}]
       [:label {:class "for-checkbox-comp-type", :for "web"} "Web"]]
 
      [:div
       {:class "col-12 pt-5 for-android center",
        :style                                               ;"display: block;"
-       {:display "block"}}
+       {:display (if (= @client-checked "android") "block" "none")}}
       ;[:div
       ; {:class "col-12 pt-5"}
       ; [:p {:class "mb-4 pb-2"} "Project options"]]
@@ -169,7 +178,8 @@
            :type  "radio",
            :name  "client-lang",
            :id    "client-java",
-           ;:checked ""
+           :checked  (= (:lang @opts-checked) "java")
+           :on-click #(re-frame/dispatch [::events/change-android-lang "java"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "client-java"}
@@ -178,7 +188,9 @@
           {:class "checkbox-comp-type",
            :type  "radio",
            :name  "client-lang",
-           :id    "client-kotlin"}]
+           :id    "client-kotlin"
+           :checked  (= (:lang @opts-checked) "kotlin")
+           :on-click #(re-frame/dispatch [::events/change-android-lang "kotlin"])}]
          [:label
           {:class "for-checkbox-comp-type", :for "client-kotlin"}
           "Kotlin"]]]
@@ -192,7 +204,8 @@
            :type  "radio",
            :name  "test-framework",
            :id    "junit",
-           ;:checked ""
+           :checked  (= (:test @opts-checked) "junit")
+           :on-click #(re-frame/dispatch [::events/change-android-test "junit"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "junit"}
@@ -202,7 +215,8 @@
            :type  "radio",
            :name  "test-framework",
            :id    "testng",
-           ;:checked ""
+           :checked  (= (:test @opts-checked) "testng")
+           :on-click #(re-frame/dispatch [::events/change-android-test "testng"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "testng"}
@@ -212,7 +226,8 @@
            :type  "radio",
            :name  "test-framework",
            :id    "spock",
-           ;:checked ""
+           :checked  (= (:test @opts-checked) "spock")
+           :on-click #(re-frame/dispatch [::events/change-android-test "spock"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "spock"}
@@ -222,7 +237,8 @@
            :type  "radio",
            :name  "test-framework",
            :id    "junit-jupiter",
-           ;:checked ""
+           :checked  (= (:test @opts-checked) "junit-jupiter")
+           :on-click #(re-frame/dispatch [::events/change-android-test "junit-jupiter"])
            }]
          [:label
           {:class "for-checkbox-comp-type", :for "junit-jupiter"}
@@ -298,16 +314,14 @@
       [plus-endpoint-button]]
 
      [:div
-      {:class "col-12 pt-5 for-ios center", :style          ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
+      {:class "col-12 pt-5 for-ios center", :style
+       {:display (if (= @client-checked "ios") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another platform."]
      [:div
-      {:class "col-12 pt-5 for-flutter center", :style      ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
+      {:class "col-12 pt-5 for-flutter center", :style
+       {:display (if (= @client-checked "flutter") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another platform."]
      [:div
-      {:class "col-12 pt-5 for-web center", :style          ;"display: none;"
-       {:display "none"}}
-      "Coming soon!"]
-     ]
-    ))
+      {:class "col-12 pt-5 for-web center", :style
+       {:display (if (= @client-checked "web") "block" "none")}}
+      "Coming soon!" [:br] "Please, choose another platform."]])))

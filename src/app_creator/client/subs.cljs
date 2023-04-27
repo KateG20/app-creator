@@ -126,6 +126,11 @@
   (fn [db _]
     (:server (:checked db))))
 
+(re-frame/reg-sub
+  ::client-opts
+  (fn [db _]
+    (:client (:checked db))))
+
 ; Верный ли хост для бд
 (re-frame/reg-sub
   ::db-host-valid
