@@ -40,6 +40,7 @@
        {:class "for-checkbox-comp-type", :for "clickhouse"}
        "ClickHouse"]]]))
 
+; Колонка таблицы (строка в боксе)
 (defn table-column-item [box row]
   (let [name (str "col-name-" box "-" row)
         type (str "col-type-" box "-" row)]
@@ -99,7 +100,7 @@
          :on-click #(re-frame/dispatch [::events/add-table-item @new-item-vec])}]
        [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]])))
 
-; Список колонок в таблице
+; Список колонок в таблице (строки в боксе)
 (defn table-box-columns [box]
   (fn [box]
     (let [all-items @(re-frame/subscribe [::subs/table-columns])
@@ -109,7 +110,7 @@
        (for [item our-box-items]
          (table-column-item (first item) (second item)))])))
 
-; Список таблиц
+; Список таблиц (боксов)
 (defn table-list []
   (let [tables (re-frame/subscribe [::subs/tables])]
     (fn []
@@ -123,11 +124,11 @@
            [:input
             {:type         "text",
              :name         "text",
-             :id           "table-name-1",
+             :id           (str "table-name-" t),
              :autocomplete "off",
              :required     true}]
            [:label
-            {:for "table-name-1", :class "label-name"}
+            {:for (str "table-name-" t), :class "label-name"}
             [:span {:class "content-name"} "Table name"]]]
           [table-box-columns t]
           [plus-table-row-button t]

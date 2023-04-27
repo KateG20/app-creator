@@ -2,6 +2,7 @@
   (:require [app-creator.client.ui.db :as db-ui]
             [app-creator.client.ui.server :as server-ui]
             [app-creator.client.ui.client :as client-ui]
+            [app-creator.client.ui.containerization :as cont-ui]
             [app-creator.client.events :as events]
             [app-creator.client.subs :as subs]
             [re-frame.core :as re-frame]))
@@ -10,9 +11,14 @@
     (let [display (re-frame/subscribe [::subs/log-field-display])
           text (re-frame/subscribe [::subs/log-text])]
       [:div
-       {:class "col-12 pt-5"
-        :style {:display @display}}
-       [:p @text]]
+       {:class "col-12 pt-5 mt-20"
+        :style {:display "flex"
+                :height "80px"
+                :justify-content "center"
+                :align-items "center"}}                            ; @display}}
+       [:p {:style
+            {:color "#50862a"}}
+        @text]]
       ))
 
 (defn main-ui []
@@ -45,6 +51,7 @@
         [db-ui/db-ui]
         [server-ui/server-ui]
         [client-ui/client-ui]
+        [cont-ui/cont-ui]
 
 
         [:div

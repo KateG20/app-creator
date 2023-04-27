@@ -13,10 +13,12 @@
      :server-lang-text      "default"
      :success-display       "none"
      :http-post-result-text "null info"
-     :log-field-display     "none"
-     :log-text              ""
-     :tables                [0 1 2 3]
-     :table-columns         [[0 0] [0 1] [0 2] [1 0] [1 1] [2 0] [3 0] [3 1]]
+     ;:log-field-display     "none"
+     :log-text              "Finished!"
+     :tables                [0 1]
+     :table-columns         [[0 0] [0 1] [1 0]]
+     :controllers                [0]
+     :controller-methods         [[0 0] [0 1] [0 2]]
      :data                  {:db
                              {:postgresql
                               {:db-name  nil,
@@ -182,15 +184,30 @@
   (fn [db [_ result]]
     (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
 
+; Добавляет таблицу БД (new item = table-num)
+(re-frame/reg-event-db
+  ::add-table-item
+  (fn [db [_ new-item]]
+    (update-in db [:tables] conj new-item)))
+
+; Добавляет колонку в таблицу БД (new item = [table-num col-num])
 (re-frame/reg-event-db
   ::add-table-column-item
   (fn [db [_ new-item]]
     (update-in db [:table-columns] conj new-item)))
 
+; Добавляет контроллер сервера (new item = controller-num)
 (re-frame/reg-event-db
-  ::add-table-item
+  ::add-controller-item
   (fn [db [_ new-item]]
-    (update-in db [:tables] conj new-item)))
+    (update-in db [:controllers] conj new-item)))
+
+; Добавляет метод в контроллер сервера (new item = [controller-num req-num])
+(re-frame/reg-event-db
+  ::add-controller-method-item
+  (fn [db [_ new-item]]
+    (update-in db [:controller-methods] conj new-item)))
+
 
 
 

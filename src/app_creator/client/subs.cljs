@@ -50,12 +50,26 @@
   (fn [db _]
     (:log-text db)))
 
+; Список таблиц в БД
+(re-frame/reg-sub
+  ::tables
+  (fn [db _]
+    (:tables db)))
+
+; Список колонок таблиц в БД
 (re-frame/reg-sub
   ::table-columns
   (fn [db _]
     (:table-columns db)))
 
+; Список контроллеров у сервера
 (re-frame/reg-sub
-  ::tables
+  ::controllers
   (fn [db _]
-    (:tables db)))
+    (:controllers db)))
+
+; Список методов у контроллеров сервера
+(re-frame/reg-sub
+  ::controller-methods
+  (fn [db _]
+    (:controller-methods db)))

@@ -1,15 +1,15 @@
-(ns app-creator.client.ui.server)
+(ns app-creator.client.ui.server
+  (:require [re-frame.core :as re-frame]
+            [app-creator.client.events :as events]
+            [app-creator.client.subs :as subs]
+            [reagent.core :as reagent]))
 
-(defn server-ui []
+(defn choose-type []
   (fn []
     [:div
      [:div
-      {:class "col-12 pt-5 big-text"}
-      [:p {:class "mb-4 pb-2"} "2. Server"]]
-     [:div
       {:class "col-12 pt-5"}
       [:p {:class "mb-4 pb-2"} "Choose framework"]]
-
      [:div
       {:class "col-12 pb-5"}
       [:input
@@ -35,7 +35,166 @@
         :id    "nodejs"}]
       [:label
        {:class "for-checkbox-comp-type", :for "nodejs"}
-       "Node.js"]]
+       "Node.js"]]]))
+
+
+; Метод запроса (строка в боксе)
+(defn controller-method-item [box row]
+  (let [request (str "col-request-" box "-" row)
+        url (str "col-url-" box "-" row)
+        mapping (str "col-mapping-" box "-" row)]
+    [:li
+     {:class "table-row-li"}
+     [:div
+      {:class "col-12 pb-5 input-field"}
+      [:input
+       {:type         "text",
+        :name         "text",
+        :id           request,
+        :autocomplete "off",
+        :required     true}]
+      [:label
+       {:for request, :class "label-name"}
+       [:span {:class "content-name"} "Method name"]]]
+     [:div
+      {:class "col-12 pb-5 input-field"}
+      [:input
+       {:type         "text",
+        :name         "text",
+        :id           url,
+        :autocomplete "off",
+        :required     true}]
+      [:label
+       {:for url, :class "label-name"}
+       [:span {:class "content-name"} "Request URL"]]]
+     [:div
+      {:class "col-12 pb-5 input-field"}
+      [:input
+       {:type         "text",
+        :name         "text",
+        :id           mapping,
+        :autocomplete "off",
+        :required     true}]
+      [:label
+       {:for mapping, :class "label-name"}
+       [:span {:class "content-name"} "Request type"]]]]
+    ))
+
+; принимает двумерный массив типа [[0 0] [0 1] [0 2] [1 1]]
+; и для аргумента box=0 находит число 2
+(defn find-last-item-number-in-box [box vector]
+  (second (last (filter #(= box (first %)) vector))))
+
+; Кнопка для добавления метода в контроллер
+(defn plus-controller-method-button [box]
+  (fn [box]
+    (let [id (str "plus-server-method-" box)
+          current-items (re-frame/subscribe [::subs/controller-methods])
+          new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
+          new-item-vec (reagent/atom [box new-col-num])]
+      [:div
+       [:button
+        {:type "button", :name "plus", :id id
+         :on-click #(re-frame/dispatch [::events/add-controller-method-item @new-item-vec])}]
+       [:label
+        {:class "plus-label mt-20", :for id}
+        "+"]
+       ])))
+
+; Кнопка для добавления контроллера
+(defn plus-controller-button []
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/controllers])
+          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type     "button",
+         :name     "plus-controller",
+         :id       "plus-controller"
+         :on-click #(re-frame/dispatch [::events/add-controller-item @new-item-vec])}]
+       [:label {:class "mb-4 pb-2 plus-label", :for "plus-controller"} "+"]])))
+
+; Список методов в контроллере (строки в боксе)
+(defn controller-box-methods [box]
+  (fn [box]
+    (let [all-items @(re-frame/subscribe [::subs/controller-methods])
+          our-box-items (filter #(= box (first %)) all-items)]
+      [:ul
+       {:class "db-col-list"}
+       (for [item our-box-items]
+         (controller-method-item (first item) (second item)))
+       ;[:li
+       ; {:class "table-row-li"}
+       ; [:div
+       ;  {:class "col-12 pb-5 input-field"}
+       ;  [:input
+       ;   {:type         "text",
+       ;    :name         "text",
+       ;    :id           "col-request-1-2",
+       ;    :autocomplete "off",
+       ;    :required     true}]
+       ;  [:label
+       ;   {:for "col-request-1-2", :class "label-name"}
+       ;   [:span {:class "content-name"} "Method name"]]]
+       ; [:div
+       ;  {:class "col-12 pb-5 input-field"}
+       ;  [:input
+       ;   {:type         "text",
+       ;    :name         "text",
+       ;    :id           "col-url-1-2",
+       ;    :autocomplete "off",
+       ;    :required     true}]
+       ;  [:label
+       ;   {:for "col-url-1-2", :class "label-name"}
+       ;   [:span {:class "content-name"} "Request URL"]]]
+       ; [:div
+       ;  {:class "col-12 pb-5 input-field"}
+       ;  [:input
+       ;   {:type         "text",
+       ;    :name         "text",
+       ;    :id           "col-mapping-1-2",
+       ;    :autocomplete "off",
+       ;    :required     true}]
+       ;  [:label
+       ;   {:for "col-mapping-1-2", :class "label-name"}
+       ;   [:span {:class "content-name"} "Request type"]]]]
+       ])))
+
+; Список контроллеров (боксов)
+(defn controller-list []
+  (let [controllers (re-frame/subscribe [::subs/controllers])]
+    (fn []
+      [:ul
+       {:class "controller-list"}
+       (for [c @controllers]
+       [:li
+        {:class "col-12 pb-5 opts-group center box"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           (str "controller-name-" c),
+           :autocomplete "off",
+           :required     true}]
+         [:label
+          {:for (str "controller-name-" c), :class "label-name"}
+          [:span {:class "content-name"} "Controller name"]]]
+        [controller-box-methods c]
+        [plus-controller-method-button c]
+        ])]
+      )))
+
+(defn server-ui []
+  (fn []
+    [:div
+     [:div
+      {:class "col-12 pt-5 big-text"}
+      [:p {:class "mb-4 pb-2"} "2. Server"]]
+
+     [choose-type]
+
 
      [:div
       {:class "col-12 pt-5 for-spring center", :style       ;"display: block;"
@@ -318,133 +477,8 @@
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
         {:display "flex"}}
-       [:ul
-        {:class "controller-list"}
-        [:li
-         {:class "col-12 pb-5 opts-group center box"}
-         [:div
-          {:class "col-12 pb-5 input-field"}
-          [:input
-           {:type         "text",
-            :name         "text",
-            :id           "controller-name-1",
-            :autocomplete "off",
-            :required     true}]
-          [:label
-           {:for "controller-name-1", :class "label-name"}
-           [:span {:class "content-name"} "Controller name"]]]
-         [:ul
-          {:class "db-col-list"}
-          [:li
-           {:class "table-row-li"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-request-1-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-request-1-1", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-url-1-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-url-1-1", :class "label-name"}
-             [:span {:class "content-name"} "Request URL"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-mapping-1-1",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-mapping-1-1", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]
-          [:li
-           {:class "table-row-li"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-request-1-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-request-1-2", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-url-1-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-url-1-2", :class "label-name"}
-             [:span {:class "content-name"} "Request URL"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-mapping-1-2",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-mapping-1-2", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]
-          [:li
-           {:class "table-row-li"}
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-request-1-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-request-1-3", :class "label-name"}
-             [:span {:class "content-name"} "Method name"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-url-1-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-url-1-3", :class "label-name"}
-             [:span {:class "content-name"} "Request URL"]]]
-           [:div
-            {:class "col-12 pb-5 input-field"}
-            [:input
-             {:type         "text",
-              :name         "text",
-              :id           "col-mapping-1-3",
-              :autocomplete "off",
-              :required     true}]
-            [:label
-             {:for "col-mapping-1-3", :class "label-name"}
-             [:span {:class "content-name"} "Request type"]]]]]
-         [:button
-          {:type "button", :name "plus", :id "plus-req-column-1"}]
-         [:label
-          {:class "plus-label mt-20", :for "plus-req-column-1"}
-          "+"]]]]]
+       [controller-list]]
+      [plus-controller-button]]
 
      [:div
       {:class "col-12 pt-5 for-django center", :style       ;"display: none;"
