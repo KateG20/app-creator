@@ -278,7 +278,18 @@
      [:div
       {:class "col-12 pt-5 for-docker center", :style       ;"display: block;"
        {:display "block"}}
-      [:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Network"]]
+      ;[:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Network"]]
+
+      [:div
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Network"]]
+       [:label {:class "plus-label mt-20 help-label" :for "network-help"} "?"]
+       [:button {:class "help-button" :id "network-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        [:p "Name of the network to run your containers in"]]]
+
       [:div
        {:class "col-12 pb-5 opts-group center"}
        [:div
@@ -294,23 +305,63 @@
          [:label
           {:for "network-name", :class "label-name"}
           [:span {:class "content-name"} "Network name"]]]]]
+      ;[:div
+      ; {:class "col-12 pt-5"}
+      ; [:p {:class "mb-4 pb-2"} "JAR containers"]]
+
       [:div
-       {:class "col-12 pt-5"}
-       [:p {:class "mb-4 pb-2"} "JAR containers"]]
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "JAR containers"]]
+       [:label {:class "plus-label mt-20 help-label" :for "jar-cont-help"} "?"]
+       [:button {:class "help-button" :id "jar-cont-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        [:p [:b "Container name:"] " name of your future container" [:br]
+         [:b "Image name:"] " name of the image to build" [:br]
+         [:b "Run directory name:"] " name of the directory to build your image and run container" [:br]
+         [:b "Path to jar:"] " path to the jar file to put and execute in the container" [:br]]]]
 
       [jar-conts-list]
       [plus-jar-cont-button]
 
+      ;[:div
+      ; {:class "col-12 pt-5 pt-10 mt-20"}
+      ; [:p {:class "mb-4 pb-2"} "Nginx containers"]]
+
       [:div
-       {:class "col-12 pt-5 pt-10 mt-20"}
-       [:p {:class "mb-4 pb-2"} "Nginx containers"]]
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Nginx containers"]]
+       [:label {:class "plus-label mt-20 help-label" :for "nginx-cont-help"} "?"]
+       [:button {:class "help-button" :id "nginx-cont-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        ; todo
+        [:p [:b "Container name:"] " name of your future container" [:br]
+         [:b "Image name:"] " name of the image to build" [:br]
+         [:b "Run directory name:"] " name of the directory to build your image and run container" [:br]
+         [:b "Path to jar:"] " path to the jar file to put and execute in the container" [:br]]]]
 
       [nginx-conts-list]
       [plus-nginx-cont-button]
 
+      ;[:div
+      ; {:class "col-12 pt-5 pt-10 mt-20"}
+      ; [:p {:class "mb-4 pb-2"} "Postgres containers"]]
+
       [:div
-       {:class "col-12 pt-5 pt-10 mt-20"}
-       [:p {:class "mb-4 pb-2"} "Postgres containers"]]
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Postgres containers"]]
+       [:label {:class "plus-label mt-20 help-label" :for "pg-cont-help"} "?"]
+       [:button {:class "help-button" :id "pg-cont-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        ; todo
+        [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Column:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
 
       [postgres-conts-list]
       [plus-postgres-cont-button]

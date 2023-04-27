@@ -162,16 +162,12 @@
         ; ]
 
         [:div
-         {:class "col-12 pt-5 header-with-help"
-          ;:style {:display "flex"
-          ;        :justify-content "center"
-          ;        :align-items "center"}
-          }
+         {:class "col-12 pt-5 header-with-help"}
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} "Properties"]
-         [:label {:class "plus-label mt-20 help-label" :for "prop-help"} "?"]
-         [:button {:class "help-button" :id "prop-help" :style {:display "none"}}]
+         [:label {:class "plus-label mt-20 help-label" :for "db-prop-help"} "?"]
+         [:button {:class "help-button" :id "db-prop-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
            [:b "Host:"] " valid host of your PostgreSQL server" [:br]
@@ -238,7 +234,18 @@
             [:span {:class "content-name"} "Password"]]]]]
 
 
-        [:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
+        ;[:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
+        [:div
+         {:class "col-12 pt-5 header-with-help"}
+         [:label {:class "plus-label mt-20 help-label"
+                  :style {:visibility "hidden"}} "?"]
+         [:p {:class "mb-4 pb-2"} "Tables"]
+         [:label {:class "plus-label mt-20 help-label" :for "db-tables-help"} "?"]
+         [:button {:class "help-button" :id "db-tables-help" :style {:display "none"}}]
+         [:div {:class "help-div box"}
+          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
+           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
+           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
         [:div
          {:class "col-12 pt-5 center opts",
           :style {:display "flex"}}

@@ -140,9 +140,22 @@
       {:class "col-12 pt-5 for-android center",
        :style                                               ;"display: block;"
        {:display "block"}}
+      ;[:div
+      ; {:class "col-12 pt-5"}
+      ; [:p {:class "mb-4 pb-2"} "Project options"]]
       [:div
-       {:class "col-12 pt-5"}
-       [:p {:class "mb-4 pb-2"} "Project options"]]
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Project options"]]
+       [:label {:class "plus-label mt-20 help-label" :for "android-options-help"} "?"]
+       [:button {:class "help-button" :id "android-options-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        ; todo
+        [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Column:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
         {:display "flex"}}
@@ -262,9 +275,22 @@
           [:label
            {:for "client-port", :class "label-name"}
            [:span {:class "content-name"} "Server port"]]]]]]
+      ;[:div
+      ; {:class "col-12 pt-5"}
+      ; [:p {:class "mb-4 pb-2"} "Endpoints"]]
       [:div
-       {:class "col-12 pt-5"}
-       [:p {:class "mb-4 pb-2"} "Endpoints"]]
+       {:class "col-12 pt-5 header-with-help"}
+       [:label {:class "plus-label mt-20 help-label"
+                :style {:visibility "hidden"}} "?"]
+       [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Endpoints"]]
+       [:label {:class "plus-label mt-20 help-label" :for "android-endpoints-help"} "?"]
+       [:button {:class "help-button" :id "android-endpoints-help" :style {:display "none"}}]
+       [:div {:class "help-div box"}
+        ; todo
+        [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Column:"] " valid SQL-identifier for your future table" [:br]
+         [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+
       [:div
        {:class "col-12 pt-5 center opts", :style            ;"display: flex;"
         {:display "flex"}}

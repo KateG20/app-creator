@@ -897,6 +897,7 @@ li {
     width: 350px;
     height: auto;
     overflow-wrap: break-word;
+    padding-bottom: 10px;
     /*position: relative;*/
     /*right: 370px;*/
     right: 20%;
@@ -917,6 +918,7 @@ li {
 
 .help-label {
     margin: 0 10px 1px;
+    font-size: 16px !important;
     /*margin-top: 0;*/
     /*margin-bottom: 1px;*/
     /*margin-left: 10px;*/
