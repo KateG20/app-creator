@@ -695,8 +695,9 @@ mark {
 .input-field input:focus + .label-name .content-name,
 .input-field input:valid + .label-name .content-name {
     transform: translate(2%, -50%);
-    font-size: 14px;
-    left: 0;
+    font-size: 13px;
+    left: -1px;
+    opacity: 0.65;
     color: var(--green1);
 }
 
