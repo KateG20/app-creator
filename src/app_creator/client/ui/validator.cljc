@@ -12,11 +12,11 @@
 (defn valid-host? [host]
   (or (= "localhost" host)
       (or (empty? host)
-          (some? (re-matches ip-regex host)))))
+          (re-matches ip-regex host))))
 
 (defn valid-dir? [path]
   ;(and
-  (or (empty? path) (some? (re-matches out-path-regex path)))
+  (or (empty? path) (re-matches out-path-regex path))
   ;(.isDirectory (io/file %))
   ;)
   )
