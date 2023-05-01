@@ -96,7 +96,9 @@
         [:div
          {:class "col-12 pt-5 mt-20"}
          [:p
-          {:class "mt-20"}
+          {:class "mt-20"
+           :style {:font-weight "300"
+                   :font-size "15px"}}
           "In case of any issues, please contact the developer by email:"
           [:br]
           "moskva20013@gmail.com"]]
