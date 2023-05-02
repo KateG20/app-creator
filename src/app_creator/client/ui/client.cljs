@@ -64,9 +64,6 @@
            :autocomplete "off",
            :required     true
            :on-change    #(re-frame/dispatch [::events/android-endpoint-method-change (-> % .-target .-value) box])}]
-         ;[:label
-         ; {:for method-id, :class "label-name"}
-         ; [:span {:class "content-name"} "Method name"]]
          [:label
           (if-not (get-in content [:name :valid])
             {:for method-id, :class "label-name incorrect-label"
@@ -76,8 +73,7 @@
                    {:class "content-name"
                     :style {:color "red"}}
                    {:class "content-name"})
-           "Method name"]]
-         ]]
+           "Method name"]]]]
        [:li
         {:class "pt-10"}
         [:div
@@ -90,8 +86,15 @@
            :required     true
            :on-change    #(re-frame/dispatch [::events/android-endpoint-request-change (-> % .-target .-value) box])}]
          [:label
-          {:for r-type-id, :class "label-name"}
-          [:span {:class "content-name"} "Request type"]]]]
+          (if-not (get-in content [:request :valid])
+            {:for r-type-id, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for r-type-id, :class "label-name"})
+          [:span (if-not (get-in content [:request :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Request type"]]]]
        [:li
         {:class "pt-10"}
         [:div
@@ -104,8 +107,15 @@
            :required     true
            :on-change    #(re-frame/dispatch [::events/android-endpoint-body-change (-> % .-target .-value) box])}]
          [:label
-          {:for b-type-id, :class "label-name"}
-          [:span {:class "content-name"} "Body type"]]]]])))
+          (if-not (get-in content [:body :valid])
+            {:for b-type-id, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for b-type-id, :class "label-name"})
+          [:span (if-not (get-in content [:body :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Body type"]]]]])))
 
 ; Список эндпоинтов (боксов)
 (defn endpoint-list []

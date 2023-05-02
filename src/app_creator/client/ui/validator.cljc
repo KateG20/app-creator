@@ -32,4 +32,4 @@
   (empty-or-matches path out-path-regex))
 
 (defn valid-req-type? [req-type]
-  (contains? http-methods (cstr/lower-case req-type)))
+  (some #(= (cstr/lower-case req-type) %) (conj http-methods "")))

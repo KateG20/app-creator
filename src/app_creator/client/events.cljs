@@ -122,7 +122,17 @@
 (re-frame/reg-event-db
   ::add-client-endpoint-item
   (fn [db [_ new-item]]
-    (update-in db [:data :client :android :endpoints :endpoints-vec] conj new-item)))
+    (-> db
+        (update-in [:data :client :android :endpoints :endpoints-vec] conj new-item)
+        (assoc-in [:data :client :android :endpoints :content new-item]
+                  {:url     {:value ""
+                             :valid true}
+                   :name    {:value ""
+                             :valid true}
+                   :request {:value ""
+                             :valid true}
+                   :body    {:value ""
+                             :valid true}}))))
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
 (re-frame/reg-event-db
@@ -224,7 +234,7 @@
   ::android-endpoint-request-change
   (fn [db [_ new-value box]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-req-type? new-value))
+          is-valid  (v/valid-req-type? new-value)
           place [:data :client :android :endpoints :content box :request]]
       (-> db
           (assoc-in (conj place :value) new-value)
