@@ -34,33 +34,33 @@
                                       :server   {:db-host true}
                                       :out-path true}
               :data                  {:db
-                                      {:type  "postgres"
+                                      {:type     "postgres"
                                        :postgres {:db-name  {:value ""
-                                                          :valid true}
-                                               :host     {:value ""
-                                                          :valid true}
-                                               :username {:value ""
-                                                          :valid true}
-                                               :password {:value ""
-                                                          :valid true}
-                                               :tables   {:table-vec  [0 1]
-                                                          :column-vec [[0 0] [0 1] [1 0]]
-                                                          :content    {0 {:name    {:value "t1"
-                                                                                    :valid true}
-                                                                          :columns {0 {:name {:value "c1"
-                                                                                              :valid true}
-                                                                                       :opts {:value "str"
-                                                                                              :valid true}}
-                                                                                    1 {:name {:value "c2"
-                                                                                              :valid true}
-                                                                                       :opts {:value "int"
-                                                                                              :valid true}}}}
-                                                                       1 {:name    {:value "t2"
-                                                                                    :valid true}
-                                                                          :columns {0 {:name {:value "c1"
-                                                                                              :valid true}
-                                                                                       :opts {:value "date"
-                                                                                              :valid true}}}}}}}}
+                                                             :valid true}
+                                                  :host     {:value ""
+                                                             :valid true}
+                                                  :username {:value ""
+                                                             :valid true}
+                                                  :password {:value ""
+                                                             :valid true}
+                                                  :tables   {:table-vec  [0 1]
+                                                             :column-vec [[0 0] [0 1] [1 0]]
+                                                             :content    {0 {:name    {:value "t1"
+                                                                                       :valid true}
+                                                                             :columns {0 {:name {:value "c1"
+                                                                                                 :valid true}
+                                                                                          :opts {:value "str"
+                                                                                                 :valid true}}
+                                                                                       1 {:name {:value "c2"
+                                                                                                 :valid true}
+                                                                                          :opts {:value "int"
+                                                                                                 :valid true}}}}
+                                                                          1 {:name    {:value "t2"
+                                                                                       :valid true}
+                                                                             :columns {0 {:name {:value "c1"
+                                                                                                 :valid true}
+                                                                                          :opts {:value "date"
+                                                                                                 :valid true}}}}}}}}
                                       :server
                                       {:type "spring"
                                        :spring
@@ -125,22 +125,22 @@
                                         :server-port    {:value ""
                                                          :valid true}
                                         :endpoints      {:endpoints-vec [0 1]
-                                                         :content       {0 {:name   {:value ""
-                                                                                     :valid true}
-                                                                            :url    {:value ""
-                                                                                     :valid true}
-                                                                            :type   {:value ""
-                                                                                     :valid true}
-                                                                            :entity {:value ""
-                                                                                     :valid true}}
-                                                                         1 {:name   {:value ""
-                                                                                     :valid true}
-                                                                            :url    {:value ""
-                                                                                     :valid true}
-                                                                            :type   {:value ""
-                                                                                     :valid true}
-                                                                            :entity {:value ""
-                                                                                     :valid true}}}}}}
+                                                         :content       {0 {:url     {:value ""
+                                                                                      :valid true}
+                                                                            :name    {:value ""
+                                                                                      :valid true}
+                                                                            :request {:value ""
+                                                                                      :valid true}
+                                                                            :body    {:value ""
+                                                                                      :valid true}}
+                                                                         1 {:url     {:value ""
+                                                                                      :valid true}
+                                                                            :name    {:value ""
+                                                                                      :valid true}
+                                                                            :request {:value ""
+                                                                                      :valid true}
+                                                                            :body    {:value ""
+                                                                                      :valid true}}}}}}
                                       :containerization
                                       {:type "docker"
                                        :docker

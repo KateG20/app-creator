@@ -63,9 +63,10 @@
       {:http-xhrio {:method          :post
                     :uri             "http://localhost:80/api/v1/create"
                     :params          (:data db)             ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
+                    ;:body          (:data db)
                     ;:timeout         5000
                     :headers         {"Content-Type" "application/json"}
-                    :format          (ajax/json-request-format {:keywords? true})
+                    :format          (ajax/json-request-format)
                     ;:response-format {:content-type "application/json" :description "JSON body"}
                     ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
                     :response-format (ajax/json-response-format {:keywords? true})
@@ -202,13 +203,45 @@
   ::android-endpoint-url-change
   (fn [db [_ new-value box]]
     (let [new-value (v/trim-input new-value)
-          ;is-valid (some? (v/valid-host? new-host-value))
-          ]
+          is-valid (some? (v/valid-url? new-value))
+          place [:data :client :android :endpoints :content box :url]]
       (-> db
-          (assoc-in [:data :client :android :endpoints :content box :url :value] new-value)
-          ;(assoc-in [:valid :db :host] is-valid)
-          ;(assoc db :all-valid is-valid)
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::android-endpoint-method-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-java-name? new-value))
+          place [:data :client :android :endpoints :content box :name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)
           ))))
+
+(re-frame/reg-event-db
+  ::android-endpoint-request-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-req-type? new-value))
+          place [:data :client :android :endpoints :content box :request]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)
+          ))))
+
+(re-frame/reg-event-db
+  ::android-endpoint-body-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-java-name? new-value))
+          place [:data :client :android :endpoints :content box :body]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)
+          ))))
+
 
 (re-frame/reg-event-db
   ::db-host-text-change

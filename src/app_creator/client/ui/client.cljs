@@ -27,7 +27,9 @@
     (let [uri-id (str "uri-" box)
           method-id (str "method-" box)
           r-type-id (str "request-type-" box)
-          b-type-id (str "body-type-" box)]
+          b-type-id (str "body-type-" box)
+          all-content (re-frame/subscribe [::subs/client-endpoints-content])
+          content (get @all-content box)]
       [:ul
        {:class "db-col-list"}
        [:li
@@ -39,10 +41,18 @@
            :id           uri-id,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch [::events/android-endpoint-url-change (-> % .-target .-value) box])}]
+           :on-change    #(re-frame/dispatch
+                            [::events/android-endpoint-url-change (-> % .-target .-value) box])}]
          [:label
-          {:for uri-id, :class "label-name"}
-          [:span {:class "content-name"} "URL"]]]]
+          (if-not (get-in content [:url :valid])
+            {:for uri-id, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for uri-id, :class "label-name"})
+          [:span (if-not (get-in content [:url :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "URL"]]]]
        [:li
         {:class "pt-10"}
         [:div
@@ -52,10 +62,22 @@
            :name         "text",
            :id           method-id,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch [::events/android-endpoint-method-change (-> % .-target .-value) box])}]
+         ;[:label
+         ; {:for method-id, :class "label-name"}
+         ; [:span {:class "content-name"} "Method name"]]
          [:label
-          {:for method-id, :class "label-name"}
-          [:span {:class "content-name"} "Method name"]]]]
+          (if-not (get-in content [:name :valid])
+            {:for method-id, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for method-id, :class "label-name"})
+          [:span (if-not (get-in content [:name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Method name"]]
+         ]]
        [:li
         {:class "pt-10"}
         [:div
@@ -65,7 +87,8 @@
            :name         "text",
            :id           r-type-id,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch [::events/android-endpoint-request-change (-> % .-target .-value) box])}]
          [:label
           {:for r-type-id, :class "label-name"}
           [:span {:class "content-name"} "Request type"]]]]
@@ -78,7 +101,8 @@
            :name         "text",
            :id           b-type-id,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch [::events/android-endpoint-body-change (-> % .-target .-value) box])}]
          [:label
           {:for b-type-id, :class "label-name"}
           [:span {:class "content-name"} "Body type"]]]]])))
