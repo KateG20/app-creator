@@ -38,7 +38,8 @@
            :name         "text",
            :id           uri-id,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch [::events/android-endpoint-url-change (-> % .-target .-value) box])}]
          [:label
           {:for uri-id, :class "label-name"}
           [:span {:class "content-name"} "URL"]]]]

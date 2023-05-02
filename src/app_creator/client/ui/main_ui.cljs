@@ -8,7 +8,8 @@
             [re-frame.core :as re-frame]))
 
 (defn log-field []
-    (let [display (re-frame/subscribe [::subs/log-field-display])
+    (let [
+          ;display (re-frame/subscribe [::subs/log-field-display])
           text (re-frame/subscribe [::subs/log-text])]
       [:div
        {:class "col-12 pt-5 mt-20"

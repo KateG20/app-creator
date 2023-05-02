@@ -33,16 +33,16 @@
   (fn [db _]
     (:server-lang-text db)))
 
-(re-frame/reg-sub
-  ::http-post-result-text
-  (fn [db _]
-    (:http-post-result-text db)))
+;(re-frame/reg-sub
+;  ::http-post-result-text
+;  (fn [db _]
+;    (:http-post-result-text db)))
 
 ; Окно с логами о прогрессе создания компонентов
-(re-frame/reg-sub
-  ::log-field-display
-  (fn [db _]
-    (:log-field-display db)))
+;(re-frame/reg-sub
+;  ::log-field-display
+;  (fn [db _]
+;    (:log-field-display db)))
 
 ; Текст этих логов
 (re-frame/reg-sub

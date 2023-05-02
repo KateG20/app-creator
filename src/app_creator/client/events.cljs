@@ -33,7 +33,8 @@
 (re-frame/reg-event-db
   ::success-post-result
   (fn [db [_ result]]
-    (assoc db :log-field-display "block"
+    (assoc db
+      ;:log-field-display "block"
               ;:http-post-result-text (str "success! " result)
               :log-text "Finished!"
               )))
@@ -42,7 +43,8 @@
   ::failure-post-result
   (fn [db [_ result]]
     ;; result is a map containing details of the failure
-    (assoc db :log-field-display "block"
+    (assoc db
+      ;:log-field-display "block"
               ;:http-post-result-text (str "failure! " result)
               :log-text "Something went wrong!"
               )))
@@ -56,19 +58,20 @@
 (re-frame/reg-event-fx
   ::http-post
   (fn [{:keys [db] :as cofx} [_ val]]
-    (if-not (:all-valid db)
+    ;(if-not (:all-valid db)
       (assoc db :log-text "Some data is incorrect. Check it again!")
       {:http-xhrio {:method          :post
                     :uri             "http://localhost:80/api/v1/create"
                     :params          (:data db)             ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
                     ;:timeout         5000
                     :headers         {"Content-Type" "application/json"}
-                    :format          (ajax/json-request-format)
+                    :format          (ajax/json-request-format {:keywords? true})
                     ;:response-format {:content-type "application/json" :description "JSON body"}
                     ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
                     :response-format (ajax/json-response-format {:keywords? true})
                     :on-success      [::success-post-result]
-                    :on-failure      [::failure-post-result]}})))
+                    :on-failure      [::failure-post-result]}}))
+  ;)
 
 (re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
   ::http-get                                                ;; <-- the event id
@@ -85,10 +88,10 @@
                   :on-success      [::success-post-result]
                   :on-failure      [::failure-post-result]}}))
 
-(re-frame/reg-event-db
-  ::process-response
-  (fn [db [_ result]]
-    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
+;(re-frame/reg-event-db
+;  ::process-response
+;  (fn [db [_ result]]
+;    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
 
 ; Добавляет таблицу БД (new item = table-num)
 (re-frame/reg-event-db
@@ -194,6 +197,18 @@
   ::change-android-test
   (fn [db [_ new-value]]
     (assoc-in db [:checked :client :android :test] new-value)))
+
+(re-frame/reg-event-db
+  ::android-endpoint-url-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          ;is-valid (some? (v/valid-host? new-host-value))
+          ]
+      (-> db
+          (assoc-in [:data :client :android :endpoints :content box :url :value] new-value)
+          ;(assoc-in [:valid :db :host] is-valid)
+          ;(assoc db :all-valid is-valid)
+          ))))
 
 (re-frame/reg-event-db
   ::db-host-text-change

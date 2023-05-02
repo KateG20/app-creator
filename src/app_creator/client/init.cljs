@@ -2,10 +2,10 @@
 
 (def init-db {;:all-valid             true
               ;:text                  "initial text"
-              :error-display         "none"                 ;; returned value put into app-db
+              ;:error-display         "none"                 ;; returned value put into app-db
               ;:server-framework-text "default"
               ;:server-lang-text      "default"
-              :success-display       "none"
+              ;:success-display       "none"
               :http-post-result-text "null info"
               ;:log-field-display     "none"
               :log-text              ""
