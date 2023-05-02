@@ -74,11 +74,18 @@
   (fn [db _]
     (:controller-methods db)))
 
+
 ; Список эндпоинтов у клиента
 (re-frame/reg-sub
-  ::client-endpoints
+  ::client-endpoints-vec
   (fn [db _]
-    (:client-endpoints db)))
+    (get-in db [:data :client :android :endpoints :endpoints-vec])))
+
+; Значения эндпоинтов у клиента
+(re-frame/reg-sub
+  ::client-endpoints-content
+  (fn [db _]
+    (get-in db [:data :client :android :endpoints :content])))
 
 ; Список джар-контейнеров
 (re-frame/reg-sub

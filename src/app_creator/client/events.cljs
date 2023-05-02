@@ -2,186 +2,14 @@
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]
-            [app-creator.client.ui.validator :as v]))
+            [app-creator.client.ui.validator :as v]
+            [app-creator.client.init :as init]))
 
 ; Событие для изначальной инициации дб (вызывается потом в методе run, перед рендером)
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
-    {
-     ;:all-valid             true
-     ;:text                  "initial text"
-     :error-display         "none"                          ;; returned value put into app-db
-     ;:server-framework-text "default"
-     ;:server-lang-text      "default"
-     :success-display       "none"
-     :http-post-result-text "null info"
-     ;:log-field-display     "none"
-     :log-text              ""
-     ; to identify number of boxed and rows, and maybe to identify data?
-     :tables                [0 1]
-     :table-columns         [[0 0] [0 1] [1 0]]
-     :controllers           [0]
-     :controller-methods    [[0 0] [0 1] [0 2]]
-     :client-endpoints      [0 1]
-     :jar-conts             [0]
-     :nginx-conts           [0]
-     :postgres-conts        [0]
-
-     :checked               {:db     "postgres"
-                             :server {:type   "spring"
-                                      :spring {:build  "gradle"
-                                               :lang   "java"
-                                               :pack   "jar"
-                                               :boot-v "3.0.6"
-                                               :java-v "17"}}
-                             :client {:type    "android"
-                                      :android {:lang "java"
-                                                :test "junit-jupiter"}}
-                             :deploy "docker"}
-     :valid                 {:db       {:host true}
-                             :server   {:db-host true}
-                             :out-path true}
-     :data                  {:db
-                             {:type  "postgres"
-                              :value {:db-name  {:value ""
-                                                 :valid true}
-                                      :host     {:value ""
-                                                 :valid true}
-                                      :username {:value ""
-                                                 :valid true}
-                                      :password {:value ""
-                                                 :valid true}
-                                      :tables   {:table-vec  [0 1]
-                                                 :column-vec [[0 0] [0 1] [1 0]]
-                                                 :content    {0 {:name    {:value "t1"
-                                                                           :valid true}
-                                                                 :columns {0 {:name {:value "c1"
-                                                                                     :valid true}
-                                                                              :opts {:value "str"
-                                                                                     :valid true}}
-                                                                           1 {:name {:value "c2"
-                                                                                     :valid true}
-                                                                              :opts {:value "int"
-                                                                                     :valid true}}}}
-                                                              1 {:name    {:value "t2"
-                                                                           :valid true}
-                                                                 :columns {0 {:name {:value "c1"
-                                                                                     :valid true}
-                                                                              :opts {:value "date"
-                                                                                     :valid true}}}}}}}}
-                             :server
-                             {:type "spring"
-                              :value
-                              {:project
-                               {:build        "gradle"
-                                :language     "java"
-                                :boot-version "3.0.6"
-                                :group        {:value ""
-                                               :valid true}
-                                :artifact     {:value ""
-                                               :valid true}
-                                :proj-name    {:value ""
-                                               :valid true}
-                                :description  {:value ""
-                                               :valid true}
-                                :packaging    "jar"
-                                :java-version "17"
-                                ;:project-version "0.0.1-SNAPSHOT",
-                                ;:deps            ("security")
-                                },
-                               :properties
-                               {:db
-                                {:type     {:value ""
-                                            :valid true}
-                                 :username {:value ""
-                                            :valid true}
-                                 :password {:value ""
-                                            :valid true}
-                                 :sql-host {:value ""
-                                            :valid true}
-                                 :sql-port {:value ""
-                                            :valid true}
-                                 :db-name  {:value ""
-                                            :valid true}}}
-                               :controllers {:controller-vec [0]
-                                             :method-vec     [[0 0] [0 1]]
-                                             :content        {0 {:name    {:value "UserController"
-                                                                           :valid true}
-                                                                 :methods {0 {:name {:value "m1"
-                                                                                     :valid true}
-                                                                              :url  {:value "/user"
-                                                                                     :valid true}
-                                                                              :type {:value "post"
-                                                                                     :valid true}}
-                                                                           1 {:name {:value "m1"
-                                                                                     :valid true}
-                                                                              :url  {:value "/user"
-                                                                                     :valid true}
-                                                                              :type {:value "post"
-                                                                                     :valid true}}}}}}}},
-                             :client
-                             {:type "android"
-                              :value
-                              {:proj-name      {:value ""
-                                                :valid true}
-                               :language       "java"
-                               :package-name   {:value ""
-                                                :valid true}
-                               :test-framework "junit-jupiter"
-                               :server-host    {:value ""
-                                                :valid true}
-                               :server-port    {:value ""
-                                                :valid true}
-                               :endpoints      {:endpoints-vec [0 1]
-                                                :content       {0 {:name   {:value ""
-                                                                            :valid true}
-                                                                   :url    {:value ""
-                                                                            :valid true}
-                                                                   :type   {:value ""
-                                                                            :valid true}
-                                                                   :entity {:value ""
-                                                                            :valid true}}
-                                                                1 {:name   {:value ""
-                                                                            :valid true}
-                                                                   :url    {:value ""
-                                                                            :valid true}
-                                                                   :type   {:value ""
-                                                                            :valid true}
-                                                                   :entity {:value ""
-                                                                            :valid true}}}}}}
-                             :containerization
-                             {:type "docker"
-                              :value
-                              {:network  {:value ""
-                                          :valid true}
-                               :jars     {:cont-vec [0]
-                                          :content  {0 {:image-name     {:value ""
-                                                                         :valid true}
-                                                        :container-name {:value ""
-                                                                         :valid true}
-                                                        :dir-name       {:value ""
-                                                                         :valid true}
-                                                        :jar-path       {:value ""
-                                                                         :valid true}}}}
-                               :nginx    {:cont-vec [0]
-                                          :content  {0 {:image-name             {:value ""
-                                                                                 :valid true}
-                                                        :container-name         {:value ""
-                                                                                 :valid true}
-                                                        :dir-name               {:value ""
-                                                                                 :valid true}
-                                                        :backend-container-name {:value ""
-                                                                                 :valid true}}}}
-                               :postgres {:cont-vec [0]
-                                          :content  {0 {:container-name {:value ""
-                                                                         :valid true}
-                                                        :port           {:value ""
-                                                                         :valid true}
-                                                        :password       {:value ""
-                                                                         :valid true}}}}}}
-                             :out-path nil}
-     }))                                                    ; https://day8.github.io/re-frame/dominoes-live/#initialize
+    init/init-db))                                                    ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
 (re-frame/reg-event-db
@@ -286,11 +114,11 @@
   (fn [db [_ new-item]]
     (update-in db [:controller-methods] conj new-item)))
 
-; Добавляет эндпоинт клиента (new item = endpoint-num)
+; Добавляет пустой эндпоинт клиента (new item = endpoint-num, в вектор добавляется новая чиселка)
 (re-frame/reg-event-db
   ::add-client-endpoint-item
   (fn [db [_ new-item]]
-    (update-in db [:client-endpoints] conj new-item)))
+    (update-in db [:data :client :android :endpoints :endpoints-vec] conj new-item)))
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
 (re-frame/reg-event-db

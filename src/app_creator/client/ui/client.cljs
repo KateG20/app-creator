@@ -8,7 +8,7 @@
 ; Кнопка для добавления эндпоинта
 (defn plus-endpoint-button []
   (fn []
-    (let [current-items (re-frame/subscribe [::subs/client-endpoints])
+    (let [current-items (re-frame/subscribe [::subs/client-endpoints-vec])
           new-item-vec (reagent/atom (+ 1 (last @current-items)))]
       [:div
        {:class "col-12 pt-5 button-center"}
@@ -84,7 +84,7 @@
 
 ; Список эндпоинтов (боксов)
 (defn endpoint-list []
-  (let [endpoints (re-frame/subscribe [::subs/client-endpoints])]
+  (let [endpoints (re-frame/subscribe [::subs/client-endpoints-vec])]
     (fn []
       [:ul
        {:class "db-list"}
