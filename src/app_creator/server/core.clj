@@ -8,11 +8,13 @@
             [ring.middleware.cors :refer [wrap-cors]]
             [compojure
              [route :as route]
-             [core :refer [defroutes GET POST context]]])
+             [core :refer [defroutes GET POST context]]]
+            [clojure.walk :refer [keywordize-keys]])
   (:gen-class))
 
 (defn start-logic [data]
   (let [result (creator/create-from-web data)]
+    (log/info (str "\n[AAAAAAAAAAA] the result: " result))
     {:data (str "Created projects with result: " result)}))
 
 (def dummy-entity {:id 1 :name "Hello, world!"})
@@ -26,9 +28,9 @@
              (log/info (str "\n[AAAAAAAAAAA] request received. " data))
              (response dummy-entity))
            (POST "/api/v1/create" data
-             (log/info (str "\n[AAAAAAAAAAA] request data: " data))
-             ;(response [dummy-entity])
-             (response (start-logic data)))
+             ;(log/info (str "\n[AAAAAAAAAAA] request data: " data))
+
+             (response (start-logic (keywordize-keys (:body data)))))
            ;(route/resources "/")
            (route/not-found (not-found)))
 
