@@ -147,6 +147,7 @@
   (fn [box]
     (let [all-content (re-frame/subscribe [::subs/postgres-tables-content])
           content (get @all-content box)
+          id (str "table-name-" box)
           t-vec-content (re-frame/subscribe [::subs/postgres-tables-vec])
           c-vec-content (re-frame/subscribe [::subs/postgres-columns-vec])]
       [:li
@@ -159,16 +160,16 @@
         [:input
          {:type         "text",
           :name         "text",
-          :id           (str "table-name-" box),
+          :id           id,
           :autocomplete "off",
           :required     true
           :on-change    #(re-frame/dispatch
                            [::events/postgres-table-name-change (-> % .-target .-value) box])}]
         [:label
          (if-not (get-in content [:name :valid])
-           {:for   (str "table-name-" box), :class "label-name incorrect-label"
+           {:for   id, :class "label-name incorrect-label"
             :style {:border-bottom-color "red"}}
-           {:for (str "table-name-" box), :class "label-name"})
+           {:for id, :class "label-name"})
          [:span (if-not (get-in content [:name :valid])
                   {:class "content-name"
                    :style {:color "red"}}

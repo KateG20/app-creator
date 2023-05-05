@@ -97,19 +97,19 @@
                                                      :valid true}}}
                                         :controllers {:controller-vec [0]
                                                       :method-vec     [[0 0] [0 1]]
-                                                      :content        {0 {:name    {:value "UserController"
+                                                      :content        {0 {:name    {:value ""
                                                                                     :valid true}
-                                                                          :methods {0 {:name {:value "m1"
+                                                                          :methods {0 {:name {:value ""
                                                                                               :valid true}
-                                                                                       :url  {:value "/user"
+                                                                                       :url  {:value ""
                                                                                               :valid true}
-                                                                                       :type {:value "post"
+                                                                                       :type {:value ""
                                                                                               :valid true}}
-                                                                                    1 {:name {:value "m1"
+                                                                                    1 {:name {:value ""
                                                                                               :valid true}
-                                                                                       :url  {:value "/user"
+                                                                                       :url  {:value ""
                                                                                               :valid true}
-                                                                                       :type {:value "post"
+                                                                                       :type {:value ""
                                                                                               :valid true}}}}}}}},
                                       :client
                                       {:type "android"
