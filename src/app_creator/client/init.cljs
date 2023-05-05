@@ -45,21 +45,21 @@
                                                              :valid true}
                                                   :tables   {:table-vec  [0 1]
                                                              :column-vec [[0 0] [0 1] [1 0]]
-                                                             :content    {0 {:name    {:value "t1"
+                                                             :content    {0 {:name    {:value ""
                                                                                        :valid true}
-                                                                             :columns {0 {:name {:value "c1"
+                                                                             :columns {0 {:name {:value ""
                                                                                                  :valid true}
-                                                                                          :opts {:value "str"
+                                                                                          :opts {:value ""
                                                                                                  :valid true}}
-                                                                                       1 {:name {:value "c2"
+                                                                                       1 {:name {:value ""
                                                                                                  :valid true}
-                                                                                          :opts {:value "int"
+                                                                                          :opts {:value ""
                                                                                                  :valid true}}}}
-                                                                          1 {:name    {:value "t2"
+                                                                          1 {:name    {:value ""
                                                                                        :valid true}
-                                                                             :columns {0 {:name {:value "c1"
+                                                                             :columns {0 {:name {:value ""
                                                                                                  :valid true}
-                                                                                          :opts {:value "date"
+                                                                                          :opts {:value ""
                                                                                                  :valid true}}}}}}}}
                                       :server
                                       {:type "spring"

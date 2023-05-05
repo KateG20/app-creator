@@ -9,7 +9,7 @@
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
-    init/init-db))                                                    ; https://day8.github.io/re-frame/dominoes-live/#initialize
+    init/init-db))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
 (re-frame/reg-event-db
@@ -35,9 +35,9 @@
   (fn [db [_ result]]
     (assoc db
       ;:log-field-display "block"
-              ;:http-post-result-text (str "success! " result)
-              :log-text "Finished!"
-              )))
+      ;:http-post-result-text (str "success! " result)
+      :log-text "Finished!"
+      )))
 
 (re-frame/reg-event-db
   ::failure-post-result
@@ -45,9 +45,9 @@
     ;; result is a map containing details of the failure
     (assoc db
       ;:log-field-display "block"
-              ;:http-post-result-text (str "failure! " result)
-              :log-text "Something went wrong!"
-              )))
+      ;:http-post-result-text (str "failure! " result)
+      :log-text "Something went wrong!"
+      )))
 
 (defn find-not-valid [db]
   )
@@ -59,20 +59,20 @@
   ::http-post
   (fn [{:keys [db] :as cofx} [_ val]]
     ;(if-not (:all-valid db)
-      (assoc db :log-text "Some data is incorrect. Check it again!")
-      {:http-xhrio {:method          :post
-                    :uri             "http://localhost:80/api/v1/create"
-                    :params          (:data db)             ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
-                    ;:body          (:data db)
-                    ;:timeout         5000
-                    :headers         {"Content-Type" "application/json"}
-                    :format          (ajax/json-request-format)
-                    ;:response-format {:content-type "application/json" :description "JSON body"}
-                    ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
-                    :response-format (ajax/json-response-format {:keywords? true})
-                    :on-success      [::success-post-result]
-                    :on-failure      [::failure-post-result]}}))
-  ;)
+    (assoc db :log-text "Some data is incorrect. Check it again!")
+    {:http-xhrio {:method          :post
+                  :uri             "http://localhost:80/api/v1/create"
+                  :params          (:data db)               ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
+                  ;:body          (:data db)
+                  ;:timeout         5000
+                  :headers         {"Content-Type" "application/json"}
+                  :format          (ajax/json-request-format)
+                  ;:response-format {:content-type "application/json" :description "JSON body"}
+                  ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [::success-post-result]
+                  :on-failure      [::failure-post-result]}}))
+;)
 
 (re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
   ::http-get                                                ;; <-- the event id
@@ -94,17 +94,106 @@
 ;  (fn [db [_ result]]
 ;    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
 
+
+(re-frame/reg-event-db
+  ::postgres-db-name-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :db-name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-host-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))
+          place [:data :db :postgres :host]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-username-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :username]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-password-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :password]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-table-name-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :db :postgres :tables :content box :name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-column-name-change
+  (fn [db [_ new-value box row]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :db :postgres :tables :content box :columns row :name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::postgres-column-opts-change
+  (fn [db [_ new-value box row]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :db :postgres :tables :content box :columns row :opts]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
 ; Добавляет таблицу БД (new item = table-num)
 (re-frame/reg-event-db
   ::add-table-item
   (fn [db [_ new-item]]
-    (update-in db [:tables] conj new-item)))
+    (-> db
+        (update-in [:data :db :postgres :tables :table-vec] conj new-item)
+        (assoc-in [:data :db :postgres :tables :content new-item]
+                  {:name    {:value ""
+                             :valid true}
+                   :columns nil
+                   }))))
 
 ; Добавляет колонку в таблицу БД (new item = [table-num col-num])
 (re-frame/reg-event-db
   ::add-table-column-item
   (fn [db [_ new-item]]
-    (update-in db [:table-columns] conj new-item)))
+    (-> db
+        (update-in [:data :db :postgres :tables :column-vec] conj new-item)
+        (assoc-in [:data :db :postgres :tables :content (first new-item) :columns (second new-item)]
+                  {:name {:value ""
+                          :valid true}
+                   :opts {:value ""
+                          :valid true}}))))
+
+
+
+
+
+
 
 ; Добавляет контроллер сервера (new item = controller-num)
 (re-frame/reg-event-db
@@ -156,7 +245,7 @@
 (re-frame/reg-event-db
   ::change-db-checked
   (fn [db [_ new-value]]
-    (assoc-in db [:checked :db] new-value)))
+    (assoc-in db [:data :db :type] new-value)))
 
 ; Отмечает выбранный тип сервера (new-value = тип)
 (re-frame/reg-event-db
@@ -234,7 +323,7 @@
   ::android-endpoint-request-change
   (fn [db [_ new-value box]]
     (let [new-value (v/trim-input new-value)
-          is-valid  (v/valid-req-type? new-value)
+          is-valid (v/valid-req-type? new-value)
           place [:data :client :android :endpoints :content box :request]]
       (-> db
           (assoc-in (conj place :value) new-value)

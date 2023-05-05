@@ -50,6 +50,30 @@
   (fn [db _]
     (:log-text db)))
 
+(re-frame/reg-sub
+  ::postgres-data
+  (fn [db _]
+    (get-in db [:data :db :postgres])))
+
+; Список таблиц у бд
+(re-frame/reg-sub
+  ::postgres-tables-vec
+  (fn [db _]
+    (get-in db [:data :db :postgres :tables :table-vec])))
+
+; Список колонок у бд
+(re-frame/reg-sub
+  ::postgres-columns-vec
+  (fn [db _]
+    (get-in db [:data :db :postgres :tables :column-vec])))
+
+(re-frame/reg-sub
+  ::postgres-tables-content
+  (fn [db _]
+    (get-in db [:data :db :postgres :tables :content])))
+
+
+
 ; Список таблиц в БД
 (re-frame/reg-sub
   ::tables
@@ -87,6 +111,8 @@
   (fn [db _]
     (get-in db [:data :client :android :endpoints :content])))
 
+
+
 ; Список джар-контейнеров
 (re-frame/reg-sub
   ::jar-conts
@@ -109,7 +135,9 @@
 (re-frame/reg-sub
   ::db-checked
   (fn [db _]
-    (:db (:checked db))))
+    (get-in db [:data :db :type])
+    ;(:db (:checked db))
+    ))
 
 ; Какой сервер фреймворк выбран
 (re-frame/reg-sub

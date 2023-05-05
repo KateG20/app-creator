@@ -48,32 +48,54 @@
 
 ; Колонка таблицы (строка в боксе)
 (defn table-column-item [box row]
-  (let [name (str "col-name-" box "-" row)
-        type (str "col-type-" box "-" row)]
-    [:li
-     {:class "table-row-li"}
-     [:div
-      {:class "col-12 pb-5 input-field"}
-      [:input
-       {:type         "text",
-        :name         "text",
-        :id           name,
-        :autocomplete "off",
-        :required     true}]
-      [:label
-       {:for name, :class "label-name"}
-       [:span {:class "content-name"} "Column"]]]
-     [:div
-      {:class "col-12 pb-5 input-field"}
-      [:input
-       {:type         "text",
-        :name         "text",
-        :id           type,
-        :autocomplete "off",
-        :required     true}]
-      [:label
-       {:for type, :class "label-name"}
-       [:span {:class "content-name"} "Type"]]]]))
+  (fn [box row]
+    (let [name (str "col-name-" box "-" row)
+          type (str "col-type-" box "-" row)
+          all-content (re-frame/subscribe [::subs/postgres-tables-content])
+          box-content (get @all-content box)
+          row-content (get-in box-content [:columns row])]
+      [:li
+       {:class "table-row-li"}
+       [:div
+        {:class "col-12 pb-5 input-field"}
+        [:input
+         {:type         "text",
+          :name         "text",
+          :id           name,
+          :autocomplete "off",
+          :required     true
+          :on-change    #(re-frame/dispatch
+                           [::events/postgres-column-name-change (-> % .-target .-value) box row])}]
+        [:label
+         (if-not (get-in row-content [:name :valid])
+           {:for   name, :class "label-name incorrect-label"
+            :style {:border-bottom-color "red"}}
+           {:for name, :class "label-name"})
+         [:span (if-not (get-in row-content [:name :valid])
+                  {:class "content-name"
+                   :style {:color "red"}}
+                  {:class "content-name"})
+          "Column"]]]
+       [:div
+        {:class "col-12 pb-5 input-field"}
+        [:input
+         {:type         "text",
+          :name         "text",
+          :id           type,
+          :autocomplete "off",
+          :required     true
+          :on-change    #(re-frame/dispatch
+                           [::events/postgres-column-opts-change (-> % .-target .-value) box row])}]
+        [:label
+         (if-not (get-in row-content [:opts :valid])
+           {:for   type, :class "label-name incorrect-label"
+            :style {:border-bottom-color "red"}}
+           {:for type, :class "label-name"})
+         [:span (if-not (get-in row-content [:opts :valid])
+                  {:class "content-name"
+                   :style {:color "red"}}
+                  {:class "content-name"})
+          "Type"]]]])))
 
 ; принимает двумерный массив типа [[0 0] [0 1] [0 2] [1 1]]
 ; и для аргумента box=0 находит число 2
@@ -82,11 +104,11 @@
 
 ; Кнопка для добавления колонки в таблице
 (defn plus-table-row-button [box]
-  (fn [box]
-    (let [id (str "plus-column-" box)
-          current-items (re-frame/subscribe [::subs/table-columns])
-          new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
-          new-item-vec (reagent/atom [box new-col-num])]
+    (fn [box]
+      (let [id (str "plus-column-" box)
+            current-items (re-frame/subscribe [::subs/postgres-columns-vec])
+            new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
+            new-item-vec (reagent/atom [box new-col-num])]
       [:div
        [:button {:type     "button", :name "plus", :id id
                  :on-click #(re-frame/dispatch [::events/add-table-column-item @new-item-vec])}]
@@ -94,9 +116,9 @@
 
 ; Кнопка для добавления таблицы
 (defn plus-table-button []
-  (fn []
-    (let [current-items (re-frame/subscribe [::subs/tables])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+    (fn []
+      (let [current-items (re-frame/subscribe [::subs/postgres-tables-vec])
+            new-item-vec (reagent/atom (+ 1 (last @current-items)))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -108,41 +130,113 @@
 
 ; Список колонок в таблице (строки в боксе)
 (defn table-box-columns [box]
-  (fn [box]
-    (let [all-items @(re-frame/subscribe [::subs/table-columns])
-          our-box-items (filter #(= box (first %)) all-items)]
+    (fn [box]
+      (let [all-items @(re-frame/subscribe [::subs/postgres-columns-vec])
+            our-box-items (filter #(= box (first %)) all-items)]
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
-         (table-column-item (first item) (second item)))])))
+         ;(table-column-item (first item) (second item))
+         [table-column-item (first item) (second item)]
+         )])))
+
+; Содержимое бокса таблицы
+; Когда это было включено в table-list, оно не работало, хотя let было то же самое.
+; Хм, а еще не работает, если тут let снаружи fn...
+; Но если вернуть это в table-list даже с let внутри, там оно все равно не работает.
+(defn table-box [box]
+  (fn [box]
+    (let [all-content (re-frame/subscribe [::subs/postgres-tables-content])
+          content (get @all-content box)
+          t-vec-content (re-frame/subscribe [::subs/postgres-tables-vec])
+          c-vec-content (re-frame/subscribe [::subs/postgres-columns-vec])]
+      [:li
+       {:class "col-12 pb-5 opts-group center box"}
+       ;[:p {:style {:font-size "10px"}} content]
+       ;[:p {:style {:font-size "10px" :color "black"}} t-vec-content]
+       ;[:p {:style {:font-size "10px" :color "black"}} c-vec-content]
+       [:div
+        {:class "col-12 pb-5 input-field"}
+        [:input
+         {:type         "text",
+          :name         "text",
+          :id           (str "table-name-" box),
+          :autocomplete "off",
+          :required     true
+          :on-change    #(re-frame/dispatch
+                           [::events/postgres-table-name-change (-> % .-target .-value) box])}]
+        [:label
+         (if-not (get-in content [:name :valid])
+           {:for   (str "table-name-" box), :class "label-name incorrect-label"
+            :style {:border-bottom-color "red"}}
+           {:for (str "table-name-" box), :class "label-name"})
+         [:span (if-not (get-in content [:name :valid])
+                  {:class "content-name"
+                   :style {:color "red"}}
+                  {:class "content-name"})
+          "Table name"]]]
+       [table-box-columns box]
+       [plus-table-row-button box]
+       ])
+    ))
 
 ; Список таблиц (боксов)
 (defn table-list []
-  (let [tables (re-frame/subscribe [::subs/tables])]
+  (let [tables (re-frame/subscribe [::subs/postgres-tables-vec])
+        ;content (re-frame/subscribe [::subs/postgres-tables-content])
+        ]
     (fn []
       [:ul
        {:class "db-list"}
        (for [t @tables]
-         [:li
-          {:class "col-12 pb-5 opts-group center box"}
-          [:div
-           {:class "col-12 pb-5 input-field"}
-           [:input
-            {:type         "text",
-             :name         "text",
-             :id           (str "table-name-" t),
-             :autocomplete "off",
-             :required     true}]
-           [:label
-            {:for (str "table-name-" t), :class "label-name"}
-            [:span {:class "content-name"} "Table name"]]]
-          [table-box-columns t]
-          [plus-table-row-button t]
-          ])])))
+         [table-box t]
+         )]))
+
+  ;(fn []
+  ;  (let [tables (re-frame/subscribe [::subs/postgres-tables-vec])
+  ;        all-items @(re-frame/subscribe [::subs/postgres-columns-vec])
+  ;        all-content (re-frame/subscribe [::subs/postgres-tables-content])]
+  ;    [:ul
+  ;     {:class "db-list"}
+  ;     (for [t @tables]
+  ;       ;[table-box t]
+  ;       (let [box-content (get @all-content t)
+  ;             table-id (str "table-name-" t)]
+  ;         [:li
+  ;          {:class "col-12 pb-5 opts-group center box"}
+  ;          [:p {:style {:font-size "10px"}} box-content]
+  ;          [:div
+  ;           {:class "col-12 pb-5 input-field"}
+  ;           [:input
+  ;            {:type         "text",
+  ;             :name         "text",
+  ;             :id           table-id,
+  ;             :autocomplete "off",
+  ;             :required     true
+  ;             :on-change    #(re-frame/dispatch
+  ;                              [::events/postgres-table-name-change (-> % .-target .-value) t])}]
+  ;           [:label
+  ;            (if-not (get-in box-content [:name :valid])
+  ;              {:for   table-id, :class "label-name incorrect-label"
+  ;               :style {:border-bottom-color "red"}}
+  ;              {:for table-id, :class "label-name"})
+  ;            [:span (if-not (get-in box-content [:name :valid])
+  ;                     {:class "content-name"
+  ;                      :style {:color "red"}}
+  ;                     {:class "content-name"})
+  ;             "Table name"]]]
+  ;          [table-box-columns t]
+  ;          [plus-table-row-button t]
+  ;          ]
+  ;         )
+  ;       )]))
+  )
 
 (defn db-ui []
   (let [db-checked (re-frame/subscribe [::subs/db-checked])
-        host-valid (re-frame/subscribe [::subs/db-host-valid])]
+        props (re-frame/subscribe [::subs/postgres-data])
+        ;host-valid (re-frame/subscribe [::subs/db-host-valid])
+        ]
     (fn []
       [:div
        [:div
@@ -155,11 +249,6 @@
         {:class "col-12 pt-5 for-postgres center",
          :style
          {:display (if (= @db-checked "postgres") "block" "none")}}
-        ;[:div
-        ; {:class "col-12 pt-5"}
-        ; [:p {:class "mb-4 pb-2"} "Properties"]
-        ; [:label {:class "plus-label mt-20 help-label"} "?"]
-        ; ]
 
         [:div
          {:class "col-12 pt-5 header-with-help"}
@@ -185,10 +274,19 @@
              :name         "text",
              :id           "db-name",
              :autocomplete "off",
-             :required     true}]
+             :required     true
+             :on-change    #(re-frame/dispatch
+                              [::events/postgres-db-name-change (-> % .-target .-value)])}]
            [:label
-            {:for "db-name", :class "label-name"}
-            [:span {:class "content-name"} "DB name"]]]
+            (if-not (get-in @props [:db-name :valid])
+              {:for   "db-name", :class "label-name incorrect-label"
+               :style {:border-bottom-color "red"}}
+              {:for "db-name", :class "label-name"})
+            [:span (if-not (get-in @props [:db-name :valid])
+                     {:class "content-name"
+                      :style {:color "red"}}
+                     {:class "content-name"})
+             "DB name"]]]
           [:div
            {:class "col-12 pb-5 input-field"}
            [:input
@@ -197,15 +295,13 @@
              :id           "db-host",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch [::events/db-host-text-change (-> % .-target .-value)])}]
+             :on-change    #(re-frame/dispatch [::events/postgres-host-change (-> % .-target .-value)])}]
            [:label
-            (if-not @host-valid
-              {:for "db-host", :class "label-name incorrect-label"
+            (if-not (get-in @props [:host :valid])
+              {:for   "db-host", :class "label-name incorrect-label"
                :style {:border-bottom-color "red"}}
               {:for "db-host", :class "label-name"})
-            ;{:for "db-host", :class "label-name incorrect-label"
-            ; :style {:border-bottom-color "red"}}
-            [:span (if-not @host-valid
+            [:span (if-not (get-in @props [:host :valid])
                      {:class "content-name"
                       :style {:color "red"}}
                      {:class "content-name"})
@@ -218,10 +314,18 @@
              :name         "text",
              :id           "db-username",
              :autocomplete "off",
-             :required     true}]
+             :required     true
+             :on-change    #(re-frame/dispatch [::events/postgres-username-change (-> % .-target .-value)])}]
            [:label
-            {:for "db-username", :class "label-name"}
-            [:span {:class "content-name"} "Username"]]]
+            (if-not (get-in @props [:username :valid])
+              {:for   "db-username", :class "label-name incorrect-label"
+               :style {:border-bottom-color "red"}}
+              {:for "db-username", :class "label-name"})
+            [:span (if-not (get-in @props [:username :valid])
+                     {:class "content-name"
+                      :style {:color "red"}}
+                     {:class "content-name"})
+             "Username"]]]
           [:div
            {:class "col-12 pb-5 input-field"}
            [:input
@@ -229,13 +333,20 @@
              :name         "text",
              :id           "db-password",
              :autocomplete "off",
-             :required     true}]
+             :required     true
+             :on-change    #(re-frame/dispatch [::events/postgres-password-change (-> % .-target .-value)])}]
            [:label
-            {:for "db-password", :class "label-name"}
-            [:span {:class "content-name"} "Password"]]]]]
+            (if-not (get-in @props [:password :valid])
+              {:for   "db-password", :class "label-name incorrect-label"
+               :style {:border-bottom-color "red"}}
+              {:for "db-password", :class "label-name"})
+            [:span (if-not (get-in @props [:password :valid])
+                     {:class "content-name"
+                      :style {:color "red"}}
+                     {:class "content-name"})
+             "Password"]]]]]
 
 
-        ;[:div {:class "col-12 pt-5"} [:p {:class "mb-4 pb-2"} "Tables"]]
         [:div
          {:class "col-12 pt-5 header-with-help"}
          [:label {:class "plus-label mt-20 help-label"

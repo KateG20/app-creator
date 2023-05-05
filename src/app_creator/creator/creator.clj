@@ -51,8 +51,8 @@
 
 (defn create-from-web [data]
   (if (some? data)
-    (let [{:keys [info db server client containerization out-path]} data]
-      (log/info (str "Got data! " data))
+    (let [{:keys [db server client containerization out-path]} data]
+      (log/info (str "\nGot data!\n\n" data "\n\n"))
       ;(and (some? db)                                     ; names: db, out-path - it's important
       ;     (safe (adapter/create-db) 'sql-scripts))
       ;
@@ -64,7 +64,7 @@
       ;
       ;(and (some? containerization)                       ; names: containerization, out-path - it's important
       ;     (safe (adapter/containerize) 'containerization-scripts))
-      "success"
+      (str "\n\nresult: " (get-in data [:client :android :endpoints]))
       )))
 
 (defn start [args]
