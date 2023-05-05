@@ -95,6 +95,14 @@
 ;    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
 
 
+;-----------------------------------------------DB EVENTS-----------------------------------------------
+
+; Отмечает выбранный тип бд (new-value = тип)
+(re-frame/reg-event-db
+  ::change-db-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:data :db :type] new-value)))
+
 (re-frame/reg-event-db
   ::postgres-db-name-change
   (fn [db [_ new-value]]
@@ -190,10 +198,78 @@
                           :valid true}}))))
 
 
+;-----------------------------------------------SERVER EVENTS-----------------------------------------------
 
+; Отмечает выбранный тип сервера (new-value = тип)
+(re-frame/reg-event-db
+  ::change-server-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:data :server :type] new-value)))
 
+(re-frame/reg-event-db
+  ::change-spring-opt-radio
+  (fn [db [_ opt-keyword new-value]]
+    (assoc-in db [:data :server :spring :project opt-keyword] new-value)))
 
+(re-frame/reg-event-db
+  ::spring-group-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :project :group]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
 
+(re-frame/reg-event-db
+  ::spring-artifact-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :project :artifact]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::spring-proj-name-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :project :proj-name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::spring-description-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :project :description]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+;(re-frame/reg-event-db
+;  ::change-spring-lang
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :server :spring :lang] new-value)))
+;
+;(re-frame/reg-event-db
+;  ::change-spring-pack
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :server :spring :pack] new-value)))
+;
+;(re-frame/reg-event-db
+;  ::change-spring-boot-v
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :server :spring :boot-v] new-value)))
+;
+;(re-frame/reg-event-db
+;  ::change-spring-java-v
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :server :spring :java-v] new-value)))
 
 ; Добавляет контроллер сервера (new item = controller-num)
 (re-frame/reg-event-db
@@ -207,86 +283,13 @@
   (fn [db [_ new-item]]
     (update-in db [:controller-methods] conj new-item)))
 
-; Добавляет пустой эндпоинт клиента (new item = endpoint-num, в вектор добавляется новая чиселка)
-(re-frame/reg-event-db
-  ::add-client-endpoint-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :client :android :endpoints :endpoints-vec] conj new-item)
-        (assoc-in [:data :client :android :endpoints :content new-item]
-                  {:url     {:value ""
-                             :valid true}
-                   :name    {:value ""
-                             :valid true}
-                   :request {:value ""
-                             :valid true}
-                   :body    {:value ""
-                             :valid true}}))))
 
-; Добавляет джар-контейнер (new item = jar-cont-num)
-(re-frame/reg-event-db
-  ::add-jar-cont-item
-  (fn [db [_ new-item]]
-    (update-in db [:jar-conts] conj new-item)))
-
-; Добавляет nginx-контейнер (new item = nginx-cont-num)
-(re-frame/reg-event-db
-  ::add-nginx-cont-item
-  (fn [db [_ new-item]]
-    (update-in db [:nginx-conts] conj new-item)))
-
-; Добавляет postgres-контейнер (new item = postgres-cont-num)
-(re-frame/reg-event-db
-  ::add-postgres-cont-item
-  (fn [db [_ new-item]]
-    (update-in db [:postgres-conts] conj new-item)))
-
-; Отмечает выбранный тип бд (new-value = тип)
-(re-frame/reg-event-db
-  ::change-db-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:data :db :type] new-value)))
-
-; Отмечает выбранный тип сервера (new-value = тип)
-(re-frame/reg-event-db
-  ::change-server-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :type] new-value)))
+;-----------------------------------------------CLIENT EVENTS-----------------------------------------------
 
 (re-frame/reg-event-db
   ::change-client-checked
   (fn [db [_ new-value]]
     (assoc-in db [:checked :client :type] new-value)))
-
-(re-frame/reg-event-db
-  ::change-deploy-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :deploy] new-value)))
-
-(re-frame/reg-event-db
-  ::change-spring-build
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :spring :build] new-value)))
-
-(re-frame/reg-event-db
-  ::change-spring-lang
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :spring :lang] new-value)))
-
-(re-frame/reg-event-db
-  ::change-spring-pack
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :spring :pack] new-value)))
-
-(re-frame/reg-event-db
-  ::change-spring-boot-v
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :spring :boot-v] new-value)))
-
-(re-frame/reg-event-db
-  ::change-spring-java-v
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :server :spring :java-v] new-value)))
 
 (re-frame/reg-event-db
   ::change-android-lang
@@ -341,17 +344,61 @@
           (assoc-in (conj place :valid) is-valid)
           ))))
 
+; Добавляет пустой эндпоинт клиента (new item = endpoint-num, в вектор добавляется новая чиселка)
+(re-frame/reg-event-db
+  ::add-client-endpoint-item
+  (fn [db [_ new-item]]
+    (-> db
+        (update-in [:data :client :android :endpoints :endpoints-vec] conj new-item)
+        (assoc-in [:data :client :android :endpoints :content new-item]
+                  {:url     {:value ""
+                             :valid true}
+                   :name    {:value ""
+                             :valid true}
+                   :request {:value ""
+                             :valid true}
+                   :body    {:value ""
+                             :valid true}}))))
+
+;-----------------------------------------------DEPLOY EVENTS-----------------------------------------------
 
 (re-frame/reg-event-db
-  ::db-host-text-change
-  (fn [db [_ new-host-value]]
-    (let [new-host-value (v/trim-input new-host-value)
-          is-valid (some? (v/valid-host? new-host-value))]
-      (-> db
-          (assoc-in [:data :db :postgresql :host] new-host-value)
-          (assoc-in [:valid :db :host] is-valid)
-          ;(assoc db :all-valid is-valid)
-          ))))
+  ::change-deploy-checked
+  (fn [db [_ new-value]]
+    (assoc-in db [:checked :deploy] new-value)))
+
+; Добавляет джар-контейнер (new item = jar-cont-num)
+(re-frame/reg-event-db
+  ::add-jar-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:jar-conts] conj new-item)))
+
+; Добавляет nginx-контейнер (new item = nginx-cont-num)
+(re-frame/reg-event-db
+  ::add-nginx-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:nginx-conts] conj new-item)))
+
+; Добавляет postgres-контейнер (new item = postgres-cont-num)
+(re-frame/reg-event-db
+  ::add-postgres-cont-item
+  (fn [db [_ new-item]]
+    (update-in db [:postgres-conts] conj new-item)))
+
+
+
+
+
+;(re-frame/reg-event-db
+;  ::db-host-text-change
+;  (fn [db [_ new-host-value]]
+;    (let [new-host-value (v/trim-input new-host-value)
+;          is-valid (some? (v/valid-host? new-host-value))]
+;      (-> db
+;          (assoc-in [:data :db :postgresql :host] new-host-value)
+;          (assoc-in [:valid :db :host] is-valid)
+;          ;(assoc db :all-valid is-valid)
+;          ))))
 
 (re-frame/reg-event-db
   ::out-path-text-change

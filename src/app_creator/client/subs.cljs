@@ -22,16 +22,16 @@
   (fn [db _]
     (:success-display db)))
 
-; Для регистрации текста про сервер
-(re-frame/reg-sub
-  ::server-framework-text
-  (fn [db _]
-    (:server-framework-text db)))
-
-(re-frame/reg-sub
-  ::server-lang-text
-  (fn [db _]
-    (:server-lang-text db)))
+;; Для регистрации текста про сервер
+;(re-frame/reg-sub
+;  ::server-framework-text
+;  (fn [db _]
+;    (:server-framework-text db)))
+;
+;(re-frame/reg-sub
+;  ::server-lang-text
+;  (fn [db _]
+;    (:server-lang-text db)))
 
 ;(re-frame/reg-sub
 ;  ::http-post-result-text
@@ -49,6 +49,14 @@
   ::log-text
   (fn [db _]
     (:log-text db)))
+
+;-----------------------------------------------DB SUBS-----------------------------------------------
+
+; Какая СУБД выбрана
+(re-frame/reg-sub
+  ::db-checked
+  (fn [db _]
+    (get-in db [:data :db :type])))
 
 (re-frame/reg-sub
   ::postgres-data
@@ -72,32 +80,65 @@
   (fn [db _]
     (get-in db [:data :db :postgres :tables :content])))
 
+;; Список таблиц в БД
+;(re-frame/reg-sub
+;  ::tables
+;  (fn [db _]
+;    (:tables db)))
+;
+;; Список колонок таблиц в БД
+;(re-frame/reg-sub
+;  ::table-columns
+;  (fn [db _]
+;    (:table-columns db)))
 
+;-----------------------------------------------SERVER SUBS-----------------------------------------------
 
-; Список таблиц в БД
+; Какой сервер фреймворк выбран
 (re-frame/reg-sub
-  ::tables
+  ::server-checked
   (fn [db _]
-    (:tables db)))
+    (get-in db [:data :server :type])))
 
-; Список колонок таблиц в БД
 (re-frame/reg-sub
-  ::table-columns
+  ::spring-data
   (fn [db _]
-    (:table-columns db)))
+    (get-in db [:data :server :spring])))
+
+(re-frame/reg-sub
+  ::spring-project-opts
+  (fn [db _]
+    (get-in db [:data :server :spring :project])))
 
 ; Список контроллеров у сервера
 (re-frame/reg-sub
-  ::controllers
+  ::spring-controllers-vec
   (fn [db _]
-    (:controllers db)))
+    (get-in db [:data :server :spring :controllers :controller-vec])))
 
 ; Список методов у контроллеров сервера
 (re-frame/reg-sub
-  ::controller-methods
+  ::spring-controller-methods-vec
   (fn [db _]
-    (:controller-methods db)))
+    (get-in db [:data :server :spring :controllers :method-vec])))
 
+(re-frame/reg-sub
+  ::spring-controller-content
+  (fn [db _]
+    (get-in db [:data :server :spring :controllers :content])))
+
+;(re-frame/reg-sub
+;  ::server-opts
+;  (fn [db _]
+;    (:server (:checked db))))
+
+;-----------------------------------------------CLIENT SUBS-----------------------------------------------
+
+; Какая платформа клиента выбрана
+(re-frame/reg-sub
+  ::client-checked
+  (fn [db _]
+    (:type (:client (:checked db)))))
 
 ; Список эндпоинтов у клиента
 (re-frame/reg-sub
@@ -111,7 +152,18 @@
   (fn [db _]
     (get-in db [:data :client :android :endpoints :content])))
 
+(re-frame/reg-sub
+  ::client-opts
+  (fn [db _]
+    (:client (:checked db))))
 
+
+;-----------------------------------------------DEPLOY SUBS-----------------------------------------------
+
+(re-frame/reg-sub
+  ::deploy-checked
+  (fn [db _]
+    (:deploy (:checked db))))
 
 ; Список джар-контейнеров
 (re-frame/reg-sub
@@ -131,46 +183,12 @@
   (fn [db _]
     (:postgres-conts db)))
 
-; Какая СУБД выбрана
-(re-frame/reg-sub
-  ::db-checked
-  (fn [db _]
-    (get-in db [:data :db :type])
-    ;(:db (:checked db))
-    ))
 
-; Какой сервер фреймворк выбран
-(re-frame/reg-sub
-  ::server-checked
-  (fn [db _]
-    (:type (:server (:checked db)))))
-
-; Какая платформа клиента выбрана
-(re-frame/reg-sub
-  ::client-checked
-  (fn [db _]
-    (:type (:client (:checked db)))))
-
-(re-frame/reg-sub
-  ::deploy-checked
-  (fn [db _]
-    (:deploy (:checked db))))
-
-(re-frame/reg-sub
-  ::server-opts
-  (fn [db _]
-    (:server (:checked db))))
-
-(re-frame/reg-sub
-  ::client-opts
-  (fn [db _]
-    (:client (:checked db))))
-
-; Верный ли хост для бд
-(re-frame/reg-sub
-  ::db-host-valid
-  (fn [db _]
-    (:host (:db (:valid db)))))
+;; Верный ли хост для бд
+;(re-frame/reg-sub
+;  ::db-host-valid
+;  (fn [db _]
+;    (:host (:db (:valid db)))))
 
 (re-frame/reg-sub
   ::out-path-valid
