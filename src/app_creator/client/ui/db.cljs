@@ -136,7 +136,6 @@
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
-         ;(table-column-item (first item) (second item))
          [table-column-item (first item) (second item)]
          )])))
 
@@ -176,67 +175,21 @@
                   {:class "content-name"})
           "Table name"]]]
        [table-box-columns box]
-       [plus-table-row-button box]
-       ])
-    ))
+       [plus-table-row-button box]])))
 
 ; Список таблиц (боксов)
 (defn table-list []
-  (let [tables (re-frame/subscribe [::subs/postgres-tables-vec])
-        ;content (re-frame/subscribe [::subs/postgres-tables-content])
-        ]
+  (let [tables (re-frame/subscribe [::subs/postgres-tables-vec])]
     (fn []
       [:ul
        {:class "db-list"}
        (for [t @tables]
          [table-box t]
-         )]))
-
-  ;(fn []
-  ;  (let [tables (re-frame/subscribe [::subs/postgres-tables-vec])
-  ;        all-items @(re-frame/subscribe [::subs/postgres-columns-vec])
-  ;        all-content (re-frame/subscribe [::subs/postgres-tables-content])]
-  ;    [:ul
-  ;     {:class "db-list"}
-  ;     (for [t @tables]
-  ;       ;[table-box t]
-  ;       (let [box-content (get @all-content t)
-  ;             table-id (str "table-name-" t)]
-  ;         [:li
-  ;          {:class "col-12 pb-5 opts-group center box"}
-  ;          [:p {:style {:font-size "10px"}} box-content]
-  ;          [:div
-  ;           {:class "col-12 pb-5 input-field"}
-  ;           [:input
-  ;            {:type         "text",
-  ;             :name         "text",
-  ;             :id           table-id,
-  ;             :autocomplete "off",
-  ;             :required     true
-  ;             :on-change    #(re-frame/dispatch
-  ;                              [::events/postgres-table-name-change (-> % .-target .-value) t])}]
-  ;           [:label
-  ;            (if-not (get-in box-content [:name :valid])
-  ;              {:for   table-id, :class "label-name incorrect-label"
-  ;               :style {:border-bottom-color "red"}}
-  ;              {:for table-id, :class "label-name"})
-  ;            [:span (if-not (get-in box-content [:name :valid])
-  ;                     {:class "content-name"
-  ;                      :style {:color "red"}}
-  ;                     {:class "content-name"})
-  ;             "Table name"]]]
-  ;          [table-box-columns t]
-  ;          [plus-table-row-button t]
-  ;          ]
-  ;         )
-  ;       )]))
-  )
+         )])))
 
 (defn db-ui []
   (let [db-checked (re-frame/subscribe [::subs/db-checked])
-        props (re-frame/subscribe [::subs/postgres-data])
-        ;host-valid (re-frame/subscribe [::subs/db-host-valid])
-        ]
+        props (re-frame/subscribe [::subs/postgres-data])]
     (fn []
       [:div
        [:div
