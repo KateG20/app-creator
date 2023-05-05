@@ -1,26 +1,32 @@
 (ns app-creator.client.subs
   (:require [re-frame.core :as re-frame]))
 
+; Неймспейс, где регистрируем подписки на все нужные значения.
+; Иерархию db (app-db, то бишь просто состояние, все нужные хранящиеся данные) можно посмотреть
+; в файле init.cljs. Там определяется изначальное состояние app-db.
+
+; Ниже - это я давно писала комменты для себя тупенькой.
+
 ; Вызываются потом в методе subscribe, в результате - атом(?)-ссылка на значение, которое возвращает fn.
 ; Эти ссылки потом просто вставляются в нужные места разметки, а при вызовах событий в их (событий)
 ; функциях описано, как значения (идентифицируемые по ключам, возвращаемым fn в reg-sub) меняются.
 
 ; Для регистрации ноды текста
-(re-frame/reg-sub
-  ::text
-  (fn [db _]
-    (:text db)))
-
-; Для регистрации ноды дисплея ошибки
-(re-frame/reg-sub
-  ::error-display
-  (fn [db _]
-    (:error-display db)))
-
-(re-frame/reg-sub
-  ::success-display
-  (fn [db _]
-    (:success-display db)))
+;(re-frame/reg-sub
+;  ::text
+;  (fn [db _]
+;    (:text db)))
+;
+;; Для регистрации ноды дисплея ошибки
+;(re-frame/reg-sub
+;  ::error-display
+;  (fn [db _]
+;    (:error-display db)))
+;
+;(re-frame/reg-sub
+;  ::success-display
+;  (fn [db _]
+;    (:success-display db)))
 
 ;; Для регистрации текста про сервер
 ;(re-frame/reg-sub
@@ -44,7 +50,7 @@
 ;  (fn [db _]
 ;    (:log-field-display db)))
 
-; Текст этих логов
+; Текст логов о прогрессе создания компонентов
 (re-frame/reg-sub
   ::log-text
   (fn [db _]

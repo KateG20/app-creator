@@ -1,5 +1,9 @@
 (ns app-creator.client.init)
 
+; Собственно сейчас отсюда я использую только :log-text и :data. Остальное - мусор,
+; пока не удаляю, чтобы что-нибудь не полетело.
+; Тут видно, как хранятся все характеристики сейчас
+
 (def init-db {;:all-valid             true
               ;:text                  "initial text"
               ;:error-display         "none"                 ;; returned value put into app-db

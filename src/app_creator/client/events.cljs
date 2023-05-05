@@ -5,30 +5,37 @@
             [app-creator.client.ui.validator :as v]
             [app-creator.client.init :as init]))
 
+; С событиями всё понятно, тут просто регистрируем события, чтобы потом по ключу
+; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что
+; в них правильно писать, но для стандартных событий всё изично.
+
 ; Событие для изначальной инициации дб (вызывается потом в методе run, перед рендером)
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
     init/init-db))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
+; мусор START
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
-(re-frame/reg-event-db
-  ::text-change
-  (fn [db [_ new-text-value]]
-    (assoc db :text new-text-value
-              :error-display (if (< (count new-text-value) 5) "block" "none"))))
+;(re-frame/reg-event-db
+;  ::text-change
+;  (fn [db [_ new-text-value]]
+;    (assoc db :text new-text-value
+;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
+;
+;(re-frame/reg-event-db
+;  ::server-framework-text-change
+;  (fn [db [_ new-text-value]]
+;    (assoc db :server-framework-text new-text-value
+;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
+;
+;(re-frame/reg-event-db
+;  ::server-lang-text-change
+;  (fn [db [_ new-text-value]]
+;    (assoc db :server-lang-text new-text-value
+;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
 
-(re-frame/reg-event-db
-  ::server-framework-text-change
-  (fn [db [_ new-text-value]]
-    (assoc db :server-framework-text new-text-value
-              :error-display (if (< (count new-text-value) 5) "block" "none"))))
-
-(re-frame/reg-event-db
-  ::server-lang-text-change
-  (fn [db [_ new-text-value]]
-    (assoc db :server-lang-text new-text-value
-              :error-display (if (< (count new-text-value) 5) "block" "none"))))
+; мусор END
 
 (re-frame/reg-event-db
   ::success-post-result
@@ -49,9 +56,6 @@
       :log-text "Something went wrong!"
       )))
 
-(defn find-not-valid [db]
-  )
-
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
 ; but there are also :body and :url-params.
 
@@ -62,7 +66,7 @@
     (assoc db :log-text "Some data is incorrect. Check it again!")
     {:http-xhrio {:method          :post
                   :uri             "http://localhost:80/api/v1/create"
-                  :params          (:data db)               ;{:framework (:server-framework-text db), :language (:server-lang-text db)} ;(str "{\"framework\": \"" (:server-framework-text db) "\", \"language\": \"" (:server-lang-text db) "\"}") ; val
+                  :params          (:data db)
                   ;:body          (:data db)
                   ;:timeout         5000
                   :headers         {"Content-Type" "application/json"}

@@ -7,20 +7,22 @@
             [app-creator.client.subs :as subs]
             [re-frame.core :as re-frame]))
 
+; А здесь, как и во всем неймспейсе ui, разметка с подписками и диспатчами.
+; Подписываемся (subscribe) на штуки, которые зарегистрированы в файле subs.cljs.
+; Диспатчим события, которые зарегистрированы в файле events.cljs.
+; Смотрим в них.
+
 (defn log-field []
-    (let [
-          ;display (re-frame/subscribe [::subs/log-field-display])
-          text (re-frame/subscribe [::subs/log-text])]
+    (let [text (re-frame/subscribe [::subs/log-text])]
       [:div
        {:class "col-12 pt-5 mt-20"
         :style {:display "flex"
                 :height "80px"
                 :justify-content "center"
-                :align-items "center"}}                            ; @display}}
+                :align-items "center"}}
        [:p {:style
             {:color "#50862a"}}
-        @text]]
-      ))
+        @text]]))
 
 (defn main-ui []
   (let [out-path-valid (re-frame/subscribe [::subs/out-path-valid])]
@@ -66,22 +68,16 @@
             :autocomplete "off",
             :required true
             :on-change    #(re-frame/dispatch [::events/out-path-text-change (-> % .-target .-value)])}]
-          ;[:label
-          ; {:for "result-path", :class "label-name"}
-          ; [:span {:class "content-name"} "Path to result"]]
           [:label
            (if-not @out-path-valid
              {:for "result-path", :class "label-name incorrect-label"
               :style {:border-bottom-color "red"}}
              {:for "result-path", :class "label-name"})
-           ;{:for "db-host", :class "label-name incorrect-label"
-           ; :style {:border-bottom-color "red"}}
            [:span (if-not @out-path-valid
                     {:class "content-name"
                      :style {:color "red"}}
                     {:class "content-name"})
-            "Path to result"]]
-          ]]
+            "Path to result"]]]]
         [:button
          {:class    "checkbox-comp-type final",
           :type     "button",

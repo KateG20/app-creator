@@ -6,6 +6,8 @@
             [app-creator.client.ui.main-ui :as ui]
             [reagent.core :as reagent]))
 
+; Здесь всякий мусор. Смотрим в самый низ на самый последний метод
+
 (defn simple-component []
   [:div
    [:p "I am a component!!!"]
@@ -88,6 +90,6 @@
 (defn ^:export run []
   (let [app-node (js/document.getElementById "app")]
     (re-frame/dispatch-sync [::events/initialize])
-    (rdom/render [ui/main-ui] app-node)))
+    (rdom/render [ui/main-ui] app-node)))                   ; <---- main-ui. Смотрим, что там
 
 
