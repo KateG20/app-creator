@@ -123,7 +123,7 @@
     (get-in db [:data :server :spring :controllers :method-vec])))
 
 (re-frame/reg-sub
-  ::spring-controller-content
+  ::spring-controllers-content
   (fn [db _]
     (get-in db [:data :server :spring :controllers :content])))
 

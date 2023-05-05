@@ -304,9 +304,13 @@
 
 ; Метод запроса (строка в боксе)
 (defn controller-method-item [box row]
-  (let [request (str "col-request-" box "-" row)
+  (fn [box row]
+    (let [method-name (str "col-method-name-" box "-" row)
         url (str "col-url-" box "-" row)
-        mapping (str "col-mapping-" box "-" row)]
+        mapping (str "col-mapping-" box "-" row)
+          all-content (re-frame/subscribe [::subs/spring-controllers-content])
+          box-content (get @all-content box)
+          row-content (get-in box-content [:methods row])]
     [:li
      {:class "table-row-li"}
      [:div
@@ -314,12 +318,24 @@
       [:input
        {:type         "text",
         :name         "text",
-        :id           request,
+        :id           method-name,
         :autocomplete "off",
-        :required     true}]
+        :required     true
+        :on-change    #(re-frame/dispatch
+                         [::events/spring-method-name-change (-> % .-target .-value) box row])}]
+      ;[:label
+      ; {:for method-name, :class "label-name"}
+      ; [:span {:class "content-name"} "Method name"]]
       [:label
-       {:for request, :class "label-name"}
-       [:span {:class "content-name"} "Method name"]]]
+       (if-not (get-in row-content [:name :valid])
+         {:for   method-name, :class "label-name incorrect-label"
+          :style {:border-bottom-color "red"}}
+         {:for method-name, :class "label-name"})
+       [:span (if-not (get-in row-content [:name :valid])
+                {:class "content-name"
+                 :style {:color "red"}}
+                {:class "content-name"})
+        "Method name"]]]
      [:div
       {:class "col-12 pb-5 input-field"}
       [:input
@@ -327,10 +343,22 @@
         :name         "text",
         :id           url,
         :autocomplete "off",
-        :required     true}]
+        :required     true
+        :on-change    #(re-frame/dispatch
+                         [::events/spring-method-url-change (-> % .-target .-value) box row])}]
+      ;[:label
+      ; {:for url, :class "label-name"}
+      ; [:span {:class "content-name"} "Request URL"]]
       [:label
-       {:for url, :class "label-name"}
-       [:span {:class "content-name"} "Request URL"]]]
+       (if-not (get-in row-content [:url :valid])
+         {:for   url, :class "label-name incorrect-label"
+          :style {:border-bottom-color "red"}}
+         {:for url, :class "label-name"})
+       [:span (if-not (get-in row-content [:url :valid])
+                {:class "content-name"
+                 :style {:color "red"}}
+                {:class "content-name"})
+        "Request URL"]]]
      [:div
       {:class "col-12 pb-5 input-field"}
       [:input
@@ -338,11 +366,23 @@
         :name         "text",
         :id           mapping,
         :autocomplete "off",
-        :required     true}]
+        :required     true
+        :on-change    #(re-frame/dispatch
+                         [::events/spring-method-type-change (-> % .-target .-value) box row])}]
+      ;[:label
+      ; {:for mapping, :class "label-name"}
+      ; [:span {:class "content-name"} "Request type"]]
       [:label
-       {:for mapping, :class "label-name"}
-       [:span {:class "content-name"} "Request type"]]]]
-    ))
+       (if-not (get-in row-content [:type :valid])
+         {:for   mapping, :class "label-name incorrect-label"
+          :style {:border-bottom-color "red"}}
+         {:for mapping, :class "label-name"})
+       [:span (if-not (get-in row-content [:type :valid])
+                {:class "content-name"
+                 :style {:color "red"}}
+                {:class "content-name"})
+        "Request type"]]]]
+    )))
 
 ; принимает двумерный массив типа [[0 0] [0 1] [0 2] [1 1]]
 ; и для аргумента box=0 находит число 2
@@ -387,8 +427,43 @@
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
-         (controller-method-item (first item) (second item)))
+         [controller-method-item (first item) (second item)])
        ])))
+
+; Сам бокс контроллера
+(defn controller-box [box]
+  (fn [box]
+    (let [all-content (re-frame/subscribe [::subs/spring-controllers-content])
+          content (get @all-content box)
+          id (str "controller-name-" box)
+          t-vec-content (re-frame/subscribe [::subs/spring-controllers-vec])
+          c-vec-content (re-frame/subscribe [::subs/spring-controller-methods-vec])]
+      [:li
+       {:class "col-12 pb-5 opts-group center box"}
+       ;[:p {:style {:font-size "10px" :color "black"}} t-vec-content]
+       ;[:p {:style {:font-size "10px" :color "black"}} c-vec-content]
+       [:div
+        {:class "col-12 pb-5 input-field"}
+        [:input
+         {:type         "text",
+          :name         "text",
+          :id           id,
+          :autocomplete "off",
+          :required     true
+          :on-change    #(re-frame/dispatch
+                           [::events/spring-controller-name-change (-> % .-target .-value) box])}]
+        [:label
+         (if-not (get-in content [:name :valid])
+           {:for   id, :class "label-name incorrect-label"
+            :style {:border-bottom-color "red"}}
+           {:for id, :class "label-name"})
+         [:span (if-not (get-in content [:name :valid])
+                  {:class "content-name"
+                   :style {:color "red"}}
+                  {:class "content-name"})
+          "Controller name"]]]
+       [controller-box-methods box]
+       [plus-controller-method-button box]])))
 
 ; Список контроллеров (боксов)
 (defn controller-list []
@@ -397,22 +472,7 @@
       [:ul
        {:class "controller-list"}
        (for [c @controllers]
-       [:li
-        {:class "col-12 pb-5 opts-group center box"}
-        [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           (str "controller-name-" c),
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for (str "controller-name-" c), :class "label-name"}
-          [:span {:class "content-name"} "Controller name"]]]
-        [controller-box-methods c]
-        [plus-controller-method-button c]
-        ])])))
+       [controller-box c])])))
 
 (defn server-ui []
   (let [server-checked (re-frame/subscribe [::subs/server-checked])]

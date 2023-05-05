@@ -251,6 +251,46 @@
           (assoc-in (conj place :value) new-value)
           (assoc-in (conj place :valid) is-valid)))))
 
+(re-frame/reg-event-db
+  ::spring-controller-name-change
+  (fn [db [_ new-value box]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :server :spring :controllers :content box :name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::spring-method-name-change
+  (fn [db [_ new-value box row]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :server :spring :controllers :content box :methods row :name]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::spring-method-url-change
+  (fn [db [_ new-value box row]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :server :spring :controllers :content box :methods row :url]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::spring-method-type-change
+  (fn [db [_ new-value box row]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value))         ;todo
+          place [:data :server :spring :controllers :content box :methods row :type]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
 ;(re-frame/reg-event-db
 ;  ::change-spring-lang
 ;  (fn [db [_ new-value]]
@@ -275,13 +315,27 @@
 (re-frame/reg-event-db
   ::add-controller-item
   (fn [db [_ new-item]]
-    (update-in db [:controllers] conj new-item)))
+    (-> db
+        (update-in [:data :server :spring :controllers :controller-vec] conj new-item)
+        (assoc-in [:data :server :spring :controllers :content new-item]
+                  {:name    {:value ""
+                             :valid true}
+                   :methods nil
+                   }))))
 
 ; Добавляет метод в контроллер сервера (new item = [controller-num req-num])
 (re-frame/reg-event-db
   ::add-controller-method-item
   (fn [db [_ new-item]]
-    (update-in db [:controller-methods] conj new-item)))
+    (-> db
+        (update-in [:data :server :spring :controllers :method-vec] conj new-item)
+        (assoc-in [:data :server :spring :controllers :content (first new-item) :methods (second new-item)]
+                  {:name {:value ""
+                          :valid true}
+                   :url  {:value ""
+                          :valid true}
+                   :type {:value ""
+                          :valid true}}))))
 
 
 ;-----------------------------------------------CLIENT EVENTS-----------------------------------------------
