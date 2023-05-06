@@ -151,7 +151,7 @@
   ::postgres-table-name-change
   (fn [db [_ new-value box]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :db :postgres :tables :content box :name]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -161,7 +161,7 @@
   ::postgres-column-name-change
   (fn [db [_ new-value box row]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :db :postgres :tables :content box :columns row :name]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -171,7 +171,7 @@
   ::postgres-column-opts-change
   (fn [db [_ new-value box row]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :db :postgres :tables :content box :columns row :opts]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -255,11 +255,28 @@
           (assoc-in (conj place :value) new-value)
           (assoc-in (conj place :valid) is-valid)))))
 
+; попробую запихнуть все пропсы в один ивент
+(re-frame/reg-event-db
+  ::spring-db-props-change
+  (fn [db [_ prop-keyword new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (case prop-keyword
+                            :type (v/valid-host? new-value) ;todo
+                            :username (v/valid-host? new-value) ;todo
+                            :password (v/valid-host? new-value) ;todo
+                            :sql-host (v/valid-host? new-value)
+                            :sql-port (v/valid-host? new-value) ;todo
+                            :db-name (v/valid-host? new-value))) ;todo
+          place [:data :server :spring :properties :db prop-keyword]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
 (re-frame/reg-event-db
   ::spring-controller-name-change
   (fn [db [_ new-value box]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :server :spring :controllers :content box :name]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -269,7 +286,7 @@
   ::spring-method-name-change
   (fn [db [_ new-value box row]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :name]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -279,7 +296,7 @@
   ::spring-method-url-change
   (fn [db [_ new-value box row]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :url]]
       (-> db
           (assoc-in (conj place :value) new-value)
@@ -289,7 +306,7 @@
   ::spring-method-type-change
   (fn [db [_ new-value box row]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))         ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :type]]
       (-> db
           (assoc-in (conj place :value) new-value)

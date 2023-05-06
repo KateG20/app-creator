@@ -116,6 +116,16 @@
   (fn [db _]
     (get-in db [:data :server :spring :project])))
 
+(re-frame/reg-sub
+  ::spring-props
+  (fn [db _]
+    (get-in db [:data :server :spring :properties])))
+
+(re-frame/reg-sub
+  ::spring-db-props
+  (fn [db _]
+    (get-in db [:data :server :spring :properties :db])))
+
 ; Список контроллеров у сервера
 (re-frame/reg-sub
   ::spring-controllers-vec
