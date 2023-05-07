@@ -205,36 +205,9 @@
   (fn [db [_ type-keyword]]
     (get-in db [:data :containerization :docker type-keyword :content])))
 
-;; Список nginx-контейнеров
-;(re-frame/reg-sub
-;  ::nginx-conts
-;  (fn [db _]
-;    (:nginx-conts db)))
-;
-;; Список postgres-контейнеров
-;(re-frame/reg-sub
-;  ::postgres-conts
-;  (fn [db _]
-;    (:postgres-conts db)))
-;
-;(re-frame/reg-sub
-;  ::jar-conts
-;  (fn [db _]
-;    (:postgres-conts db)))
-
-
-;; Верный ли хост для бд
-;(re-frame/reg-sub
-;  ::db-host-valid
-;  (fn [db _]
-;    (:host (:db (:valid db)))))
+;-----------------------------------------------NETWORK SUBS-----------------------------------------------
 
 (re-frame/reg-sub
-  ::out-path-valid
+  ::docker-network
   (fn [db _]
-    (:out-path (:valid db))))
-
-(re-frame/reg-sub
-  ::data
-  (fn [db _]
-    (:data db)))
+    (get-in db [:data :containerization :docker :network])))

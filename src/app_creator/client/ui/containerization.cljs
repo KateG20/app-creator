@@ -34,6 +34,34 @@
          {:class "for-checkbox-comp-type", :for "vagrant"}
          "Vagrant"]]])))
 
+(defn network-field []
+  (let [network (re-frame/subscribe [::subs/docker-network])]
+    (fn []
+      [:div
+       {:class "col-12 pb-5 opts-group center"}
+       [:div
+        {:class "col-12 pb-5 center no-pt"}
+        [:div
+         {:class "col-12 pb-5 input-field"}
+         [:input
+          {:type         "text",
+           :name         "text",
+           :id           "network-name",
+           :autocomplete "off",
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-network-change (-> % .-target .-value)])}]
+         [:label
+          (if-not (get @network :valid)
+            {:for   "network-name", :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for "network-name", :class "label-name"})
+          [:span (if-not (get @network :valid)
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Network name"]]]]])))
+
 ;------------------------------------------------JAR containers-----------------------------------
 
 ; Характеристика контейнера (строки в боксе)
@@ -405,21 +433,7 @@
        [:div {:class "help-div box"}
         [:p "Name of the network to run your containers in"]]]
 
-      [:div
-       {:class "col-12 pb-5 opts-group center"}
-       [:div
-        {:class "col-12 pb-5 center no-pt"}
-        [:div
-         {:class "col-12 pb-5 input-field"}
-         [:input
-          {:type         "text",
-           :name         "text",
-           :id           "network-name",
-           :autocomplete "off",
-           :required     true}]
-         [:label
-          {:for "network-name", :class "label-name"}
-          [:span {:class "content-name"} "Network name"]]]]]
+      [network-field]
 
       [:div
        {:class "col-12 pt-5 header-with-help"}
