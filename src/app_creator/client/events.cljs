@@ -43,7 +43,7 @@
     (assoc db
       ;:log-field-display "block"
       ;:http-post-result-text (str "success! " result)
-      :log-text "Finished!"
+      :log-text (str "Finished! " result)
       )))
 
 (re-frame/reg-event-db
@@ -63,7 +63,7 @@
   ::http-post
   (fn [{:keys [db] :as cofx} [_ val]]
     ;(if-not (:all-valid db)
-    (assoc db :log-text "Some data is incorrect. Check it again!")
+    ;(assoc db :log-text "Some data is incorrect. Check it again!")
     {:http-xhrio {:method          :post
                   :uri             "http://localhost:80/api/v1/create"
                   :params          (:data db)
@@ -76,7 +76,29 @@
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [::success-post-result]
                   :on-failure      [::failure-post-result]}}))
-;)
+
+;(re-frame/reg-event-fx
+;  ::create-projects
+;  (fn [{:keys [db] :as cofx} _]
+;    ;(if-not (:all-valid db)
+;    (assoc db :log-text (str "Is DB valid? " (v/whole-app-db-valid? db)))
+;    {
+;     :db (assoc db :log-text (v/whole-app-db-valid? db))
+;     ;:fx [[:dispatch [::http-post]]]
+;     }))
+
+(re-frame/reg-event-fx
+  ::create-projects
+  (fn [{:keys [db]} _]
+    ;{:db (assoc db :log-text (str "Is DB valid? " (v/whole-map-valid? (:data db))))
+    ; :fx [[:dispatch [::http-post]]]}
+    (let [data-valid (v/whole-map-valid? (:data db))]
+      (-> {}
+          (assoc :db (if data-valid nil
+                                    (assoc db :log-text
+                                              "Cannot create project: some data is invalid!
+                                              Check red fields above.")))
+          (assoc :fx (if data-valid [[:dispatch [::http-post]]] nil))))))
 
 (re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
   ::http-get                                                ;; <-- the event id
@@ -92,13 +114,6 @@
                   :response-format (ajax/ring-response-format {:format (ajax/json-response-format {:keywords? true})})
                   :on-success      [::success-post-result]
                   :on-failure      [::failure-post-result]}}))
-
-;(re-frame/reg-event-db
-;  ::process-response
-;  (fn [db [_ result]]
-;    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
-
-
 
 (re-frame/reg-event-db
   ::out-path-text-change
@@ -491,7 +506,7 @@
   ::docker-network-change
   (fn [db [_ new-value]]
     (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value)) ;todo
+          is-valid (some? (v/valid-host? new-value))        ;todo
           place [:data :containerization :docker :network]]
       (-> db
           (assoc-in (conj place :value) new-value)
