@@ -154,7 +154,12 @@
 (re-frame/reg-sub
   ::client-checked
   (fn [db _]
-    (:type (:client (:checked db)))))
+    (get-in db [:data :client :type])))
+
+(re-frame/reg-sub
+  ::android-data
+  (fn [db _]
+    (get-in db [:data :client :android])))
 
 ; Список эндпоинтов у клиента
 (re-frame/reg-sub
@@ -168,10 +173,10 @@
   (fn [db _]
     (get-in db [:data :client :android :endpoints :content])))
 
-(re-frame/reg-sub
-  ::client-opts
-  (fn [db _]
-    (:client (:checked db))))
+;(re-frame/reg-sub
+;  ::client-opts
+;  (fn [db _]
+;    (:client (:checked db))))
 
 
 ;-----------------------------------------------DEPLOY SUBS-----------------------------------------------

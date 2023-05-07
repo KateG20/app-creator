@@ -364,7 +364,26 @@
 (re-frame/reg-event-db
   ::change-client-checked
   (fn [db [_ new-value]]
-    (assoc-in db [:checked :client :type] new-value)))
+    (assoc-in db [:data :client :type] new-value)))
+
+(re-frame/reg-event-db
+  ::android-radio-opts-change
+  (fn [db [_ opt-keyword new-value]]
+    (assoc-in db [:data :client :android opt-keyword] new-value)))
+
+(re-frame/reg-event-db
+  ::android-props-change
+  (fn [db [_ prop-keyword new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (case prop-keyword
+                            :proj-name (v/valid-host? new-value) ;todo
+                            :package-name (v/valid-host? new-value) ;todo
+                            :server-host (v/valid-host? new-value)
+                            :server-port (v/valid-host? new-value))) ;todo
+          place [:data :client :android prop-keyword]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
 
 (re-frame/reg-event-db
   ::change-android-lang
