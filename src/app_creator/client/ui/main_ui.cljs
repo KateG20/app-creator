@@ -25,7 +25,7 @@
         @text]]))
 
 (defn main-ui []
-  (let [out-path-valid (re-frame/subscribe [::subs/out-path-valid])]
+  (let [out-path-content (re-frame/subscribe [::subs/out-path])]
     (fn []
     [:div
      {:class "section over-hide z-bigger"}
@@ -56,37 +56,36 @@
         [client-ui/client-ui]
         [cont-ui/cont-ui]
 
-
-        [:div
-         {:class "col-12 pb-5 center no-pt"}
-         [:div
-          {:class "col-12 pb-5 input-field more-w"}
-          [:input
-           {:type "text",
-            :name "text",
-            :id "result-path",
-            :autocomplete "off",
-            :required true
-            :on-change    #(re-frame/dispatch [::events/out-path-text-change (-> % .-target .-value)])}]
+          [:div
+           {:class "col-12 pb-5 center no-pt"}
+           [:div
+            {:class "col-12 pb-5 input-field more-w"}
+            [:input
+             {:type         "text",
+              :name         "text",
+              :id           "result-path",
+              :autocomplete "off",
+              :required     true
+              :on-change    #(re-frame/dispatch [::events/out-path-text-change (-> % .-target .-value)])}]
+            [:label
+             (if-not (get @out-path-content :valid)
+               {:for   "result-path", :class "label-name incorrect-label"
+                :style {:border-bottom-color "red"}}
+               {:for "result-path", :class "label-name"})
+             [:span (if-not (get @out-path-content :valid)
+                      {:class "content-name"
+                       :style {:color "red"}}
+                      {:class "content-name"})
+              "Path to result"]]]]
+          [:button
+           {:class    "checkbox-comp-type final",
+            :type     "button",
+            :name     "create",
+            :id       "create"
+            :on-click #(re-frame/dispatch [::events/create-projects])}]
           [:label
-           (if-not @out-path-valid
-             {:for "result-path", :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
-             {:for "result-path", :class "label-name"})
-           [:span (if-not @out-path-valid
-                    {:class "content-name"
-                     :style {:color "red"}}
-                    {:class "content-name"})
-            "Path to result"]]]]
-        [:button
-         {:class    "checkbox-comp-type final",
-          :type     "button",
-          :name     "create",
-          :id       "create"
-          :on-click #(re-frame/dispatch [::events/http-post])}]
-        [:label
-         {:class "for-checkbox-comp-type final", :for "create"}
-         "Create!"]
+           {:class "for-checkbox-comp-type final", :for "create"}
+           "Create!"]
 
         [log-field]
 

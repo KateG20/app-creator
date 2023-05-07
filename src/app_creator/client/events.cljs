@@ -99,6 +99,17 @@
 ;    (assoc db :http-post-result-text result)))              ;not post, but get, don't mind
 
 
+
+(re-frame/reg-event-db
+  ::out-path-text-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (v/valid-dir? new-value)                 ;todo
+          place [:data :out-path]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
 ;-----------------------------------------------DB EVENTS-----------------------------------------------
 
 ; Отмечает выбранный тип бд (new-value = тип)
@@ -533,30 +544,6 @@
                                     :valid true}}))))
 
 
-
-
-
-;(re-frame/reg-event-db
-;  ::db-host-text-change
-;  (fn [db [_ new-host-value]]
-;    (let [new-host-value (v/trim-input new-host-value)
-;          is-valid (some? (v/valid-host? new-host-value))]
-;      (-> db
-;          (assoc-in [:data :db :postgresql :host] new-host-value)
-;          (assoc-in [:valid :db :host] is-valid)
-;          ;(assoc db :all-valid is-valid)
-;          ))))
-
-(re-frame/reg-event-db
-  ::out-path-text-change
-  (fn [db [_ new-path-value]]
-    (let [new-path-value (v/trim-input new-path-value)
-          is-valid (v/valid-dir? new-path-value)]
-      (-> db
-          (assoc-in [:data :out-path] new-path-value)
-          (assoc-in [:valid :out-path] is-valid)
-          ;(assoc db :all-valid is-valid)                    ; треш. как можно быть такой тупой. так нельзя
-          (assoc db :log-text (str is-valid))))))
 
 
 
