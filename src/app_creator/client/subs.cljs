@@ -55,7 +55,7 @@
   ::log-text
   (fn [db _]
     (:log-text db)))
-Ф
+
 (re-frame/reg-sub
   ::loading?
   (fn [db _]
