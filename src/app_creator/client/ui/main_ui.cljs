@@ -13,48 +13,49 @@
 ; Смотрим в них.
 
 (defn log-field []
-    (let [text (re-frame/subscribe [::subs/log-text])]
-      [:div
-       {:class "col-12 pt-5 mt-20"
-        :style {:display "flex"
-                :height "80px"
-                :justify-content "center"
-                :align-items "center"}}
-       [:p {:style
-            {:color "#50862a"}}
-        @text]]))
+  (let [text (re-frame/subscribe [::subs/log-text])]
+    [:div
+     {:class "col-12 pt-5 mt-20"
+      :style {:display         "flex"
+              :height          "auto"
+              :min-height      "80px"
+              :justify-content "center"
+              :align-items     "center"}}
+     [:p {:style
+          {:color "#50862a"}}
+      @text]]))
 
 (defn main-ui []
   (let [out-path-content (re-frame/subscribe [::subs/out-path])]
     (fn []
-    [:div
-     {:class "section over-hide z-bigger"}
-     [:input
-      {:class "checkbox",
-       :type  "checkbox",
-       :name  "general",
-       :id    "general"}]
-     [:label {:class "theme-label", :for "general"} "Theme"]
-     [:label {:class "checkbox-label", :for "general"}]
-     [:div {:class "background-color"}]
-     [:div
-      {:class "section over-hide z-bigger"}
       [:div
-       {:class "container pb-5"}
+       {:class "section over-hide z-bigger"}
+       [:input
+        {:class "checkbox",
+         :type  "checkbox",
+         :name  "general",
+         :id    "general"}]
+       [:label {:class "theme-label", :for "general"} "Theme"]
+       [:label {:class "checkbox-label", :for "general"}]
+       [:div {:class "background-color"}]
        [:div
-        {:class "row justify-content-center pb-5"}
-
+        {:class "section over-hide z-bigger"}
         [:div
-         {:class "col-12 pt-5 big-big-text"}
-         [:p {:class "mb-4 pb-2"} "AppCreator"]]
-        [:div
-         {:class "col-12 pt-0 smaller"}
-         [:p {:class "mb-0 pb-0"} "Start developing right now"]]
+         {:class "container pb-5"}
+         [:div
+          {:class "row justify-content-center pb-5"}
 
-        [db-ui/db-ui]
-        [server-ui/server-ui]
-        [client-ui/client-ui]
-        [cont-ui/cont-ui]
+          [:div
+           {:class "col-12 pt-5 big-big-text"}
+           [:p {:class "mb-4 pb-2"} "AppCreator"]]
+          [:div
+           {:class "col-12 pt-0 smaller"}
+           [:p {:class "mb-0 pb-0"} "Start developing right now"]]
+
+          [db-ui/db-ui]
+          [server-ui/server-ui]
+          [client-ui/client-ui]
+          [cont-ui/cont-ui]
 
           [:div
            {:class "col-12 pb-5 center no-pt"}
@@ -87,17 +88,14 @@
            {:class "for-checkbox-comp-type final", :for "create"}
            "Create!"]
 
-        [log-field]
+          [log-field]
 
-        [:div
-         {:class "col-12 pt-5 mt-20"}
-         [:p
-          {:class "mt-20"
-           :style {:font-weight "300"
-                   :font-size "15px"}}
-          "In case of any issues, please contact the developer by email:"
-          [:br]
-          "moskva20013@gmail.com"]]
-        ]
-       ]]]
-    )))
+          [:div
+           {:class "col-12 pt-5 mt-20"}
+           [:p
+            {:class "mt-20"
+             :style {:font-weight "300"
+                     :font-size   "15px"}}
+            "In case of any issues, please contact the developer by email:"
+            [:br]
+            "moskva20013@gmail.com"]]]]]])))
