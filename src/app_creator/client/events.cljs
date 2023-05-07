@@ -385,15 +385,15 @@
           (assoc-in (conj place :value) new-value)
           (assoc-in (conj place :valid) is-valid)))))
 
-(re-frame/reg-event-db
-  ::change-android-lang
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :client :android :lang] new-value)))
+;(re-frame/reg-event-db
+;  ::change-android-lang
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :client :android :lang] new-value)))
 
-(re-frame/reg-event-db
-  ::change-android-test
-  (fn [db [_ new-value]]
-    (assoc-in db [:checked :client :android :test] new-value)))
+;(re-frame/reg-event-db
+;  ::change-android-test
+;  (fn [db [_ new-value]]
+;    (assoc-in db [:checked :client :android :test] new-value)))
 
 (re-frame/reg-event-db
   ::android-endpoint-url-change
@@ -413,8 +413,7 @@
           place [:data :client :android :endpoints :content box :name]]
       (-> db
           (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)
-          ))))
+          (assoc-in (conj place :valid) is-valid)))))
 
 (re-frame/reg-event-db
   ::android-endpoint-request-change
@@ -424,8 +423,7 @@
           place [:data :client :android :endpoints :content box :request]]
       (-> db
           (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)
-          ))))
+          (assoc-in (conj place :valid) is-valid)))))
 
 (re-frame/reg-event-db
   ::android-endpoint-body-change
@@ -435,8 +433,7 @@
           place [:data :client :android :endpoints :content box :body]]
       (-> db
           (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)
-          ))))
+          (assoc-in (conj place :valid) is-valid)))))
 
 ; Добавляет пустой эндпоинт клиента (new item = endpoint-num, в вектор добавляется новая чиселка)
 (re-frame/reg-event-db
@@ -459,25 +456,81 @@
 (re-frame/reg-event-db
   ::change-deploy-checked
   (fn [db [_ new-value]]
-    (assoc-in db [:checked :deploy] new-value)))
+    (assoc-in db [:data :containerization :type] new-value)))
+
+; type-keyword = :jars/:nginx/:postgres
+(re-frame/reg-event-db
+  ::docker-container-opts-change
+  (fn [db [_ new-value box type-keyword prop-keyword]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (case prop-keyword
+                            :image-name (v/valid-host? new-value) ;todo
+                            :container-name (v/valid-host? new-value) ;todo
+                            :dir-name (v/valid-host? new-value) ;todo
+                            :backend-container-name (v/valid-host? new-value) ;todo
+                            :jar-path (v/valid-host? new-value) ;todo
+                            :port (v/valid-host? new-value) ;todo
+                            :password (v/valid-host? new-value))) ;todo
+          place [:data :containerization :docker type-keyword :content box prop-keyword]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
+
+(re-frame/reg-event-db
+  ::docker-network-change
+  (fn [db [_ new-value]]
+    (let [new-value (v/trim-input new-value)
+          is-valid (some? (v/valid-host? new-value)) ;todo
+          place [:data :containerization :docker :network]]
+      (-> db
+          (assoc-in (conj place :value) new-value)
+          (assoc-in (conj place :valid) is-valid)))))
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
 (re-frame/reg-event-db
   ::add-jar-cont-item
   (fn [db [_ new-item]]
-    (update-in db [:jar-conts] conj new-item)))
+    (-> db
+        (update-in [:data :containerization :docker :jars :cont-vec] conj new-item)
+        (assoc-in [:data :containerization :docker :jars :content new-item]
+                  {:image-name     {:value ""
+                                    :valid true}
+                   :container-name {:value ""
+                                    :valid true}
+                   :dir-name       {:value ""
+                                    :valid true}
+                   :jar-path       {:value ""
+                                    :valid true}}))))
 
 ; Добавляет nginx-контейнер (new item = nginx-cont-num)
 (re-frame/reg-event-db
   ::add-nginx-cont-item
   (fn [db [_ new-item]]
-    (update-in db [:nginx-conts] conj new-item)))
+    (-> db
+        (update-in [:data :containerization :docker :nginx :cont-vec] conj new-item)
+        (assoc-in [:data :containerization :docker :nginx :content new-item]
+                  {:image-name             {:value ""
+                                            :valid true}
+                   :container-name         {:value ""
+                                            :valid true}
+                   :dir-name               {:value ""
+                                            :valid true}
+                   :backend-container-name {:value ""
+                                            :valid true}}))))
 
 ; Добавляет postgres-контейнер (new item = postgres-cont-num)
 (re-frame/reg-event-db
   ::add-postgres-cont-item
   (fn [db [_ new-item]]
-    (update-in db [:postgres-conts] conj new-item)))
+    (-> db
+        (update-in [:data :containerization :docker :postgres :cont-vec] conj new-item)
+        (assoc-in [:data :containerization :docker :postgres :content new-item]
+                  {:container-name {:value ""
+                                    :valid true}
+                   :port           {:value ""
+                                    :valid true}
+                   :password       {:value ""
+                                    :valid true}}))))
 
 
 

@@ -184,25 +184,38 @@
 (re-frame/reg-sub
   ::deploy-checked
   (fn [db _]
-    (:deploy (:checked db))))
+    (get-in db [:data :containerization :type])))
 
-; Список джар-контейнеров
+; Список контейнеров нужного типа
+; type-keyword = :jars/:nginx/:postgres
 (re-frame/reg-sub
-  ::jar-conts
-  (fn [db _]
-    (:jar-conts db)))
+  ::docker-containers-vec
+  (fn [db [_ type-keyword]]
+    (get-in db [:data :containerization :docker type-keyword :cont-vec])))
 
-; Список nginx-контейнеров
+; Список опций для контейнеров нужного типа
+; type-keyword = :jars/:nginx/:postgres
 (re-frame/reg-sub
-  ::nginx-conts
-  (fn [db _]
-    (:nginx-conts db)))
+  ::docker-containers-content
+  (fn [db [_ type-keyword]]
+    (get-in db [:data :containerization :docker type-keyword :content])))
 
-; Список postgres-контейнеров
-(re-frame/reg-sub
-  ::postgres-conts
-  (fn [db _]
-    (:postgres-conts db)))
+;; Список nginx-контейнеров
+;(re-frame/reg-sub
+;  ::nginx-conts
+;  (fn [db _]
+;    (:nginx-conts db)))
+;
+;; Список postgres-контейнеров
+;(re-frame/reg-sub
+;  ::postgres-conts
+;  (fn [db _]
+;    (:postgres-conts db)))
+;
+;(re-frame/reg-sub
+;  ::jar-conts
+;  (fn [db _]
+;    (:postgres-conts db)))
 
 
 ;; Верный ли хост для бд

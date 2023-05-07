@@ -4,6 +4,36 @@
             [app-creator.client.subs :as subs]
             [reagent.core :as reagent]))
 
+(defn choose-type []
+  (let [deploy-checked (re-frame/subscribe [::subs/deploy-checked])]
+    (fn []
+      [:div
+       [:div
+        {:class "col-12 pt-5"}
+        [:p {:class "mb-4 pb-2"} "Choose platform"]]
+
+       [:div
+        {:class "col-12 pb-5"}
+        [:input
+         {:class "checkbox-comp-type",
+          :type  "radio",
+          :name  "deploy-type",
+          :id    "docker",
+          :checked  (= @deploy-checked "docker")
+          :on-click #(re-frame/dispatch [::events/change-deploy-checked "docker"])
+          }]
+        [:label {:class "for-checkbox-comp-type", :for "docker"} "Docker"]
+        [:input
+         {:class "checkbox-comp-type",
+          :type  "radio",
+          :name  "deploy-type",
+          :id    "vagrant"
+          :checked  (= @deploy-checked "vagrant")
+          :on-click #(re-frame/dispatch [::events/change-deploy-checked "vagrant"])}]
+        [:label
+         {:class "for-checkbox-comp-type", :for "vagrant"}
+         "Vagrant"]]])))
+
 ;------------------------------------------------JAR containers-----------------------------------
 
 ; Характеристика контейнера (строки в боксе)
@@ -12,7 +42,9 @@
     (let [cont-name (str "docker-jar-cont-name-" box)
           img-name (str "docker-jar-img-name-" box)
           run-dir (str "docker-jar-run-dir-" box)
-          jar-path (str "docker-jar-path-" box)]
+          jar-path (str "docker-jar-path-" box)
+          all-content (re-frame/subscribe [::subs/docker-containers-content :jars])
+          content (get @all-content box)]
       [:div
        {:class "col-12 pb-5 opts-group center no-pb"}
        [:div
@@ -24,10 +56,19 @@
            :name         "text",
            :id           cont-name,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :container-name])}]
          [:label
-          {:for cont-name, :class "label-name"}
-          [:span {:class "content-name"} "Container name"]]]
+          (if-not (get-in content [:container-name :valid])
+            {:for   cont-name, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for cont-name, :class "label-name"})
+          [:span (if-not (get-in content [:container-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Container name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -35,10 +76,19 @@
            :name         "text",
            :id           img-name,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :image-name])}]
          [:label
-          {:for img-name, :class "label-name"}
-          [:span {:class "content-name"} "Image name"]]]
+          (if-not (get-in content [:image-name :valid])
+            {:for   img-name, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for img-name, :class "label-name"})
+          [:span (if-not (get-in content [:image-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Image name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -46,10 +96,19 @@
            :name         "text",
            :id           run-dir,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :dir-name])}]
          [:label
-          {:for run-dir, :class "label-name"}
-          [:span {:class "content-name"} "Run directory name"]]]]
+          (if-not (get-in content [:dir-name :valid])
+            {:for   run-dir, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for run-dir, :class "label-name"})
+          [:span (if-not (get-in content [:dir-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Run directory name"]]]]
        [:div
         {:class "col-12 pb-5 center no-pt full-w"}
         [:div
@@ -59,14 +118,23 @@
            :name         "text",
            :id           jar-path,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :jar-path])}]
          [:label
-          {:for jar-path, :class "label-name"}
-          [:span {:class "content-name"} "Path to JAR"]]]]])))
+          (if-not (get-in content [:jar-path :valid])
+            {:for   jar-path, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for jar-path, :class "label-name"})
+          [:span (if-not (get-in content [:jar-path :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Path to JAR"]]]]])))
 
 ; Список джар-контейнеров (боксов)
 (defn jar-conts-list []
-  (let [jar-conts (re-frame/subscribe [::subs/jar-conts])]
+  (let [jar-conts (re-frame/subscribe [::subs/docker-containers-vec :jars])]
     (fn []
       [:ul
        {:class "center no-marker"}
@@ -75,17 +143,17 @@
         {:class "box"}
         [jar-cont-box-chars j]])])))
 
-
 ; Кнопка для добавления джар-контейнера
 (defn plus-jar-cont-button []
   (fn []
-    (let [current-items (re-frame/subscribe [::subs/jar-conts])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+    (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :jars])
+          ;new-item-vec (reagent/atom (+ 1 (last @current-items)))
+          new-item-vec (+ 1 (last @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type "button", :name "plus-jar-cont", :id "plus-jar-cont"
-         :on-click #(re-frame/dispatch [::events/add-jar-cont-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-jar-cont-item new-item-vec])}]
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-jar-cont"}
         "+"]])))
@@ -98,7 +166,9 @@
     (let [cont-name (str "docker-nginx-cont-name-" box)
           img-name (str "docker-nginx-img-name-" box)
           run-dir (str "docker-nginx-run-dir-" box)
-          back-cont (str "docker-ngx-back-cont-" box)]
+          back-cont (str "docker-ngx-back-cont-" box)
+          all-content (re-frame/subscribe [::subs/docker-containers-content :nginx])
+          content (get @all-content box)]
       [:div
        {:class "col-12 pb-5 opts-group center no-pb"}
        [:div
@@ -110,10 +180,19 @@
            :name         "text",
            :id           cont-name,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :container-name])}]
          [:label
-          {:for cont-name, :class "label-name"}
-          [:span {:class "content-name"} "Container name"]]]
+          (if-not (get-in content [:container-name :valid])
+            {:for   cont-name, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for cont-name, :class "label-name"})
+          [:span (if-not (get-in content [:container-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Container name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -121,10 +200,19 @@
            :name         "text",
            :id           img-name,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :image-name])}]
          [:label
-          {:for img-name, :class "label-name"}
-          [:span {:class "content-name"} "Image name"]]]
+          (if-not (get-in content [:image-name :valid])
+            {:for   img-name, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for img-name, :class "label-name"})
+          [:span (if-not (get-in content [:image-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Image name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -132,10 +220,19 @@
            :name         "text",
            :id           run-dir,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :dir-name])}]
          [:label
-          {:for run-dir, :class "label-name"}
-          [:span {:class "content-name"} "Run directory name"]]]
+          (if-not (get-in content [:dir-name :valid])
+            {:for   run-dir, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for run-dir, :class "label-name"})
+          [:span (if-not (get-in content [:dir-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Run directory name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -143,14 +240,23 @@
            :name         "text",
            :id           back-cont,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :backend-container-name])}]
          [:label
-          {:for back-cont, :class "label-name"}
-          [:span {:class "content-name"} "Backend container"]]]]])))
+          (if-not (get-in content [:backend-container-name :valid])
+            {:for   back-cont, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for back-cont, :class "label-name"})
+          [:span (if-not (get-in content [:backend-container-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Backend container"]]]]])))
 
 ; Список nginx-контейнеров (боксов)
 (defn nginx-conts-list []
-  (let [nginx-conts (re-frame/subscribe [::subs/nginx-conts])]
+  (let [nginx-conts (re-frame/subscribe [::subs/docker-containers-vec :nginx])]
     (fn []
       [:ul
        {:class "center no-marker"}
@@ -162,7 +268,7 @@
 ; Кнопка для добавления nginx-контейнера
 (defn plus-nginx-cont-button []
   (fn []
-    (let [current-items (re-frame/subscribe [::subs/nginx-conts])
+    (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :nginx])
           new-item-vec (reagent/atom (+ 1 (last @current-items)))]
       [:div
        {:class "col-12 pt-5 button-center"}
@@ -180,7 +286,9 @@
   (fn [box]
     (let [cont-name (str "docker-pg-cont-name-" box)
           pg-port (str "docker-pg-port-" box)
-          pg-pwd (str "docker-pg-pwd-" box)]
+          pg-pwd (str "docker-pg-pwd-" box)
+          all-content (re-frame/subscribe [::subs/docker-containers-content :postgres])
+          content (get @all-content box)]
       [:div
        {:class "col-12 pb-5 opts-group center no-pb"}
        [:div
@@ -192,10 +300,19 @@
            :name         "text",
            :id           cont-name,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :container-name])}]
          [:label
-          {:for cont-name, :class "label-name"}
-          [:span {:class "content-name"} "Container name"]]]
+          (if-not (get-in content [:container-name :valid])
+            {:for   cont-name, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for cont-name, :class "label-name"})
+          [:span (if-not (get-in content [:container-name :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "Container name"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -203,10 +320,19 @@
            :name         "text",
            :id           pg-port,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :port])}]
          [:label
-          {:for pg-port, :class "label-name"}
-          [:span {:class "content-name"} "DB port"]]]
+          (if-not (get-in content [:port :valid])
+            {:for   pg-port, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for pg-port, :class "label-name"})
+          [:span (if-not (get-in content [:port :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "DB port"]]]
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -214,14 +340,23 @@
            :name         "text",
            :id           pg-pwd,
            :autocomplete "off",
-           :required     true}]
+           :required     true
+           :on-change    #(re-frame/dispatch
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :password])}]
          [:label
-          {:for pg-pwd, :class "label-name"}
-          [:span {:class "content-name"} "DB password"]]]]])))
+          (if-not (get-in content [:password :valid])
+            {:for   pg-pwd, :class "label-name incorrect-label"
+             :style {:border-bottom-color "red"}}
+            {:for pg-pwd, :class "label-name"})
+          [:span (if-not (get-in content [:password :valid])
+                   {:class "content-name"
+                    :style {:color "red"}}
+                   {:class "content-name"})
+           "DB password"]]]]])))
 
-; Список nginx-контейнеров (боксов)
+; Список контейнеров (боксов)
 (defn postgres-conts-list []
-  (let [postgres-conts (re-frame/subscribe [::subs/postgres-conts])]
+  (let [postgres-conts (re-frame/subscribe [::subs/docker-containers-vec :postgres])]
     (fn []
       [:ul
        {:class "center no-marker"}
@@ -233,7 +368,7 @@
 ; Кнопка для добавления postgres-контейнера
 (defn plus-postgres-cont-button []
   (fn []
-    (let [current-items (re-frame/subscribe [::subs/postgres-conts])
+    (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :postgres])
           new-item-vec (reagent/atom (+ 1 (last @current-items)))]
       [:div
        {:class "col-12 pt-5 button-center"}
@@ -253,31 +388,8 @@
      [:div
       {:class "col-12 pt-5 big-text"}
       [:p {:class "mb-4 pb-2"} "4. Deploy"]]
-     [:div
-      {:class "col-12 pt-5"}
-      [:p {:class "mb-4 pb-2"} "Choose platform"]]
 
-     [:div
-      {:class "col-12 pb-5"}
-      [:input
-       {:class "checkbox-comp-type",
-        :type  "radio",
-        :name  "deploy-type",
-        :id    "docker",
-        :checked  (= @deploy-checked "docker")
-        :on-click #(re-frame/dispatch [::events/change-deploy-checked "docker"])
-        }]
-      [:label {:class "for-checkbox-comp-type", :for "docker"} "Docker"]
-      [:input
-       {:class "checkbox-comp-type",
-        :type  "radio",
-        :name  "deploy-type",
-        :id    "vagrant"
-        :checked  (= @deploy-checked "vagrant")
-        :on-click #(re-frame/dispatch [::events/change-deploy-checked "vagrant"])}]
-      [:label
-       {:class "for-checkbox-comp-type", :for "vagrant"}
-       "Vagrant"]]
+     [choose-type]
 
      [:div
       {:class "col-12 pt-5 for-docker center", :style
@@ -308,9 +420,6 @@
          [:label
           {:for "network-name", :class "label-name"}
           [:span {:class "content-name"} "Network name"]]]]]
-      ;[:div
-      ; {:class "col-12 pt-5"}
-      ; [:p {:class "mb-4 pb-2"} "JAR containers"]]
 
       [:div
        {:class "col-12 pt-5 header-with-help"}
@@ -328,10 +437,6 @@
       [jar-conts-list]
       [plus-jar-cont-button]
 
-      ;[:div
-      ; {:class "col-12 pt-5 pt-10 mt-20"}
-      ; [:p {:class "mb-4 pb-2"} "Nginx containers"]]
-
       [:div
        {:class "col-12 pt-5 header-with-help"}
        [:label {:class "plus-label mt-20 help-label"
@@ -348,10 +453,6 @@
 
       [nginx-conts-list]
       [plus-nginx-cont-button]
-
-      ;[:div
-      ; {:class "col-12 pt-5 pt-10 mt-20"}
-      ; [:p {:class "mb-4 pb-2"} "Postgres containers"]]
 
       [:div
        {:class "col-12 pt-5 header-with-help"}
