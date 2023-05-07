@@ -37,24 +37,28 @@
 
 ; мусор END
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::success-post-result
-  (fn [db [_ result]]
-    (assoc db
-      ;:log-field-display "block"
-      ;:http-post-result-text (str "success! " result)
-      :log-text (str "Finished! " result)
-      )))
+  (fn [{:keys [db]} [_ response]]
+    {:db (assoc db :loading false
+                   :log-text (str "Finished! " response))}
+    ;(assoc db
+    ;  ;:log-field-display "block"
+    ;  ;:http-post-result-text (str "success! " result)
+    ;  :db (assoc db :loading false)
+    ;  :log-text (str "Finished! " result))
+    ))
 
 (re-frame/reg-event-db
   ::failure-post-result
-  (fn [db [_ result]]
-    ;; result is a map containing details of the failure
-    (assoc db
-      ;:log-field-display "block"
-      ;:http-post-result-text (str "failure! " result)
-      :log-text "Something went wrong!"
-      )))
+  (fn [{:keys [db]} [_ details]]
+    {:db (assoc db :loading false
+                   :log-text (str "Something went wrong!" details))}
+    ;(assoc db
+    ;  ;:log-field-display "block"
+    ;  ;:http-post-result-text (str "failure! " result)
+    ;  :log-text "Something went wrong!")
+    ))
 
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
 ; but there are also :body and :url-params.
@@ -62,58 +66,53 @@
 (re-frame/reg-event-fx
   ::http-post
   (fn [{:keys [db] :as cofx} [_ val]]
-    ;(if-not (:all-valid db)
-    ;(assoc db :log-text "Some data is incorrect. Check it again!")
     {:http-xhrio {:method          :post
                   :uri             "http://localhost:80/api/v1/create"
                   :params          (:data db)
-                  ;:body          (:data db)
-                  ;:timeout         5000
                   :headers         {"Content-Type" "application/json"}
                   :format          (ajax/json-request-format)
-                  ;:response-format {:content-type "application/json" :description "JSON body"}
-                  ;(ajax/ring-response-format {:format ajax/json-response-format}) ;(ajax/json-response-format {:keywords? true})
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [::success-post-result]
                   :on-failure      [::failure-post-result]}}))
 
-;(re-frame/reg-event-fx
-;  ::create-projects
-;  (fn [{:keys [db] :as cofx} _]
-;    ;(if-not (:all-valid db)
-;    (assoc db :log-text (str "Is DB valid? " (v/whole-app-db-valid? db)))
-;    {
-;     :db (assoc db :log-text (v/whole-app-db-valid? db))
-;     ;:fx [[:dispatch [::http-post]]]
-;     }))
-
 (re-frame/reg-event-fx
   ::create-projects
   (fn [{:keys [db]} _]
-    ;{:db (assoc db :log-text (str "Is DB valid? " (v/whole-map-valid? (:data db))))
-    ; :fx [[:dispatch [::http-post]]]}
     (let [data-valid (v/whole-map-valid? (:data db))]
-      (-> {}
-          (assoc :db (if data-valid nil
-                                    (assoc db :log-text
-                                              "Cannot create project: some data is invalid!
-                                              Check red fields above.")))
-          (assoc :fx (if data-valid [[:dispatch [::http-post]]] nil))))))
+      (if data-valid
+        {:db (assoc db :loading true
+                       :log-text "Please wait...")
+         :fx (if data-valid [[:dispatch [::http-post]]] nil)}
+        {:db (assoc db :log-text
+                       "Cannot create project: some data is invalid!
+                       Check red fields above.")})
+      ;(-> {}
+      ;    (assoc :db (if data-valid nil
+      ;                              (assoc db :log-text
+      ;                                        "Cannot create project: some data is invalid!
+      ;                                        Check red fields above."))
+      ;           :fx (if data-valid [[:dispatch [::http-post]]] nil)))
+      )))
 
-(re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
-  ::http-get                                                ;; <-- the event id
-  (fn                                                       ;; <-- the handler function
-    [{db :db} _]                                            ;; <-- 1st argument is coeffect, from which we extract db
+;(re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
+;  ::http-get                                                ;; <-- the event id
+;  (fn                                                       ;; <-- the handler function
+;    [{db :db} _]                                            ;; <-- 1st argument is coeffect, from which we extract db
+;
+;    ;; we return a map of (side) effects
+;    {:http-xhrio {:method          :get
+;                  :uri             "http://localhost:80/api/v1/"
+;                  :headers         {"Access-Control-Allow-Origin" "*"}
+;                  ;:format          (ajax/json-request-format)
+;                  ;:response-format (ajax/json-response-format {:keywords? true})
+;                  :response-format (ajax/ring-response-format {:format (ajax/json-response-format {:keywords? true})})
+;                  :on-success      [::success-post-result]
+;                  :on-failure      [::failure-post-result]}}))
 
-    ;; we return a map of (side) effects
-    {:http-xhrio {:method          :get
-                  :uri             "http://localhost:80/api/v1/"
-                  :headers         {"Access-Control-Allow-Origin" "*"}
-                  ;:format          (ajax/json-request-format)
-                  ;:response-format (ajax/json-response-format {:keywords? true})
-                  :response-format (ajax/ring-response-format {:format (ajax/json-response-format {:keywords? true})})
-                  :on-success      [::success-post-result]
-                  :on-failure      [::failure-post-result]}}))
+(re-frame/reg-event-db
+  ::set-loading
+  (fn [db [_ loading?]]
+    (assoc db :loading? loading?)))
 
 (re-frame/reg-event-db
   ::out-path-text-change

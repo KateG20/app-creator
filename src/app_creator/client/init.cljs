@@ -11,32 +11,8 @@
               ;:server-lang-text      "default"
               ;:success-display       "none"
               :http-post-result-text "null info"
-              ;:log-field-display     "none"
               :log-text              ""
-              ; to identify number of boxed and rows, and maybe to identify data?
-              :tables                [0 1]
-              :table-columns         [[0 0] [0 1] [1 0]]
-              :controllers           [0]
-              :controller-methods    [[0 0] [0 1] [0 2]]
-              :client-endpoints      [0 1]
-              :jar-conts             [0]
-              :nginx-conts           [0]
-              :postgres-conts        [0]
-
-              :checked               {:db     "postgres"
-                                      :server {:type   "spring"
-                                               :spring {:build  "gradle"
-                                                        :lang   "java"
-                                                        :pack   "jar"
-                                                        :boot-v "3.0.6"
-                                                        :java-v "17"}}
-                                      :client {:type    "android"
-                                               :android {:lang "java"
-                                                         :test "junit-jupiter"}}
-                                      :deploy "docker"}
-              :valid                 {:db       {:host true}
-                                      :server   {:db-host true}
-                                      :out-path true}
+              :loading              false
               :data                  {:db
                                       {:type     "postgres"
                                        :postgres {:db-name  {:value ""

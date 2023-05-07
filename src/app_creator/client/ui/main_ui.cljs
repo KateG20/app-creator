@@ -25,6 +25,15 @@
           {:color "#50862a"}}
       @text]]))
 
+(defn loader []
+  (let [loading? (re-frame/subscribe [::subs/loading?])]
+    [:div
+      {:class "col-12 pt-5"}
+      [:div
+     {:class "loader"
+      :style {:visibility (if @loading? "visible" "hidden")}
+      }]]))
+
 (defn main-ui []
   (let [out-path-content (re-frame/subscribe [::subs/out-path])]
     (fn []
@@ -89,6 +98,7 @@
            "Create!"]
 
           [log-field]
+          [loader]
 
           [:div
            {:class "col-12 pt-5 mt-20"}
