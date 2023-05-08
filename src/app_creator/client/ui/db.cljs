@@ -230,7 +230,8 @@
              :autocomplete "off",
              :required     true
              :on-change    #(re-frame/dispatch
-                              [::events/postgres-db-name-change (-> % .-target .-value)])}]
+                              [::events/postgres-db-name-change (-> % .-target .-value)])
+             :value (get-in @props [:db-name :value])}]
            [:label
             (if-not (get-in @props [:db-name :valid])
               {:for   "db-name", :class "label-name incorrect-label"
@@ -249,7 +250,8 @@
              :id           "db-host",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch [::events/postgres-host-change (-> % .-target .-value)])}]
+             :on-change    #(re-frame/dispatch [::events/postgres-host-change (-> % .-target .-value)])
+             :value (get-in @props [:host :value])}]
            [:label
             (if-not (get-in @props [:host :valid])
               {:for   "db-host", :class "label-name incorrect-label"

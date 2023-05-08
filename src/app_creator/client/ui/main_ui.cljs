@@ -34,9 +34,36 @@
       :style {:visibility (if @loading? "visible" "hidden")}
       }]]))
 
+(defn local-storage-component []
+  (let [stored-data (.getItem (.-localStorage js/window) :all-data)]
+    (println "Now: trying to get stored data")
+    (when stored-data
+      (let [parsed-data (js->clj stored-data :keywordize-keys true)]
+        (println "Now: parsed stored data")
+        (re-frame/dispatch [:set-all-data parsed-data
+                            ;(:user-input parsed-data)
+                            ])))))
+
+(re-frame/reg-event-db
+  :set-all-data
+  (fn [db [_ all-data]]
+    ;(let [updated-db (assoc db :data input)]
+      (.setItem (.-localStorage js/window) :all-data (pr-str all-data))
+    all-data))
+  ;)
+
+;(defn input-field-component []
+;  (let [user-input @(re-frame/subscribe [:user-input])]
+;    [:div
+;     [:label "User input: "]
+;     [:input {:type "text"
+;              :value user-input
+;              :on-change #(re-frame/dispatch [:set-all-data (.-value (.-target %))])}]]))
+
 (defn main-ui []
   (let [out-path-content (re-frame/subscribe [::subs/out-path])]
     (fn []
+      ;[local-storage-component]
       [:div
        {:class "section over-hide z-bigger"}
        [:input

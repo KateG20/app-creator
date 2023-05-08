@@ -13,7 +13,29 @@
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
-    init/init-db))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
+    (let [stored-data (.getItem (.-localStorage js/window) :all-data)
+          empty-data init/init-db]
+      (println stored-data)
+      (or stored-data empty-data)
+      (if stored-data
+        (do (println "I choose stored data!")
+            ;(js->clj stored-data :keywordize-keys true)
+            (cljs.reader/read-string stored-data)
+            )
+        (do (println "I choose empty data!") empty-data))
+      )
+    ;init/init-db
+    ))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
+
+(defn local-storage-component []
+  (let [stored-data (.getItem (.-localStorage js/window) :all-data)]
+    (println "Now: trying to get stored data")
+    (when stored-data
+      (let [parsed-data (js->clj stored-data :keywordize-keys true)]
+        (println "Now: parsed stored data")
+        (re-frame/dispatch [:set-all-data parsed-data
+                            ;(:user-input parsed-data)
+                            ])))))
 
 ; мусор START
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
@@ -86,12 +108,6 @@
         {:db (assoc db :log-text
                        "Cannot create project: some data is invalid!
                        Check red fields above.")})
-      ;(-> {}
-      ;    (assoc :db (if data-valid nil
-      ;                              (assoc db :log-text
-      ;                                        "Cannot create project: some data is invalid!
-      ;                                        Check red fields above."))
-      ;           :fx (if data-valid [[:dispatch [::http-post]]] nil)))
       )))
 
 ;(re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
@@ -137,20 +153,27 @@
   (fn [db [_ new-value]]
     (let [new-value (v/trim-input new-value)
           is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :db-name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+          place [:data :db :postgres :db-name]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      ;(set! (.-localStorage js/window) (pr-str updated-db))
+      (println (str "stored data: " (.getItem (.-localStorage js/window) :all-data)))
+      (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
+      ;(println updated-db)
+      updated-db)))
 
 (re-frame/reg-event-db
   ::postgres-host-change
   (fn [db [_ new-value]]
     (let [new-value (v/trim-input new-value)
           is-valid (some? (v/valid-host? new-value))
-          place [:data :db :postgres :host]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+          place [:data :db :postgres :host]
+          updated-db (-> db
+              (assoc-in (conj place :value) new-value)
+              (assoc-in (conj place :valid) is-valid))]
+      ;(println updated-db)
+      updated-db)))
 
 (re-frame/reg-event-db
   ::postgres-username-change
