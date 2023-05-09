@@ -1,11 +1,8 @@
 (ns app-creator.client.init)
 
-; Собственно сейчас отсюда я использую только :log-text и :data. Остальное - мусор,
-; пока не удаляю, чтобы что-нибудь не полетело.
-; Тут видно, как хранятся все характеристики сейчас
+; Состояние. Изначальное состояние всех данных. Оно же применяется при нажании на clear all
 
-(def init-db {:http-post-result-text "null info"
-              :log-text              ""
+(def init-db {:log-text              ""
               :loading               false
               :data                  {:db
                                       {:type     "postgres"

@@ -17,7 +17,7 @@
           empty-data init/init-db]
       (println stored-data)
       (if stored-data
-        (cljs.reader/read-string stored-data)
+        (assoc empty-data :data (cljs.reader/read-string stored-data))
         empty-data)
       ;empty-data
       )))                                                   ; https://day8.github.io/re-frame/dominoes-live/#initialize
@@ -29,11 +29,12 @@
       {:db             db-with-empty-data
        :update-storage db-with-empty-data})))
 
+; updates only :data value! Not :loading, nor :log-text, nor anything else outside of :data
 (re-frame/reg-fx
   :update-storage
   (fn [new-db]
     ;(println new-db)
-    (.setItem (.-localStorage js/window) :all-data (pr-str new-db))))
+    (.setItem (.-localStorage js/window) :all-data (pr-str (:data new-db)))))
 
 (defn input-update-handler [is-valid-func place]
   (fn [{db :db} [_ new-value]]
@@ -66,7 +67,7 @@
   ::failure-post-result
   (fn [{db :db} [_ details]]
     {:db (assoc db :loading false
-                   :log-text (str "Something went wrong!" details))}))
+                   :log-text (str "Something went wrong! " (:debug-message details) ". Server may be down. \n" details))}))
 
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
 ; but there are also :body and :url-params.
