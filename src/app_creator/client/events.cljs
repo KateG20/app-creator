@@ -27,15 +27,12 @@
     ;init/init-db
     ))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
-(defn local-storage-component []
-  (let [stored-data (.getItem (.-localStorage js/window) :all-data)]
-    (println "Now: trying to get stored data")
-    (when stored-data
-      (let [parsed-data (js->clj stored-data :keywordize-keys true)]
-        (println "Now: parsed stored data")
-        (re-frame/dispatch [:set-all-data parsed-data
-                            ;(:user-input parsed-data)
-                            ])))))
+(re-frame/reg-event-fx
+  ::clear-data
+  (fn [{:keys [db]} _]
+    (let [db-with-empty-data (assoc db :data (get init/init-db :data))]
+      {:db             db-with-empty-data
+       :update-storage db-with-empty-data})))
 
 ; мусор START
 ; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб

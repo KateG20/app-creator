@@ -28,29 +28,29 @@
 (defn loader []
   (let [loading? (re-frame/subscribe [::subs/loading?])]
     [:div
-      {:class "col-12 pt-5"}
-      [:div
-     {:class "loader"
-      :style {:visibility (if @loading? "visible" "hidden")}
-      }]]))
+     {:class "col-12 pt-5"}
+     [:div
+      {:class "loader"
+       :style {:visibility (if @loading? "visible" "hidden")}
+       }]]))
 
-(defn local-storage-component []
-  (let [stored-data (.getItem (.-localStorage js/window) :all-data)]
-    (println "Now: trying to get stored data")
-    (when stored-data
-      (let [parsed-data (js->clj stored-data :keywordize-keys true)]
-        (println "Now: parsed stored data")
-        (re-frame/dispatch [:set-all-data parsed-data
-                            ;(:user-input parsed-data)
-                            ])))))
-
-(re-frame/reg-event-db
-  :set-all-data
-  (fn [db [_ all-data]]
-    ;(let [updated-db (assoc db :data input)]
-      (.setItem (.-localStorage js/window) :all-data (pr-str all-data))
-    all-data))
-  ;)
+;(defn local-storage-component []
+;  (let [stored-data (.getItem (.-localStorage js/window) :all-data)]
+;    (println "Now: trying to get stored data")
+;    (when stored-data
+;      (let [parsed-data (js->clj stored-data :keywordize-keys true)]
+;        (println "Now: parsed stored data")
+;        (re-frame/dispatch [:set-all-data parsed-data
+;                            ;(:user-input parsed-data)
+;                            ])))))
+;
+;(re-frame/reg-event-db
+;  :set-all-data
+;  (fn [db [_ all-data]]
+;    ;(let [updated-db (assoc db :data input)]
+;      (.setItem (.-localStorage js/window) :all-data (pr-str all-data))
+;    all-data))
+;)
 
 ;(defn input-field-component []
 ;  (let [user-input @(re-frame/subscribe [:user-input])]
@@ -114,15 +114,29 @@
                        :style {:color "red"}}
                       {:class "content-name"})
               "Path to result"]]]]
-          [:button
-           {:class    "checkbox-comp-type final",
-            :type     "button",
-            :name     "create",
-            :id       "create"
-            :on-click #(re-frame/dispatch [::events/create-projects])}]
-          [:label
-           {:class "for-checkbox-comp-type final", :for "create"}
-           "Create!"]
+          [:div
+           {:class "col-12 pb-5 center"}
+           [:button
+            {:class    "big-button"
+             :type     "button",
+             :name     "create",
+             :id       "create"
+             :on-click #(re-frame/dispatch [::events/create-projects])}]
+           [:label
+            {:class "big-button"
+             :for   "create"}
+            "Create!"]
+
+           [:button
+            {:class    "big-button grey"
+             :type     "button",
+             :name     "clear",
+             :id       "clear"
+             :on-click #(re-frame/dispatch [::events/clear-data])}]
+           [:label
+            {:class "big-button"
+             :for   "clear"}
+            "Clear all"]]
 
           [log-field]
           [loader]
