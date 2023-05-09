@@ -176,7 +176,7 @@
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :jars])
           ;new-item-vec (reagent/atom (+ 1 (last @current-items)))
-          new-item-vec (+ 1 (last @current-items))]
+          new-item-vec (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -297,12 +297,12 @@
 (defn plus-nginx-cont-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :nginx])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+          new-item-vec (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type "button", :name "plus-nginx-cont", :id "plus-nginx-cont"
-         :on-click #(re-frame/dispatch [::events/add-nginx-cont-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-nginx-cont-item new-item-vec])}]
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-nginx-cont"}
         "+"]])))
@@ -397,12 +397,12 @@
 (defn plus-postgres-cont-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :postgres])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+          new-item-vec (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type "button", :name "plus-postgres-cont", :id "plus-postgres-cont"
-         :on-click #(re-frame/dispatch [::events/add-postgres-cont-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-postgres-cont-item new-item-vec])}]
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-postgres-cont"}
         "+"]])))

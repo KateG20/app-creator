@@ -118,14 +118,14 @@
 (defn plus-table-button []
     (fn []
       (let [current-items (re-frame/subscribe [::subs/postgres-tables-vec])
-            new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+            new-item-id (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type     "button",
          :name     "plus-table",
          :id       "plus-table"
-         :on-click #(re-frame/dispatch [::events/add-table-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-table-item new-item-id])}]
        [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]])))
 
 ; Список колонок в таблице (строки в боксе)

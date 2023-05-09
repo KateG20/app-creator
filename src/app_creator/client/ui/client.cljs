@@ -221,14 +221,14 @@
 (defn plus-endpoint-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/client-endpoints-vec])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+          new-item-vec (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type     "button",
          :name     "plus-client-endpoint",
          :id       "plus-client-endpoint",
-         :on-click #(re-frame/dispatch [::events/add-client-endpoint-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-client-endpoint-item new-item-vec])}]
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-client-endpoint"}
         "+"]])))
@@ -341,8 +341,7 @@
           [endpoint-box-chars e]])])))
 
 (defn client-ui []
-  (let [client-checked (re-frame/subscribe [::subs/client-checked])
-        opts-checked (re-frame/subscribe [::subs/client-opts])]
+  (let [client-checked (re-frame/subscribe [::subs/client-checked])]
     (fn []
       [:div
        [:div

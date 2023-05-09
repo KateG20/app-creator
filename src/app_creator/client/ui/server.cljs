@@ -539,14 +539,14 @@
 (defn plus-controller-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/spring-controllers-vec])
-          new-item-vec (reagent/atom (+ 1 (last @current-items)))]
+          new-item-vec (+ 1 (apply max @current-items))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
         {:type     "button",
          :name     "plus-controller",
          :id       "plus-controller"
-         :on-click #(re-frame/dispatch [::events/add-controller-item @new-item-vec])}]
+         :on-click #(re-frame/dispatch [::events/add-controller-item new-item-vec])}]
        [:label {:class "mb-4 pb-2 plus-label", :for "plus-controller"} "+"]])))
 
 ; Список методов в контроллере (строки в боксе)
