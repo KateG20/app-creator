@@ -46,6 +46,15 @@
          {:class "for-checkbox-comp-type", :for "clickhouse"}
          "ClickHouse"]]])))
 
+; Кнопка для удаления колонки в таблице
+(defn minus-table-row-button [box row]
+  (fn [box row]
+    (let [id (str "minus-column-" box "-" row)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-table-column-item box row])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
+
 ; Колонка таблицы (строка в боксе)
 (defn table-column-item [box row]
   (fn [box row]
@@ -97,12 +106,14 @@
                   {:class "content-name"
                    :style {:color "red"}}
                   {:class "content-name"})
-          "Type"]]]])))
+          "Type"]]]
+       [minus-table-row-button box row]
+       ])))
 
 ; принимает двумерный массив типа [[0 0] [0 1] [0 2] [1 1]]
 ; и для аргумента box=0 находит число 2
 (defn find-last-item-number-in-box [box vector]
-  (second (last (filter #(= box (first %)) vector))))
+  (or (second (last (filter #(= box (first %)) vector))) -1))
 
 ; Кнопка для добавления колонки в таблице
 (defn plus-table-row-button [box]
@@ -120,7 +131,7 @@
 (defn plus-table-button []
     (fn []
       (let [current-items (re-frame/subscribe [::subs/postgres-tables-vec])
-            new-item-id (+ 1 (apply max @current-items))]
+            new-item-id (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -129,6 +140,15 @@
          :id       "plus-table"
          :on-click #(re-frame/dispatch [::events/add-table-item new-item-id])}]
        [:label {:class "mb-4 pb-2 plus-label", :for "plus-table"} "+"]])))
+
+; Кнопка для удаления таблицы
+(defn minus-table-button [box]
+  (fn [box]
+    (let [id (str "minus-table-" box)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-table-item box])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
 
 ; Список колонок в таблице (строки в боксе)
 (defn table-box-columns [box]
@@ -157,27 +177,57 @@
        ;[:p {:style {:font-size "10px"}} content]
        ;[:p {:style {:font-size "10px" :color "black"}} t-vec-content]
        ;[:p {:style {:font-size "10px" :color "black"}} c-vec-content]
-       [:div
-        {:class "col-12 pb-5 input-field"}
-        [:input
-         {:type         "text",
-          :name         "text",
-          :id           id,
-          :autocomplete "off",
-          :required     true
-          :on-change    #(re-frame/dispatch-sync
-                           [::events/postgres-table-name-change (-> % .-target .-value) box])
-          :value (get-in content [:name :value])}]
-        [:label
-         (if-not (get-in content [:name :valid])
-           {:for   id, :class "label-name incorrect-label"
-            :style {:border-bottom-color "red"}}
-           {:for id, :class "label-name"})
-         [:span (if-not (get-in content [:name :valid])
-                  {:class "content-name"
-                   :style {:color "red"}}
-                  {:class "content-name"})
-          "Table name"]]]
+
+       ;[:div
+       ; {:class "col-12 pb-5 input-field"}
+       ; [:input
+       ;  {:type         "text",
+       ;   :name         "text",
+       ;   :id           id,
+       ;   :autocomplete "off",
+       ;   :required     true
+       ;   :on-change    #(re-frame/dispatch-sync
+       ;                    [::events/postgres-table-name-change (-> % .-target .-value) box])
+       ;   :value (get-in content [:name :value])}]
+       ; [:label
+       ;  (if-not (get-in content [:name :valid])
+       ;    {:for   id, :class "label-name incorrect-label"
+       ;     :style {:border-bottom-color "red"}}
+       ;    {:for id, :class "label-name"})
+       ;  [:span (if-not (get-in content [:name :valid])
+       ;           {:class "content-name"
+       ;            :style {:color "red"}}
+       ;           {:class "content-name"})
+       ;   "Table name"]]]
+
+       [:ul
+        {:class "db-col-list"}
+        [:li
+         {:class "table-row-li"}
+         [:div
+          {:class "col-12 pb-5 input-field"}
+          [:input
+           {:type         "text",
+            :name         "text",
+            :id           id,
+            :autocomplete "off",
+            :required     true
+            :on-change    #(re-frame/dispatch-sync
+                             [::events/postgres-table-name-change (-> % .-target .-value) box])
+            :value (get-in content [:name :value])}]
+          [:label
+           (if-not (get-in content [:name :valid])
+             {:for   id, :class "label-name incorrect-label"
+              :style {:border-bottom-color "red"}}
+             {:for id, :class "label-name"})
+           [:span (if-not (get-in content [:name :valid])
+                    {:class "content-name"
+                     :style {:color "red"}}
+                    {:class "content-name"})
+            "Table name"]]]
+         [minus-table-button box]
+         ]]
+
        [table-box-columns box]
        [plus-table-row-button box]])))
 

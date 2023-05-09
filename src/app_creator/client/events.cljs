@@ -171,32 +171,11 @@
                                               :valid true}
                                     :columns nil
                                     }))]
+      (println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
-
-(defn remove-for-update [coll pred]
-  (remove pred coll))
-
-; id = table-num
-(re-frame/reg-event-db
-  ::remove-table-item
-  (fn [db [_ id]]
-    (-> db
-        ;(update-in [:data :db :postgres :tables :table-vec] remove #{id})
-        (update-in [:data :db :postgres :tables :table-vec] remove-for-update #{id})
-        (update-in [:data :db :postgres :tables :column-vec] remove-for-update #(= (first %) id))
-        (update-in [:data :db :postgres :tables :content] dissoc id))))
-
-(re-frame/reg-event-db
-  ::remove-table-column-item
-  (fn [db [_ t-id col-id]]
-    (-> db
-        (update-in [:data :db :postgres :tables :column-vec]
-                   remove #(and
-                             (= (first %) t-id)
-                             (= (second %) col-id)))
-        (update-in [:data :db :postgres :tables :content t-id :columns] dissoc col-id))))
-
 
 ; Добавляет колонку в таблицу БД (new item = [table-num col-num])
 (re-frame/reg-event-fx
@@ -209,6 +188,52 @@
                           :valid true}
                    :opts {:value ""
                           :valid true}}))]
+      (println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      {:db             updated-db
+       :update-storage updated-db})))
+
+(defn remove-elem [coll pred]
+  (vec (remove pred coll)))
+
+; Удаляет таблицу БД
+(re-frame/reg-event-fx
+  ::minus-table-item
+  (fn [{db :db} [_ id]]
+    (println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
+                  "\n" (get-in db [:data :db :postgres :tables :column-vec])
+                  "\n" (get-in db [:data :db :postgres :tables :content])))
+
+    (let [updated-db (-> db
+                         (update-in [:data :db :postgres :tables :table-vec] remove-elem #(= % id))
+                         (update-in [:data :db :postgres :tables :column-vec] remove-elem #(= (first %) id))
+                         (update-in [:data :db :postgres :tables :content] dissoc id))]
+
+      (println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      {:db             updated-db
+       :update-storage updated-db})))
+
+; Удаляет колонку в таблице БД
+(re-frame/reg-event-fx
+  ::minus-table-column-item
+  (fn [{db :db} [_ t-id col-id]]
+    (println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
+                  "\n" (get-in db [:data :db :postgres :tables :column-vec])
+                  "\n" (get-in db [:data :db :postgres :tables :content])))
+
+    (let [updated-db (-> db
+                         (update-in [:data :db :postgres :tables :column-vec]
+                                    remove-elem #(and
+                                                   (= (first %) t-id)
+                                                   (= (second %) col-id)))
+                         (update-in [:data :db :postgres :tables :content t-id :columns] dissoc col-id))]
+
+      (println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
 
