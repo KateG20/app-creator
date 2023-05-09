@@ -15,12 +15,10 @@
 (defn log-field []
   (let [text (re-frame/subscribe [::subs/log-text])]
     [:div
-     {:class "col-12 pt-5 mt-20"
-      :style {:display         "flex"
-              :height          "auto"
-              :min-height      "80px"
-              :justify-content "center"
-              :align-items     "center"}}
+     {:class "col-12 pt-5 mt-20 center"
+      :style {:height          "auto"
+              :min-height      "80px"}
+      }
      [:p {:style
           {:color "#50862a"}}
       @text]]))
