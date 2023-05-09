@@ -9,23 +9,18 @@
 ; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что
 ; в них правильно писать, но для стандартных событий всё изично.
 
-; Событие для изначальной инициации дб (вызывается потом в методе run, перед рендером)
+; Событие для инициации дб (вызывается в методе run, перед рендером)
 (re-frame/reg-event-db                                      ;; sets up initial application state
   ::initialize
   (fn [_ _]                                                 ;; arguments not important, so use _
     (let [stored-data (.getItem (.-localStorage js/window) :all-data)
           empty-data init/init-db]
       (println stored-data)
-      (or stored-data empty-data)
       (if stored-data
-        (do (println "I choose stored data!")
-            ;(js->clj stored-data :keywordize-keys true)
-            (cljs.reader/read-string stored-data)
-            )
-        (do (println "I choose empty data!") empty-data))
-      )
-    ;init/init-db
-    ))                                          ; https://day8.github.io/re-frame/dominoes-live/#initialize
+        (cljs.reader/read-string stored-data)
+        empty-data)
+      ;empty-data
+      )))                                                   ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
 (re-frame/reg-event-fx
   ::clear-data
@@ -34,49 +29,78 @@
       {:db             db-with-empty-data
        :update-storage db-with-empty-data})))
 
-; мусор START
-; Для вызова при изменении текста; меняет состояние текста и состояние дисплея ошибки в дб
-;(re-frame/reg-event-db
-;  ::text-change
-;  (fn [db [_ new-text-value]]
-;    (assoc db :text new-text-value
-;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
-;
-;(re-frame/reg-event-db
-;  ::server-framework-text-change
-;  (fn [db [_ new-text-value]]
-;    (assoc db :server-framework-text new-text-value
-;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
-;
-;(re-frame/reg-event-db
-;  ::server-lang-text-change
-;  (fn [db [_ new-text-value]]
-;    (assoc db :server-lang-text new-text-value
-;              :error-display (if (< (count new-text-value) 5) "block" "none"))))
+(re-frame/reg-fx
+  :update-storage
+  (fn [new-db]
+    ;(println new-db)
+    (.setItem (.-localStorage js/window) :all-data (pr-str new-db))))
 
-; мусор END
+; is-valid-func = func with one argument - the value
+; place = [:data :server :spring ...], place of vector {:value A :valid B}
+;(defn input-update-handler [is-valid-func place]
+;  (fn [{db :db} [_ new-value]]
+;    (let [is-valid (some? (is-valid-func new-value))
+;          updated-db (-> db
+;                         (assoc-in (conj place :value) new-value)
+;                         (assoc-in (conj place :valid) is-valid))]
+;      {:db             updated-db
+;       :update-storage updated-db})))
+
+;(defmacro mcr-1 [word]
+;  ;'word
+;  '(case word
+;    "box" 'box
+;    "row" 'row)
+;  )
+
+;(defmacro mcr-box []
+;  'word)
+;
+;(defmacro mcr-row []
+;  'row)
+
+(defn input-update-handler [is-valid-func place]
+  (fn [{db :db} [_ new-value]]
+    (let [is-valid (some? (is-valid-func new-value))
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
+
+(defn input-update-handler-result [db is-valid-func place new-value]
+  (let [is-valid (some? (is-valid-func new-value))
+        updated-db (-> db
+                       (assoc-in (conj place :value) new-value)
+                       (assoc-in (conj place :valid) is-valid))]
+    (println updated-db)
+    {:db             updated-db
+     :update-storage updated-db}))
+
+(defn radio-check-handler
+  ([place]
+   (fn [{db :db} [_ new-value]]
+     (let [updated-db (assoc-in db place new-value)]
+       {:db             updated-db
+        :update-storage updated-db})))
+  ([place opts?]
+   (fn [{db :db} [_ opt-keyword new-value]]
+     (let [updated-db (assoc-in db (conj place opt-keyword) new-value)]
+       {:db             updated-db
+        :update-storage updated-db}))))
 
 (re-frame/reg-event-fx
   ::success-post-result
-  (fn [{:keys [db]} [_ response]]
+  (fn [{db :db} [_ response]]
     {:db (assoc db :loading false
                    :log-text (str "Finished! " response))}
-    ;(assoc db
-    ;  ;:log-field-display "block"
-    ;  ;:http-post-result-text (str "success! " result)
-    ;  :db (assoc db :loading false)
-    ;  :log-text (str "Finished! " result))
     ))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::failure-post-result
-  (fn [{:keys [db]} [_ details]]
+  (fn [{db :db} [_ details]]
     {:db (assoc db :loading false
                    :log-text (str "Something went wrong!" details))}
-    ;(assoc db
-    ;  ;:log-field-display "block"
-    ;  ;:http-post-result-text (str "failure! " result)
-    ;  :log-text "Something went wrong!")
     ))
 
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
@@ -96,7 +120,7 @@
 
 (re-frame/reg-event-fx
   ::create-projects
-  (fn [{:keys [db]} _]
+  (fn [{db :db} _]
     (let [data-valid (v/whole-map-valid? (:data db))]
       (if data-valid
         {:db (assoc db :loading true
@@ -127,235 +151,268 @@
   (fn [db [_ loading?]]
     (assoc db :loading? loading?)))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::out-path-text-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (v/valid-dir? new-value)                 ;todo
-          place [:data :out-path]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-dir? [:data :out-path]))
 
 ;-----------------------------------------------DB EVENTS-----------------------------------------------
 
 ; Отмечает выбранный тип бд (new-value = тип)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::change-db-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:data :db :type] new-value)))
+  (radio-check-handler [:data :db :type])
+  ;(fn [{db :db} [_ new-value]]
+  ;  (let [updated-db (assoc-in db [:data :db :type] new-value)]
+  ;    {:db             updated-db
+  ;     :update-storage updated-db}))
+  )
 
-(re-frame/reg-event-db
+;(re-frame/reg-event-db
+;  ::postgres-db-name-change
+;  (fn [db [_ new-value]]
+;    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+;          place [:data :db :postgres :db-name]
+;          updated-db (-> db
+;                         (assoc-in (conj place :value) new-value)
+;                         (assoc-in (conj place :valid) is-valid))]
+;      (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
+;      updated-db)))
+
+(re-frame/reg-event-fx
   ::postgres-db-name-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :db-name]
+  (input-update-handler v/valid-host? [:data :db :postgres :db-name]))
+
+;(fn [{db :db} [_ new-value]]
+;  (let [is-valid (some? (v/valid-host? new-value))        ;todo
+;        place [:data :db :postgres :db-name]
+;        updated-db (-> db
+;                       (assoc-in (conj place :value) new-value)
+;                       (assoc-in (conj place :valid) is-valid))]
+;    {:db updated-db
+;     :update-storage updated-db}))
+;)
+
+
+(re-frame/reg-event-fx
+  ::postgres-host-change
+  (input-update-handler v/valid-host? [:data :db :postgres :host])
+  ;(fn [db [_ new-value]]
+  ;  (let [is-valid (some? (v/valid-host? new-value))
+  ;        place [:data :db :postgres :host]
+  ;        updated-db (-> db
+  ;            (assoc-in (conj place :value) new-value)
+  ;            (assoc-in (conj place :valid) is-valid))]
+  ;    (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
+  ;    updated-db))
+  )
+
+(re-frame/reg-event-fx
+  ::postgres-username-change
+  (input-update-handler v/valid-host? [:data :db :postgres :username]))
+
+(re-frame/reg-event-fx
+  ::postgres-password-change
+  (input-update-handler v/valid-host? [:data :db :postgres :password])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :db :postgres :password]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
+
+(re-frame/reg-event-fx
+  ::postgres-table-name-change
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :tables :content box :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
                          (assoc-in (conj place :valid) is-valid))]
-      ;(set! (.-localStorage js/window) (pr-str updated-db))
-      (println (str "stored data: " (.getItem (.-localStorage js/window) :all-data)))
-      (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
-      ;(println updated-db)
-      updated-db)))
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
-  ::postgres-host-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))
-          place [:data :db :postgres :host]
-          updated-db (-> db
-              (assoc-in (conj place :value) new-value)
-              (assoc-in (conj place :valid) is-valid))]
-      ;(println updated-db)
-      updated-db)))
-
-(re-frame/reg-event-db
-  ::postgres-username-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :username]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
-
-(re-frame/reg-event-db
-  ::postgres-password-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :password]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
-
-(re-frame/reg-event-db
-  ::postgres-table-name-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :tables :content box :name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
-
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::postgres-column-name-change
-  (fn [db [_ new-value box row]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :tables :content box :columns row :name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box row]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :tables :content box :columns row :name]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::postgres-column-opts-change
-  (fn [db [_ new-value box row]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :db :postgres :tables :content box :columns row :opts]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box row]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :db :postgres :tables :content box :columns row :opts]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ; Добавляет таблицу БД (new item = table-num)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-table-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :db :postgres :tables :table-vec] conj new-item)
-        (assoc-in [:data :db :postgres :tables :content new-item]
-                  {:name    {:value ""
-                             :valid true}
-                   :columns nil
-                   }))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :db :postgres :tables :table-vec] conj new-item)
+                         (assoc-in [:data :db :postgres :tables :content new-item]
+                                   {:name    {:value ""
+                                              :valid true}
+                                    :columns nil
+                                    }))]
+      {:db             updated-db
+       :update-storage updated-db}
+      )))
+
 
 ; Добавляет колонку в таблицу БД (new item = [table-num col-num])
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-table-column-item
-  (fn [db [_ new-item]]
-    (-> db
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
         (update-in [:data :db :postgres :tables :column-vec] conj new-item)
         (assoc-in [:data :db :postgres :tables :content (first new-item) :columns (second new-item)]
                   {:name {:value ""
                           :valid true}
                    :opts {:value ""
-                          :valid true}}))))
+                          :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
+
 
 
 ;-----------------------------------------------SERVER EVENTS-----------------------------------------------
 
 ; Отмечает выбранный тип сервера (new-value = тип)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::change-server-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:data :server :type] new-value)))
+  (radio-check-handler [:data :server :type])
+  ;(fn [db [_ new-value]]
+  ;  (assoc-in db [:data :server :type] new-value))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::change-spring-opt-radio
-  (fn [db [_ opt-keyword new-value]]
-    (assoc-in db [:data :server :spring :project opt-keyword] new-value)))
+  (radio-check-handler [:data :server :spring :project] true)
+  ;(fn [db [_ opt-keyword new-value]]
+  ;  (assoc-in db [:data :server :spring :project opt-keyword] new-value))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-group-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :project :group]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-host? [:data :server :spring :project :group])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :server :spring :project :group]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-artifact-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :project :artifact]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-host? [:data :server :spring :project :artifact])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :server :spring :project :artifact]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-proj-name-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :project :proj-name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-host? [:data :server :spring :project :proj-name])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :server :spring :project :proj-name]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-description-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :project :description]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-host? [:data :server :spring :project :description])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :server :spring :project :description]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
 
 ; попробую запихнуть все пропсы в один ивент
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-db-props-change
-  (fn [db [_ prop-keyword new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (case prop-keyword
+  (fn [{db :db} [_ prop-keyword new-value]]
+    (let [is-valid (some? (case prop-keyword
                             :type (v/valid-host? new-value) ;todo
                             :username (v/valid-host? new-value) ;todo
                             :password (v/valid-host? new-value) ;todo
                             :sql-host (v/valid-host? new-value)
                             :sql-port (v/valid-host? new-value) ;todo
                             :db-name (v/valid-host? new-value))) ;todo
-          place [:data :server :spring :properties :db prop-keyword]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+          place [:data :server :spring :properties :db prop-keyword]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-controller-name-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :controllers :content box :name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :controllers :content box :name]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-method-name-change
-  (fn [db [_ new-value box row]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :controllers :content box :methods row :name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box row]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :controllers :content box :methods row :name]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-method-url-change
-  (fn [db [_ new-value box row]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :controllers :content box :methods row :url]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box row]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :controllers :content box :methods row :url]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::spring-method-type-change
-  (fn [db [_ new-value box row]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :server :spring :controllers :content box :methods row :type]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box row]]
+    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+          place [:data :server :spring :controllers :content box :methods row :type]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ;(re-frame/reg-event-db
 ;  ::change-spring-lang
@@ -378,57 +435,70 @@
 ;    (assoc-in db [:checked :server :spring :java-v] new-value)))
 
 ; Добавляет контроллер сервера (new item = controller-num)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-controller-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :server :spring :controllers :controller-vec] conj new-item)
-        (assoc-in [:data :server :spring :controllers :content new-item]
-                  {:name    {:value ""
-                             :valid true}
-                   :methods nil
-                   }))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :server :spring :controllers :controller-vec] conj new-item)
+                         (assoc-in [:data :server :spring :controllers :content new-item]
+                                   {:name    {:value ""
+                                              :valid true}
+                                    :methods nil
+                                    }))]
+      {:db             updated-db
+       :update-storage updated-db}
+      )))
 
 ; Добавляет метод в контроллер сервера (new item = [controller-num req-num])
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-controller-method-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :server :spring :controllers :method-vec] conj new-item)
-        (assoc-in [:data :server :spring :controllers :content (first new-item) :methods (second new-item)]
-                  {:name {:value ""
-                          :valid true}
-                   :url  {:value ""
-                          :valid true}
-                   :type {:value ""
-                          :valid true}}))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :server :spring :controllers :method-vec] conj new-item)
+                         (assoc-in [:data :server :spring :controllers :content (first new-item) :methods (second new-item)]
+                                   {:name {:value ""
+                                           :valid true}
+                                    :url  {:value ""
+                                           :valid true}
+                                    :type {:value ""
+                                           :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db}
+      )))
 
 
 ;-----------------------------------------------CLIENT EVENTS-----------------------------------------------
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::change-client-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:data :client :type] new-value)))
+  (radio-check-handler [:data :client :type])
+  ;(fn [db [_ new-value]]
+  ;  (assoc-in db [:data :client :type] new-value))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-radio-opts-change
-  (fn [db [_ opt-keyword new-value]]
-    (assoc-in db [:data :client :android opt-keyword] new-value)))
+  (radio-check-handler [:data :client :android] true)
+  ;(fn [{db :db} [_ opt-keyword new-value]]
+  ;  (let [updated-db (assoc-in db [:data :client :android opt-keyword] new-value)]
+  ;    {:db             updated-db
+  ;     :update-storage updated-db}))
+  )
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-props-change
-  (fn [db [_ prop-keyword new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (case prop-keyword
+  (fn [{db :db} [_ prop-keyword new-value]]
+    (let [is-valid (some? (case prop-keyword
                             :proj-name (v/valid-host? new-value) ;todo
                             :package-name (v/valid-host? new-value) ;todo
                             :server-host (v/valid-host? new-value)
                             :server-port (v/valid-host? new-value))) ;todo
-          place [:data :client :android prop-keyword]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+          place [:data :client :android prop-keyword]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ;(re-frame/reg-event-db
 ;  ::change-android-lang
@@ -440,75 +510,82 @@
 ;  (fn [db [_ new-value]]
 ;    (assoc-in db [:checked :client :android :test] new-value)))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-endpoint-url-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-url? new-value))
-          place [:data :client :android :endpoints :content box :url]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-url? new-value))        ;todo
+          place [:data :client :android :endpoints :content box :url]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-endpoint-method-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-java-name? new-value))
-          place [:data :client :android :endpoints :content box :name]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-java-name? new-value))        ;todo
+          place [:data :client :android :endpoints :content box :name]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-endpoint-request-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (v/valid-req-type? new-value)
-          place [:data :client :android :endpoints :content box :request]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-req-type? new-value))        ;todo
+          place [:data :client :android :endpoints :content box :request]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::android-endpoint-body-change
-  (fn [db [_ new-value box]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-java-name? new-value))
-          place [:data :client :android :endpoints :content box :body]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (fn [{db :db} [_ new-value box]]
+    (let [is-valid (some? (v/valid-java-name? new-value))        ;todo
+          place [:data :client :android :endpoints :content box :body]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ; Добавляет пустой эндпоинт клиента (new item = endpoint-num, в вектор добавляется новая чиселка)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-client-endpoint-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :client :android :endpoints :endpoints-vec] conj new-item)
-        (assoc-in [:data :client :android :endpoints :content new-item]
-                  {:url     {:value ""
-                             :valid true}
-                   :name    {:value ""
-                             :valid true}
-                   :request {:value ""
-                             :valid true}
-                   :body    {:value ""
-                             :valid true}}))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :client :android :endpoints :endpoints-vec] conj new-item)
+                         (assoc-in [:data :client :android :endpoints :content new-item]
+                                   {:url     {:value ""
+                                              :valid true}
+                                    :name    {:value ""
+                                              :valid true}
+                                    :request {:value ""
+                                              :valid true}
+                                    :body    {:value ""
+                                              :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ;-----------------------------------------------DEPLOY EVENTS-----------------------------------------------
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::change-deploy-checked
-  (fn [db [_ new-value]]
-    (assoc-in db [:data :containerization :type] new-value)))
+  (radio-check-handler [:data :containerization :type])
+  ;(fn [db [_ new-value]]
+  ;  (assoc-in db [:data :containerization :type] new-value))
+  )
 
 ; type-keyword = :jars/:nginx/:postgres
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::docker-container-opts-change
-  (fn [db [_ new-value box type-keyword prop-keyword]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (case prop-keyword
+  (fn [{db :db} [_ new-value box type-keyword prop-keyword]]
+    (let [is-valid (some? (case prop-keyword
                             :image-name (v/valid-host? new-value) ;todo
                             :container-name (v/valid-host? new-value) ;todo
                             :dir-name (v/valid-host? new-value) ;todo
@@ -516,66 +593,76 @@
                             :jar-path (v/valid-host? new-value) ;todo
                             :port (v/valid-host? new-value) ;todo
                             :password (v/valid-host? new-value))) ;todo
-          place [:data :containerization :docker type-keyword :content box prop-keyword]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+          place [:data :containerization :docker type-keyword :content box prop-keyword]
+          updated-db (-> db
+                         (assoc-in (conj place :value) new-value)
+                         (assoc-in (conj place :valid) is-valid))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::docker-network-change
-  (fn [db [_ new-value]]
-    (let [new-value (v/trim-input new-value)
-          is-valid (some? (v/valid-host? new-value))        ;todo
-          place [:data :containerization :docker :network]]
-      (-> db
-          (assoc-in (conj place :value) new-value)
-          (assoc-in (conj place :valid) is-valid)))))
+  (input-update-handler v/valid-host? [:data :containerization :docker :network])
+  ;(fn [db [_ new-value]]
+  ;  (let [new-value (v/trim-input new-value)
+  ;        is-valid (some? (v/valid-host? new-value))        ;todo
+  ;        place [:data :containerization :docker :network]]
+  ;    (-> db
+  ;        (assoc-in (conj place :value) new-value)
+  ;        (assoc-in (conj place :valid) is-valid))))
+  )
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-jar-cont-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :containerization :docker :jars :cont-vec] conj new-item)
-        (assoc-in [:data :containerization :docker :jars :content new-item]
-                  {:image-name     {:value ""
-                                    :valid true}
-                   :container-name {:value ""
-                                    :valid true}
-                   :dir-name       {:value ""
-                                    :valid true}
-                   :jar-path       {:value ""
-                                    :valid true}}))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :jars :cont-vec] conj new-item)
+                         (assoc-in [:data :containerization :docker :jars :content new-item]
+                                   {:image-name     {:value ""
+                                                     :valid true}
+                                    :container-name {:value ""
+                                                     :valid true}
+                                    :dir-name       {:value ""
+                                                     :valid true}
+                                    :jar-path       {:value ""
+                                                     :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ; Добавляет nginx-контейнер (new item = nginx-cont-num)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-nginx-cont-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :containerization :docker :nginx :cont-vec] conj new-item)
-        (assoc-in [:data :containerization :docker :nginx :content new-item]
-                  {:image-name             {:value ""
-                                            :valid true}
-                   :container-name         {:value ""
-                                            :valid true}
-                   :dir-name               {:value ""
-                                            :valid true}
-                   :backend-container-name {:value ""
-                                            :valid true}}))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :nginx :cont-vec] conj new-item)
+                         (assoc-in [:data :containerization :docker :nginx :content new-item]
+                                   {:image-name             {:value ""
+                                                             :valid true}
+                                    :container-name         {:value ""
+                                                             :valid true}
+                                    :dir-name               {:value ""
+                                                             :valid true}
+                                    :backend-container-name {:value ""
+                                                             :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 ; Добавляет postgres-контейнер (new item = postgres-cont-num)
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
   ::add-postgres-cont-item
-  (fn [db [_ new-item]]
-    (-> db
-        (update-in [:data :containerization :docker :postgres :cont-vec] conj new-item)
-        (assoc-in [:data :containerization :docker :postgres :content new-item]
-                  {:container-name {:value ""
-                                    :valid true}
-                   :port           {:value ""
-                                    :valid true}
-                   :password       {:value ""
-                                    :valid true}}))))
+  (fn [{db :db} [_ new-item]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :postgres :cont-vec] conj new-item)
+                         (assoc-in [:data :containerization :docker :postgres :content new-item]
+                                   {:container-name {:value ""
+                                                     :valid true}
+                                    :port           {:value ""
+                                                     :valid true}
+                                    :password       {:value ""
+                                                     :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 
 

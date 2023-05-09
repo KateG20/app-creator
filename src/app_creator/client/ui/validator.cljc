@@ -15,8 +15,9 @@
   (cstr/trim s))
 
 (defn empty-or-matches [val regex]
-  (or (empty? val)
-      (re-matches regex val)))
+  (let [val (trim-input val)]
+    (or (empty? val)
+      (re-matches regex val))))
 
 (defn valid-host? [host]
   (or (= "localhost" host)
@@ -32,27 +33,7 @@
   (empty-or-matches path out-path-regex))
 
 (defn valid-req-type? [req-type]
-  (some #(= (cstr/lower-case req-type) %) (conj http-methods "")))
-
-;(defn find-all-nested
-;  [m k]
-;  (->> (tree-seq map? vals m)
-;       (filter map?)
-;       (keep k)))
-
-;(defn flatten-map [m result]
-;  (if (map? m)
-;    (flatten
-;    (for [[k v] m]
-;      (if (= k :valid)
-;        v
-;      (cons (flatten-map v) result))))))
-
-;(defn find-all-valid [m result]
-;  (for [[k v] m]
-;    (if (= k :valid)
-;      v
-;      ())))
+  (some #(= (cstr/lower-case (trim-input req-type)) %) (conj http-methods "")))
 
 (defn find-all-valid [m]
   (reduce-kv (fn [prev k v]
@@ -64,19 +45,5 @@
              []
              m))
 
-
 (defn whole-map-valid? [db]
-  ;(flatten-map db)
-  ;(if (map? db) (flatten-map db))
-  ;(str (->> (tree-seq map? vals db)
-  ;          (filter map?)
-  ;          (keep :valid)))
-  ;(str (some false?
-  ;      (->> (tree-seq map? vals db)
-  ;     (filter map?)
-  ;     (keep :valid))))
-  ;(some false? (for [[k v] (flatten (seq db))] (and (= k :valid) (= v true))))
-  ;(str (find-all-valid db))
-  (nil? (some false? (find-all-valid db)))
-  ;(some false? (find-all-valid db))
-  )
+  (nil? (some false? (find-all-valid db))))

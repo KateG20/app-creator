@@ -228,8 +228,9 @@
            :id           "proj-group",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-group-change (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-group-change (-> % .-target .-value)])
+           :value (get-in @opts [:group :value])}]
          [:label
           (if-not (get-in @opts [:group :valid])
             {:for   "proj-group", :class "label-name incorrect-label"
@@ -248,8 +249,9 @@
            :id           "artifact",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-artifact-change (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-artifact-change (-> % .-target .-value)])
+           :value (get-in @opts [:artifact :value])}]
          [:label
           (if-not (get-in @opts [:artifact :valid])
             {:for   "artifact", :class "label-name incorrect-label"
@@ -268,8 +270,9 @@
            :id           "proj-name",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-proj-name-change (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-proj-name-change (-> % .-target .-value)])
+           :value (get-in @opts [:proj-name :value])}]
          [:label
           (if-not (get-in @opts [:proj-name :valid])
             {:for   "proj-name", :class "label-name incorrect-label"
@@ -288,8 +291,9 @@
            :id           "description",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-description-change (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-description-change (-> % .-target .-value)])
+           :value (get-in @opts [:description :value])}]
          [:label
           (if-not (get-in @opts [:description :valid])
             {:for   "description", :class "label-name incorrect-label"
@@ -317,8 +321,9 @@
            :id           "prop-db-type",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :type (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :type (-> % .-target .-value)])
+           :value (get-in @db-props [:type :value])}]
          [:label
           (if-not (get-in @db-props [:type :valid])
             {:for   "prop-db-type", :class "label-name incorrect-label"
@@ -337,8 +342,9 @@
            :id           "prop-db-host",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :sql-host (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :sql-host (-> % .-target .-value)])
+           :value (get-in @db-props [:sql-host :value])}]
          [:label
           (if-not (get-in @db-props [:sql-host :valid])
             {:for   "prop-db-host", :class "label-name incorrect-label"
@@ -357,8 +363,9 @@
            :id           "prop-db-port",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :sql-port (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :sql-port (-> % .-target .-value)])
+           :value (get-in @db-props [:sql-port :value])}]
          [:label
           (if-not (get-in @db-props [:sql-port :valid])
             {:for   "prop-db-port", :class "label-name incorrect-label"
@@ -379,8 +386,9 @@
            :id           "prop-db-name",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :db-name (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :db-name (-> % .-target .-value)])
+           :value (get-in @db-props [:db-name :value])}]
          [:label
           (if-not (get-in @db-props [:db-name :valid])
             {:for   "prop-db-name", :class "label-name incorrect-label"
@@ -399,8 +407,9 @@
            :id           "prop-db-username",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :username (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :username (-> % .-target .-value)])
+           :value (get-in @db-props [:username :value])}]
          [:label
           (if-not (get-in @db-props [:username :valid])
             {:for   "prop-db-username", :class "label-name incorrect-label"
@@ -419,8 +428,9 @@
            :id           "prop-db-password",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/spring-db-props-change :password (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/spring-db-props-change :password (-> % .-target .-value)])
+           :value (get-in @db-props [:password :value])}]
          [:label
           (if-not (get-in @db-props [:password :valid])
             {:for   "prop-db-password", :class "label-name incorrect-label"
@@ -451,8 +461,9 @@
           :id           method-name,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/spring-method-name-change (-> % .-target .-value) box row])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/spring-method-name-change (-> % .-target .-value) box row])
+          :value (get-in row-content [:name :value])}]
         ;[:label
         ; {:for method-name, :class "label-name"}
         ; [:span {:class "content-name"} "Method name"]]
@@ -474,8 +485,9 @@
           :id           url,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/spring-method-url-change (-> % .-target .-value) box row])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/spring-method-url-change (-> % .-target .-value) box row])
+          :value (get-in row-content [:url :value])}]
         ;[:label
         ; {:for url, :class "label-name"}
         ; [:span {:class "content-name"} "Request URL"]]
@@ -497,8 +509,9 @@
           :id           mapping,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/spring-method-type-change (-> % .-target .-value) box row])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/spring-method-type-change (-> % .-target .-value) box row])
+          :value (get-in row-content [:type :value])}]
         ;[:label
         ; {:for mapping, :class "label-name"}
         ; [:span {:class "content-name"} "Request type"]]
@@ -580,8 +593,9 @@
           :id           id,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/spring-controller-name-change (-> % .-target .-value) box])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/spring-controller-name-change (-> % .-target .-value) box])
+          :value (get-in content [:name :value])}]
         [:label
          (if-not (get-in content [:name :valid])
            {:for   id, :class "label-name incorrect-label"

@@ -144,8 +144,9 @@
             :id           "client-proj-name",
             :autocomplete "off",
             :required     true
-            :on-change    #(re-frame/dispatch
-                             [::events/android-props-change :proj-name (-> % .-target .-value)])}]
+            :on-change    #(re-frame/dispatch-sync
+                             [::events/android-props-change :proj-name (-> % .-target .-value)])
+            :value (get-in @opts [:proj-name :value])}]
           [:label
            (if-not (get-in @opts [:proj-name :valid])
              {:for   "client-proj-name", :class "label-name incorrect-label"
@@ -164,8 +165,9 @@
             :id           "client-pack-name",
             :autocomplete "off",
             :required     true
-            :on-change    #(re-frame/dispatch
-                             [::events/android-props-change :package-name (-> % .-target .-value)])}]
+            :on-change    #(re-frame/dispatch-sync
+                             [::events/android-props-change :package-name (-> % .-target .-value)])
+            :value (get-in @opts [:package-name :value])}]
           [:label
            (if-not (get-in @opts [:package-name :valid])
              {:for   "client-pack-name", :class "label-name incorrect-label"
@@ -184,8 +186,9 @@
             :id           "client-host",
             :autocomplete "off",
             :required     true
-            :on-change    #(re-frame/dispatch
-                             [::events/android-props-change :server-host (-> % .-target .-value)])}]
+            :on-change    #(re-frame/dispatch-sync
+                             [::events/android-props-change :server-host (-> % .-target .-value)])
+            :value (get-in @opts [:server-host :value])}]
           [:label
            (if-not (get-in @opts [:server-host :valid])
              {:for   "client-host", :class "label-name incorrect-label"
@@ -204,8 +207,9 @@
             :id           "client-port",
             :autocomplete "off",
             :required     true
-            :on-change    #(re-frame/dispatch
-                             [::events/android-props-change :server-port (-> % .-target .-value)])}]
+            :on-change    #(re-frame/dispatch-sync
+                             [::events/android-props-change :server-port (-> % .-target .-value)])
+            :value (get-in @opts [:server-port :value])}]
           [:label
            (if-not (get-in @opts [:server-port :valid])
              {:for   "client-port", :class "label-name incorrect-label"
@@ -253,8 +257,9 @@
            :id           uri-id,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/android-endpoint-url-change (-> % .-target .-value) box])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/android-endpoint-url-change (-> % .-target .-value) box])
+           :value (get-in content [:url :value])}]
          [:label
           (if-not (get-in content [:url :valid])
             {:for   uri-id, :class "label-name incorrect-label"
@@ -275,7 +280,9 @@
            :id           method-id,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch [::events/android-endpoint-method-change (-> % .-target .-value) box])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/android-endpoint-method-change (-> % .-target .-value) box])
+           :value (get-in content [:name :value])}]
          [:label
           (if-not (get-in content [:name :valid])
             {:for   method-id, :class "label-name incorrect-label"
@@ -296,7 +303,8 @@
            :id           r-type-id,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch [::events/android-endpoint-request-change (-> % .-target .-value) box])}]
+           :on-change    #(re-frame/dispatch-sync [::events/android-endpoint-request-change (-> % .-target .-value) box])
+           :value (get-in content [:request :value])}]
          [:label
           (if-not (get-in content [:request :valid])
             {:for   r-type-id, :class "label-name incorrect-label"
@@ -317,7 +325,8 @@
            :id           b-type-id,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch [::events/android-endpoint-body-change (-> % .-target .-value) box])}]
+           :on-change    #(re-frame/dispatch-sync [::events/android-endpoint-body-change (-> % .-target .-value) box])
+           :value (get-in content [:body :value])}]
          [:label
           (if-not (get-in content [:body :valid])
             {:for   b-type-id, :class "label-name incorrect-label"

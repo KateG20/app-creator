@@ -49,8 +49,9 @@
            :id           "network-name",
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-network-change (-> % .-target .-value)])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-network-change (-> % .-target .-value)])
+           :value (get @network :value)}]
          [:label
           (if-not (get @network :valid)
             {:for   "network-name", :class "label-name incorrect-label"
@@ -85,8 +86,9 @@
            :id           cont-name,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :container-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :container-name])
+           :value (get-in content [:container-name :value])}]
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
@@ -105,8 +107,9 @@
            :id           img-name,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :image-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :image-name])
+           :value (get-in content [:image-name :value])}]
          [:label
           (if-not (get-in content [:image-name :valid])
             {:for   img-name, :class "label-name incorrect-label"
@@ -125,8 +128,9 @@
            :id           run-dir,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :dir-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :dir-name])
+           :value (get-in content [:dir-name :value])}]
          [:label
           (if-not (get-in content [:dir-name :valid])
             {:for   run-dir, :class "label-name incorrect-label"
@@ -147,8 +151,9 @@
            :id           jar-path,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :jar-path])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :jars :jar-path])
+           :value (get-in content [:jar-path :value])}]
          [:label
           (if-not (get-in content [:jar-path :valid])
             {:for   jar-path, :class "label-name incorrect-label"
@@ -209,8 +214,9 @@
            :id           cont-name,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :container-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :container-name])
+           :value (get-in content [:container-name :value])}]
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
@@ -229,8 +235,9 @@
            :id           img-name,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :image-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :image-name])
+           :value (get-in content [:image-name :value])}]
          [:label
           (if-not (get-in content [:image-name :valid])
             {:for   img-name, :class "label-name incorrect-label"
@@ -249,8 +256,9 @@
            :id           run-dir,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :dir-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :dir-name])
+           :value (get-in content [:dir-name :value])}]
          [:label
           (if-not (get-in content [:dir-name :valid])
             {:for   run-dir, :class "label-name incorrect-label"
@@ -269,8 +277,10 @@
            :id           back-cont,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :nginx :backend-container-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change
+                             (-> % .-target .-value) box :nginx :backend-container-name])
+           :value (get-in content [:backend-container-name :value])}]
          [:label
           (if-not (get-in content [:backend-container-name :valid])
             {:for   back-cont, :class "label-name incorrect-label"
@@ -329,8 +339,10 @@
            :id           cont-name,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :container-name])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change
+                             (-> % .-target .-value) box :postgres :container-name])
+           :value (get-in content [:container-name :value])}]
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
@@ -349,8 +361,9 @@
            :id           pg-port,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :port])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :port])
+           :value (get-in content [:port :value])}]
          [:label
           (if-not (get-in content [:port :valid])
             {:for   pg-port, :class "label-name incorrect-label"
@@ -369,8 +382,9 @@
            :id           pg-pwd,
            :autocomplete "off",
            :required     true
-           :on-change    #(re-frame/dispatch
-                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :password])}]
+           :on-change    #(re-frame/dispatch-sync
+                            [::events/docker-container-opts-change (-> % .-target .-value) box :postgres :password])
+           :value (get-in content [:password :value])}]
          [:label
           (if-not (get-in content [:password :valid])
             {:for   pg-pwd, :class "label-name incorrect-label"

@@ -64,8 +64,9 @@
           :id           name,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/postgres-column-name-change (-> % .-target .-value) box row])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/postgres-column-name-change (-> % .-target .-value) box row])
+          :value (get-in row-content [:name :value])}]
         [:label
          (if-not (get-in row-content [:name :valid])
            {:for   name, :class "label-name incorrect-label"
@@ -84,8 +85,9 @@
           :id           type,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/postgres-column-opts-change (-> % .-target .-value) box row])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/postgres-column-opts-change (-> % .-target .-value) box row])
+          :value (get-in row-content [:opts :value])}]
         [:label
          (if-not (get-in row-content [:opts :valid])
            {:for   type, :class "label-name incorrect-label"
@@ -163,8 +165,9 @@
           :id           id,
           :autocomplete "off",
           :required     true
-          :on-change    #(re-frame/dispatch
-                           [::events/postgres-table-name-change (-> % .-target .-value) box])}]
+          :on-change    #(re-frame/dispatch-sync
+                           [::events/postgres-table-name-change (-> % .-target .-value) box])
+          :value (get-in content [:name :value])}]
         [:label
          (if-not (get-in content [:name :valid])
            {:for   id, :class "label-name incorrect-label"
@@ -229,7 +232,7 @@
              :id           "db-name",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch
+             :on-change    #(re-frame/dispatch-sync
                               [::events/postgres-db-name-change (-> % .-target .-value)])
              :value (get-in @props [:db-name :value])}]
            [:label
@@ -250,7 +253,7 @@
              :id           "db-host",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch [::events/postgres-host-change (-> % .-target .-value)])
+             :on-change    #(re-frame/dispatch-sync [::events/postgres-host-change (-> % .-target .-value)])
              :value (get-in @props [:host :value])}]
            [:label
             (if-not (get-in @props [:host :valid])
@@ -271,7 +274,8 @@
              :id           "db-username",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch [::events/postgres-username-change (-> % .-target .-value)])}]
+             :on-change    #(re-frame/dispatch-sync [::events/postgres-username-change (-> % .-target .-value)])
+             :value (get-in @props [:username :value])}]
            [:label
             (if-not (get-in @props [:username :valid])
               {:for   "db-username", :class "label-name incorrect-label"
@@ -290,7 +294,8 @@
              :id           "db-password",
              :autocomplete "off",
              :required     true
-             :on-change    #(re-frame/dispatch [::events/postgres-password-change (-> % .-target .-value)])}]
+             :on-change    #(re-frame/dispatch-sync [::events/postgres-password-change (-> % .-target .-value)])
+             :value (get-in @props [:password :value])}]
            [:label
             (if-not (get-in @props [:password :valid])
               {:for   "db-password", :class "label-name incorrect-label"

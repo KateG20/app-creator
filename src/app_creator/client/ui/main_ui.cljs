@@ -103,7 +103,8 @@
               :id           "result-path",
               :autocomplete "off",
               :required     true
-              :on-change    #(re-frame/dispatch [::events/out-path-text-change (-> % .-target .-value)])}]
+              :on-change    #(re-frame/dispatch-sync [::events/out-path-text-change (-> % .-target .-value)])
+              :value (get @out-path-content :value)}]
             [:label
              (if-not (get @out-path-content :valid)
                {:for   "result-path", :class "label-name incorrect-label"
