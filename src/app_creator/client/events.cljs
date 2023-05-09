@@ -35,30 +35,6 @@
     ;(println new-db)
     (.setItem (.-localStorage js/window) :all-data (pr-str new-db))))
 
-; is-valid-func = func with one argument - the value
-; place = [:data :server :spring ...], place of vector {:value A :valid B}
-;(defn input-update-handler [is-valid-func place]
-;  (fn [{db :db} [_ new-value]]
-;    (let [is-valid (some? (is-valid-func new-value))
-;          updated-db (-> db
-;                         (assoc-in (conj place :value) new-value)
-;                         (assoc-in (conj place :valid) is-valid))]
-;      {:db             updated-db
-;       :update-storage updated-db})))
-
-;(defmacro mcr-1 [word]
-;  ;'word
-;  '(case word
-;    "box" 'box
-;    "row" 'row)
-;  )
-
-;(defmacro mcr-box []
-;  'word)
-;
-;(defmacro mcr-row []
-;  'row)
-
 (defn input-update-handler [is-valid-func place]
   (fn [{db :db} [_ new-value]]
     (let [is-valid (some? (is-valid-func new-value))
@@ -67,15 +43,6 @@
                          (assoc-in (conj place :valid) is-valid))]
       {:db             updated-db
        :update-storage updated-db})))
-
-(defn input-update-handler-result [db is-valid-func place new-value]
-  (let [is-valid (some? (is-valid-func new-value))
-        updated-db (-> db
-                       (assoc-in (conj place :value) new-value)
-                       (assoc-in (conj place :valid) is-valid))]
-    (println updated-db)
-    {:db             updated-db
-     :update-storage updated-db}))
 
 (defn radio-check-handler
   ([place]
@@ -93,15 +60,13 @@
   ::success-post-result
   (fn [{db :db} [_ response]]
     {:db (assoc db :loading false
-                   :log-text (str "Finished! " response))}
-    ))
+                   :log-text (str "Finished! " response))}))
 
 (re-frame/reg-event-fx
   ::failure-post-result
   (fn [{db :db} [_ details]]
     {:db (assoc db :loading false
-                   :log-text (str "Something went wrong!" details))}
-    ))
+                   :log-text (str "Something went wrong!" details))}))
 
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
 ; but there are also :body and :url-params.
@@ -128,23 +93,7 @@
          :fx (if data-valid [[:dispatch [::http-post]]] nil)}
         {:db (assoc db :log-text
                        "Cannot create project: some data is invalid!
-                       Check red fields above.")})
-      )))
-
-;(re-frame/reg-event-fx                                      ;; <-- note the `-fx` extension
-;  ::http-get                                                ;; <-- the event id
-;  (fn                                                       ;; <-- the handler function
-;    [{db :db} _]                                            ;; <-- 1st argument is coeffect, from which we extract db
-;
-;    ;; we return a map of (side) effects
-;    {:http-xhrio {:method          :get
-;                  :uri             "http://localhost:80/api/v1/"
-;                  :headers         {"Access-Control-Allow-Origin" "*"}
-;                  ;:format          (ajax/json-request-format)
-;                  ;:response-format (ajax/json-response-format {:keywords? true})
-;                  :response-format (ajax/ring-response-format {:format (ajax/json-response-format {:keywords? true})})
-;                  :on-success      [::success-post-result]
-;                  :on-failure      [::failure-post-result]}}))
+                       Check red fields above.")}))))
 
 (re-frame/reg-event-db
   ::set-loading
@@ -160,51 +109,15 @@
 ; Отмечает выбранный тип бд (new-value = тип)
 (re-frame/reg-event-fx
   ::change-db-checked
-  (radio-check-handler [:data :db :type])
-  ;(fn [{db :db} [_ new-value]]
-  ;  (let [updated-db (assoc-in db [:data :db :type] new-value)]
-  ;    {:db             updated-db
-  ;     :update-storage updated-db}))
-  )
-
-;(re-frame/reg-event-db
-;  ::postgres-db-name-change
-;  (fn [db [_ new-value]]
-;    (let [is-valid (some? (v/valid-host? new-value))        ;todo
-;          place [:data :db :postgres :db-name]
-;          updated-db (-> db
-;                         (assoc-in (conj place :value) new-value)
-;                         (assoc-in (conj place :valid) is-valid))]
-;      (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
-;      updated-db)))
+  (radio-check-handler [:data :db :type]))
 
 (re-frame/reg-event-fx
   ::postgres-db-name-change
-  (input-update-handler v/valid-host? [:data :db :postgres :db-name]))
-
-;(fn [{db :db} [_ new-value]]
-;  (let [is-valid (some? (v/valid-host? new-value))        ;todo
-;        place [:data :db :postgres :db-name]
-;        updated-db (-> db
-;                       (assoc-in (conj place :value) new-value)
-;                       (assoc-in (conj place :valid) is-valid))]
-;    {:db updated-db
-;     :update-storage updated-db}))
-;)
-
+  (input-update-handler v/valid-host? [:data :db :postgres :db-name])) ;todo
 
 (re-frame/reg-event-fx
   ::postgres-host-change
-  (input-update-handler v/valid-host? [:data :db :postgres :host])
-  ;(fn [db [_ new-value]]
-  ;  (let [is-valid (some? (v/valid-host? new-value))
-  ;        place [:data :db :postgres :host]
-  ;        updated-db (-> db
-  ;            (assoc-in (conj place :value) new-value)
-  ;            (assoc-in (conj place :valid) is-valid))]
-  ;    (.setItem (.-localStorage js/window) :all-data (pr-str updated-db))
-  ;    updated-db))
-  )
+  (input-update-handler v/valid-host? [:data :db :postgres :host]))
 
 (re-frame/reg-event-fx
   ::postgres-username-change
@@ -212,15 +125,7 @@
 
 (re-frame/reg-event-fx
   ::postgres-password-change
-  (input-update-handler v/valid-host? [:data :db :postgres :password])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :db :postgres :password]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :db :postgres :password]))
 
 (re-frame/reg-event-fx
   ::postgres-table-name-change
@@ -267,8 +172,30 @@
                                     :columns nil
                                     }))]
       {:db             updated-db
-       :update-storage updated-db}
-      )))
+       :update-storage updated-db})))
+
+(defn remove-for-update [coll pred]
+  (remove pred coll))
+
+; id = table-num
+(re-frame/reg-event-db
+  ::remove-table-item
+  (fn [db [_ id]]
+    (-> db
+        ;(update-in [:data :db :postgres :tables :table-vec] remove #{id})
+        (update-in [:data :db :postgres :tables :table-vec] remove-for-update #{id})
+        (update-in [:data :db :postgres :tables :column-vec] remove-for-update #(= (first %) id))
+        (update-in [:data :db :postgres :tables :content] dissoc id))))
+
+(re-frame/reg-event-db
+  ::remove-table-column-item
+  (fn [db [_ t-id col-id]]
+    (-> db
+        (update-in [:data :db :postgres :tables :column-vec]
+                   remove #(and
+                             (= (first %) t-id)
+                             (= (second %) col-id)))
+        (update-in [:data :db :postgres :tables :content t-id :columns] dissoc col-id))))
 
 
 ; Добавляет колонку в таблицу БД (new item = [table-num col-num])
@@ -286,71 +213,32 @@
        :update-storage updated-db})))
 
 
-
 ;-----------------------------------------------SERVER EVENTS-----------------------------------------------
 
 ; Отмечает выбранный тип сервера (new-value = тип)
 (re-frame/reg-event-fx
   ::change-server-checked
-  (radio-check-handler [:data :server :type])
-  ;(fn [db [_ new-value]]
-  ;  (assoc-in db [:data :server :type] new-value))
-  )
+  (radio-check-handler [:data :server :type]))
 
 (re-frame/reg-event-fx
   ::change-spring-opt-radio
-  (radio-check-handler [:data :server :spring :project] true)
-  ;(fn [db [_ opt-keyword new-value]]
-  ;  (assoc-in db [:data :server :spring :project opt-keyword] new-value))
-  )
+  (radio-check-handler [:data :server :spring :project] true))
 
 (re-frame/reg-event-fx
   ::spring-group-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :group])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :server :spring :project :group]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :server :spring :project :group]))
 
 (re-frame/reg-event-fx
   ::spring-artifact-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :artifact])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :server :spring :project :artifact]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :server :spring :project :artifact]))
 
 (re-frame/reg-event-fx
   ::spring-proj-name-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :proj-name])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :server :spring :project :proj-name]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :server :spring :project :proj-name]))
 
 (re-frame/reg-event-fx
   ::spring-description-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :description])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :server :spring :project :description]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :server :spring :project :description]))
 
 ; попробую запихнуть все пропсы в один ивент
 (re-frame/reg-event-fx
@@ -414,26 +302,6 @@
       {:db             updated-db
        :update-storage updated-db})))
 
-;(re-frame/reg-event-db
-;  ::change-spring-lang
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :server :spring :lang] new-value)))
-;
-;(re-frame/reg-event-db
-;  ::change-spring-pack
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :server :spring :pack] new-value)))
-;
-;(re-frame/reg-event-db
-;  ::change-spring-boot-v
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :server :spring :boot-v] new-value)))
-;
-;(re-frame/reg-event-db
-;  ::change-spring-java-v
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :server :spring :java-v] new-value)))
-
 ; Добавляет контроллер сервера (new item = controller-num)
 (re-frame/reg-event-fx
   ::add-controller-item
@@ -471,19 +339,11 @@
 
 (re-frame/reg-event-fx
   ::change-client-checked
-  (radio-check-handler [:data :client :type])
-  ;(fn [db [_ new-value]]
-  ;  (assoc-in db [:data :client :type] new-value))
-  )
+  (radio-check-handler [:data :client :type]))
 
 (re-frame/reg-event-fx
   ::android-radio-opts-change
-  (radio-check-handler [:data :client :android] true)
-  ;(fn [{db :db} [_ opt-keyword new-value]]
-  ;  (let [updated-db (assoc-in db [:data :client :android opt-keyword] new-value)]
-  ;    {:db             updated-db
-  ;     :update-storage updated-db}))
-  )
+  (radio-check-handler [:data :client :android] true))
 
 (re-frame/reg-event-fx
   ::android-props-change
@@ -500,15 +360,6 @@
       {:db             updated-db
        :update-storage updated-db})))
 
-;(re-frame/reg-event-db
-;  ::change-android-lang
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :client :android :lang] new-value)))
-
-;(re-frame/reg-event-db
-;  ::change-android-test
-;  (fn [db [_ new-value]]
-;    (assoc-in db [:checked :client :android :test] new-value)))
 
 (re-frame/reg-event-fx
   ::android-endpoint-url-change
@@ -576,10 +427,7 @@
 
 (re-frame/reg-event-fx
   ::change-deploy-checked
-  (radio-check-handler [:data :containerization :type])
-  ;(fn [db [_ new-value]]
-  ;  (assoc-in db [:data :containerization :type] new-value))
-  )
+  (radio-check-handler [:data :containerization :type]))
 
 ; type-keyword = :jars/:nginx/:postgres
 (re-frame/reg-event-fx
@@ -602,15 +450,7 @@
 
 (re-frame/reg-event-fx
   ::docker-network-change
-  (input-update-handler v/valid-host? [:data :containerization :docker :network])
-  ;(fn [db [_ new-value]]
-  ;  (let [new-value (v/trim-input new-value)
-  ;        is-valid (some? (v/valid-host? new-value))        ;todo
-  ;        place [:data :containerization :docker :network]]
-  ;    (-> db
-  ;        (assoc-in (conj place :value) new-value)
-  ;        (assoc-in (conj place :valid) is-valid))))
-  )
+  (input-update-handler v/valid-host? [:data :containerization :docker :network]))
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
 (re-frame/reg-event-fx
