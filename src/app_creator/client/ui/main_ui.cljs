@@ -16,8 +16,8 @@
   (let [text (re-frame/subscribe [::subs/log-text])]
     [:div
      {:class "col-12 pt-5 mt-20 center"
-      :style {:height          "auto"
-              :min-height      "80px"}
+      :style {:height     "auto"
+              :min-height "80px"}
       }
      [:p {:style
           {:color "#50862a"}}
@@ -102,7 +102,7 @@
               :autocomplete "off",
               :required     true
               :on-change    #(re-frame/dispatch-sync [::events/out-path-text-change (-> % .-target .-value)])
-              :value (get @out-path-content :value)}]
+              :value        (get @out-path-content :value)}]
             [:label
              (if-not (get @out-path-content :valid)
                {:for   "result-path", :class "label-name incorrect-label"

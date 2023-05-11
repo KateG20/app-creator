@@ -1,7 +1,8 @@
 (ns app-creator.client.ui.validator
   (:require [clojure.string :as cstr]
-    ;[clojure.java.io :as io]
-            [taoensso.timbre :as log]))
+            #?(:clj  [clojure.java.io :as io]
+               :cljs [cljs.nodejs :as nodejs])))
+
 
 (def ip-regex #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
 ; using re-pattern requires double-escape
@@ -11,13 +12,19 @@
 
 (def http-methods ["get" "head" "post" "put" "patch" "delete" "options"])
 
+(defn directory-exists? [path]
+  #?(:clj
+     (and
+       (.isDirectory (io/file path))
+       (some? (re-matches out-path-regex path)))))
+
 (defn trim-input [s]
   (cstr/trim s))
 
 (defn empty-or-matches [val regex]
   (let [val (trim-input val)]
     (or (empty? val)
-      (re-matches regex val))))
+        (re-matches regex val))))
 
 (defn valid-host? [host]
   (or (= "localhost" host)
@@ -29,7 +36,7 @@
 (defn valid-java-name? [name]
   (empty-or-matches name java-name-regex))
 
-(defn valid-dir? [path]
+(defn valid-dir? [path]                                     ; todo тут можно добавить reader conditionals
   (empty-or-matches path out-path-regex))
 
 (defn valid-req-type? [req-type]
