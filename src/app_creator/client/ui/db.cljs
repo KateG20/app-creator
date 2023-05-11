@@ -178,27 +178,6 @@
        ;[:p {:style {:font-size "10px" :color "black"}} t-vec-content]
        ;[:p {:style {:font-size "10px" :color "black"}} c-vec-content]
 
-       ;[:div
-       ; {:class "col-12 pb-5 input-field"}
-       ; [:input
-       ;  {:type         "text",
-       ;   :name         "text",
-       ;   :id           id,
-       ;   :autocomplete "off",
-       ;   :required     true
-       ;   :on-change    #(re-frame/dispatch-sync
-       ;                    [::events/postgres-table-name-change (-> % .-target .-value) box])
-       ;   :value (get-in content [:name :value])}]
-       ; [:label
-       ;  (if-not (get-in content [:name :valid])
-       ;    {:for   id, :class "label-name incorrect-label"
-       ;     :style {:border-bottom-color "red"}}
-       ;    {:for id, :class "label-name"})
-       ;  [:span (if-not (get-in content [:name :valid])
-       ;           {:class "content-name"
-       ;            :style {:color "red"}}
-       ;           {:class "content-name"})
-       ;   "Table name"]]]
 
        [:ul
         {:class "db-col-list"}
@@ -248,7 +227,62 @@
       [:div
        [:div
         {:class "col-12 pt-5 big-text"}
-        [:p {:class "mb-4 pb-2"} "1. Database"]]
+        [:p {:class "mb-4 pb-2"} "1. Database"]
+
+        ;[:input
+        ; {:type "checkbox",
+        ;  :class "tick-input",
+        ;  :id "customCheckbox1",
+        ;  :checked true
+        ;  :hidden ""}]
+        ;[:label
+        ; {:for "customCheckbox1", :class "tick-label"}
+        ; [:div
+        ;  {:class "tick-group"}
+        ;  [:span {:class "tick-checked"}]]]
+
+        ;[:div
+        ; [:input {:type "checkbox", :id "scales", :name "scales", :checked ""}]
+        ; [:label {:for "scales"} "Scales"]]
+
+        ;[:div
+        ; {:class "tick-group"}
+         [:input
+          {:type "checkbox",
+           :class "tick-input",
+           :id "customCheckbox1",
+           ;:hidden true
+           ;:visibility "hidden"
+           ;:style {:display "block"
+           ;        ;:opacity "0"
+           ;        ;:width "0px"
+           ;        ;:height "0px"
+           ;        :margin "0px"}
+           }]
+         ;]
+        [:label
+         {:for "customCheckbox1", :class "tick-label"}
+         [:span {:class "tick-checked"
+                 ;:style {:z-index "200"}
+                 }]]
+
+        ;[:label
+        ; {:for "customCheckbox1", :class "tick-label"}
+        ; [:div
+        ;  {:class "tick-group"}
+        ;  [:input
+        ;   {:type "checkbox",
+        ;    :class "tick-input",
+        ;    :id "customCheckbox1",
+        ;    ;:hidden true
+        ;    ;:visibility "hidden"
+        ;    :style {:display "block" :opacity "0" :width "0px" :height "0px" :margin "0px"}
+        ;    }]
+        ;  [:span {:class "tick-checked"
+        ;          ;:style {:z-index "200"}
+        ;          }]]]
+
+        ]
 
        [choose-type]
 

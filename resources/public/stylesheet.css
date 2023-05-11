@@ -96,11 +96,12 @@ mark {
 [type="radio"]:checked,
 [type="radio"]:not(:checked),
 [type="button"] {
-    position: absolute;
-    left: -9999px;
-    width: 0;
-    height: 0;
-    visibility: hidden;
+    /*position: absolute;*/
+    /*left: -9999px;*/
+    /*width: 0;*/
+    /*height: 0;*/
+    /*visibility: hidden;*/
+    display: none;
 }
 
 /*Полоска смены темы*/
@@ -964,6 +965,7 @@ li {
     border-color: var(--green1) transparent;
     animation: loader 1.2s linear infinite;
 }
+
 @keyframes loader {
     0% {
         transform: rotate(0deg);
@@ -972,4 +974,70 @@ li {
         transform: rotate(360deg);
     }
 }
+
+.tick-checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/*.tick-label {*/
+/*    margin: 0 5px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+/*.tick-group {*/
+/*    position: relative;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*    width: 20px;*/
+/*    height: 20px;*/
+/*    background: transparent;*/
+/*    border: 2px solid #28c4ae;*/
+/*    border-radius: 5px;*/
+/*}*/
+
+/*.tick-label {*/
+/*    margin: 0 5px;*/
+/*    cursor: pointer;*/
+/*}*/
+
+.tick-label {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px;
+    height: 20px;
+    background: transparent;
+    border: 2px solid var(--green1);
+    border-radius: 5px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.tick-input:checked ~ .tick-label .tick-checked {
+/*.tick-input:checked {*/
+    opacity: 1;
+    /*z-index: 101 !important;*/
+}
+
+/*.tick-input:not(:checked), .tick-input:checked{*/
+/*    opacity: 0;*/
+    /*visibility: hidden;*/
+/*}*/
+
+.tick-checked {
+    content: "";
+    width: 4px;
+    height: 10px;
+    margin-top: -2px;
+    border-right: 2px solid var(--green1);
+    border-bottom: 2px solid var(--green1);
+    opacity: 0;
+    transform: rotate(30deg);
+    transition: 0.2s;
+}
+
 
