@@ -64,7 +64,8 @@
       ;
       ;(and (some? containerization)                       ; names: containerization, out-path - it's important
       ;     (safe (adapter/containerize) 'containerization-scripts))
-      (str "\n\nresult: " (get-in data [:client :android :endpoints]))
+      ;(str "\n\nresult: " (get-in data [:client :android :endpoints]))
+      (str "Good result!")
       )))
 
 (defn start [args]

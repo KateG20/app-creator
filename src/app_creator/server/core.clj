@@ -14,7 +14,8 @@
 
 (defn start-logic [data]
   (let [result (creator/create-from-web data)]
-    (log/info (str "\n[AAAAAAAAAAA] the result: " result))
+    (Thread/sleep 3000)
+    (log/info (str "\n[App-Creator] the result: " result))
     {:data (str "Created projects with result: " result)}))
 
 (def dummy-entity {:id 1 :name "Hello, world!"})
@@ -24,13 +25,18 @@
 
 
 (defroutes routes
-           (GET "/api/v1/" data
-             (log/info (str "\n[AAAAAAAAAAA] request received. " data))
-             (response dummy-entity))
+           ;(GET "/api/v1/" data
+           ;  (log/info (str "\n[AAAAAAAAAAA] request received. " data))
+           ;  (response dummy-entity))
            (POST "/api/v1/create" data
-             ;(log/info (str "\n[AAAAAAAAAAA] request data: " data))
-
-             (response (start-logic (keywordize-keys (:body data)))))
+             (log/info (str "\n[App-Creator] Request received: " data "\n"))
+             (-> data
+                 (:body)
+                 (keywordize-keys)
+                 (start-logic)
+                 (response))
+             ;(response (start-logic (keywordize-keys (:body data))))
+             )
            ;(route/resources "/")
            (route/not-found (not-found)))
 

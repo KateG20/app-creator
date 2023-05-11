@@ -3,7 +3,8 @@
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]
             [app-creator.client.ui.validator :as v]
-            [app-creator.client.init :as init]))
+            [app-creator.client.init :as init]
+            [cljs.reader :as r]))
 
 ; С событиями всё понятно, тут просто регистрируем события, чтобы потом по ключу
 ; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что
@@ -17,11 +18,12 @@
           empty-data init/init-db]
       (println stored-data)
       (if stored-data
-        (assoc empty-data :data (cljs.reader/read-string stored-data))
+        (assoc empty-data :data (r/read-string stored-data))
         empty-data)
       ;empty-data
       )))                                                   ; https://day8.github.io/re-frame/dominoes-live/#initialize
 
+; clears only :data value! Not :loading, nor :log-text, nor anything else outside :data
 (re-frame/reg-event-fx
   ::clear-data
   (fn [{:keys [db]} _]
@@ -29,7 +31,7 @@
       {:db             db-with-empty-data
        :update-storage db-with-empty-data})))
 
-; updates only :data value! Not :loading, nor :log-text, nor anything else outside of :data
+; updates only :data value! Not :loading, nor :log-text, nor anything else outside :data
 (re-frame/reg-fx
   :update-storage
   (fn [new-db]
@@ -84,17 +86,44 @@
                   :on-success      [::success-post-result]
                   :on-failure      [::failure-post-result]}}))
 
+;(def global-path (get-in re-frame.db/app-db [:data :out-path :value]))
+
 (re-frame/reg-event-fx
   ::create-projects
   (fn [{db :db} _]
-    (let [data-valid (v/whole-map-valid? (:data db))]
-      (if data-valid
-        {:db (assoc db :loading true
-                       :log-text "Please wait...")
-         :fx (if data-valid [[:dispatch [::http-post]]] nil)}
-        {:db (assoc db :log-text
-                       "Cannot create project: some data is invalid!
-                       Check red fields above.")}))))
+    (let [data-valid (v/whole-map-valid? (:data db))
+          ;onee 1
+          out-dir-path (get-in db [:data :out-path :value])
+          out-dir-exists (v/directory-exists? out-dir-path)
+          ;out-dir-exists (v/my-macro (onee + onee))
+          ;foooo (v/infix (onee + onee))
+          ;out-dir-exists (v/my-macro "C:\\Users\\Lenovo X1\\Downloads\\ttttt")
+          ;out-dir-exists (v/my-macro out-dir-path)
+          ]
+      (println out-dir-path)
+      ;(println (str "infix: " foooo))
+      ;(println (str "infix: " (v/infix (onee + onee))))
+      ;(println (macroexpand '(v/my-macro "aaout-dir-path")))
+      {:db (assoc db :log-text
+                 out-dir-exists)}
+
+      ;(if data-valid
+      ;  {:db (assoc db :loading true
+      ;                 :log-text "Please wait...")
+      ;   :fx [[:dispatch [::http-post]]]}
+      ;  {:db (assoc db :log-text
+      ;                 "Cannot create project: some data is invalid!
+      ;                 Check red fields above.")})
+      )))
+
+    ;(let [data-valid (v/whole-map-valid? (:data db))]
+    ;  (if data-valid
+    ;    {:db (assoc db :loading true
+    ;                   :log-text "Please wait...")
+    ;     :fx (if data-valid [[:dispatch [::http-post]]] nil)}
+    ;    {:db (assoc db :log-text
+    ;                   "Cannot create project: some data is invalid!
+    ;                   Check red fields above.")}))))
 
 (re-frame/reg-event-db
   ::set-loading
@@ -104,6 +133,21 @@
 (re-frame/reg-event-fx
   ::out-path-text-change
   (input-update-handler v/valid-dir? [:data :out-path]))
+
+
+;(re-frame/reg-event-fx
+;  ::save-file
+;  (fn [{db :db} [_ path file]]
+;    (println (str path " " file))
+;    (v/save-file path file)
+;    {
+;     ;:fx (v/save-file path file)
+;     ;:dispatch-n [:show-loader]
+;     ;:fx (let [blob (generate-blob data content-type)]
+;     ;      (download-file filename blob))
+;     ;:dispatch-n [:hide-loader]
+;     }))
+
 
 ;-----------------------------------------------DB EVENTS-----------------------------------------------
 
@@ -183,12 +227,12 @@
   ::add-table-column-item
   (fn [{db :db} [_ new-item]]
     (let [updated-db (-> db
-        (update-in [:data :db :postgres :tables :column-vec] conj new-item)
-        (assoc-in [:data :db :postgres :tables :content (first new-item) :columns (second new-item)]
-                  {:name {:value ""
-                          :valid true}
-                   :opts {:value ""
-                          :valid true}}))]
+                         (update-in [:data :db :postgres :tables :column-vec] conj new-item)
+                         (assoc-in [:data :db :postgres :tables :content (first new-item) :columns (second new-item)]
+                                   {:name {:value ""
+                                           :valid true}
+                                    :opts {:value ""
+                                           :valid true}}))]
       (println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
                     "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
                     "\n" (get-in updated-db [:data :db :postgres :tables :content])))
@@ -390,7 +434,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-url-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-url? new-value))        ;todo
+    (let [is-valid (some? (v/valid-url? new-value))         ;todo
           place [:data :client :android :endpoints :content box :url]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -401,7 +445,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-method-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-java-name? new-value))        ;todo
+    (let [is-valid (some? (v/valid-java-name? new-value))   ;todo
           place [:data :client :android :endpoints :content box :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -412,7 +456,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-request-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-req-type? new-value))        ;todo
+    (let [is-valid (some? (v/valid-req-type? new-value))    ;todo
           place [:data :client :android :endpoints :content box :request]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -423,7 +467,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-body-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-java-name? new-value))        ;todo
+    (let [is-valid (some? (v/valid-java-name? new-value))   ;todo
           place [:data :client :android :endpoints :content box :body]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
