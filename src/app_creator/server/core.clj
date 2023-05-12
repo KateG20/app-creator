@@ -1,10 +1,10 @@
 (ns app-creator.server.core
-  (:require [app-creator.creator.creator :as creator]
+  (:require [app-creator.core.creator.creator :as creator]
             [taoensso.timbre :as log]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.defaults :refer [wrap-defaults api-defaults]]
             [ring.middleware.json :as json-middleware]
-            [ring.util.response :refer [response]]
+            [ring.util.response :refer [response status]]
             [ring.middleware.cors :refer [wrap-cors]]
             [compojure
              [route :as route]
@@ -12,16 +12,50 @@
             [clojure.walk :refer [keywordize-keys]])
   (:gen-class))
 
-(defn start-logic [data]
-  (let [result (creator/create-from-web data)]
-    (Thread/sleep 3000)
-    (log/info (str "\n[App-Creator] the result: " result))
-    {:data (str "Created projects with result: " result)}))
+(defn create-projects [data]
+  (let [result-map (creator/create-from-web data)]
+    (Thread/sleep 1000)
+    (log/info (str "\n[App-Creator] RESULT MAP: " result-map))
+    result-map))
 
-(def dummy-entity {:id 1 :name "Hello, world!"})
+(defn create-projects-handler [data]
+  ;(log/info (str "\n[App-Creator] Request received: " (with-out-str (clojure.pprint/pprint (:body data))) "\n"))
+  (let [result-map (-> data
+                       (:body)
+                       (keywordize-keys)
+                       (create-projects))
+        {:keys [result errors]} result-map
+        no-errors (empty? errors)
+        all-true (every? (fn [[_ v]] v) result)]
 
-(defn not-found []
-  (str "Resource not found!"))
+    (if (and no-errors all-true)
+      (response {:info "Components were successfully created!"})
+
+      (if (not (or no-errors all-true))
+        (let [init-str "Couldn't create following component(s) successfully: "
+              response-str (str
+                             (reduce-kv (fn [m k v]
+                                          (if (not v) (str m "\"" k "\" ")))
+                                        init-str
+                                        result)
+                             "\nFollowing errors occurred: "
+                             (clojure.string/join "\n" errors))]
+          (-> {:info response-str}
+              (response)
+              (status 500)))
+
+        (if (not no-errors)
+
+          (as-> (clojure.string/join "\n" errors) $
+                (str "Errors occurred! " $)
+                {:info $}
+                (response $)
+                (status $ 500))
+
+          (as-> "Undefined behaviour!" $
+                {:info $}
+                (response $)
+                (status $ 500)))))))
 
 
 (defroutes routes
@@ -29,14 +63,11 @@
            ;  (log/info (str "\n[AAAAAAAAAAA] request received. " data))
            ;  (response dummy-entity))
            (POST "/api/v1/create" data
-             (log/info (str "\n[App-Creator] Request received: " data "\n"))
-             (-> data
-                 (:body)
-                 (keywordize-keys)
-                 (start-logic)
-                 (response))
-             )
-           (route/not-found (not-found)))
+             (create-projects-handler data))
+           (GET "/api/v1/test" data
+             (do
+               (Thread/sleep 1000)
+               (response {:info "test passed, everything is OK!"}))))
 
 (def cors-headers
   "Generic CORS headers"
@@ -75,7 +106,7 @@
 ;   :body    "Hello World"})
 
 (defn start [port]
-  (log/info "\n[Me]: started Jetty")
+  (log/info "\n[App-Creator]: started Jetty")
   (jetty/run-jetty app {:port  port
                         :join? false}))
 

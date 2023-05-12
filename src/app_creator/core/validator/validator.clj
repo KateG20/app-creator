@@ -1,13 +1,13 @@
-(ns app-creator.parser.validator)
+(ns app-creator.core.validator.validator)
 
 (require '[sci.core]                                        ; https://github.com/metosin/malli#serializable-functions
          '[malli.core :as m]
          '[malli.error :as me]
          '[clojure.string :as string]
-         '[app-creator.parser.messages :as msg]
+         '[app-creator.core.validator.messages :as msg]
          '[clojure.java.io :as io]
-         '[app-creator.parser.regex :as r]
-         '[app-creator.parser.opts :as o])
+         '[app-creator.core.validator.regex :as r]
+         '[app-creator.core.validator.opts :as o])
 
 (use 'selmer.parser)
 
@@ -50,6 +50,11 @@
 
 (defn error-fn [msg]
   {:error/fn (fn [{:keys [value]} _] (<< "'{{value}}': {{msg}}"))})
+
+(defn validate-out-path [path]
+  (and
+    (.isDirectory (io/file path))
+    (some? (re-matches r/out-path-regex path))))
 
 (defn restrict-error-msg [elems & {:keys [in-work] :or {in-work false}}]
   "Создает сообщение об недопустимом значении, перечисляя допустимые"
