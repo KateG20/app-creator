@@ -4,7 +4,8 @@
             [ajax.core :as ajax]
             [app-creator.client.ui.validator :as v]
             [app-creator.client.init :as init]
-            [cljs.reader :as r]))
+            [cljs.reader :as r]
+            [clojure.pprint :as pp]))
 
 ; С событиями всё понятно, тут просто регистрируем события, чтобы потом по ключу
 ; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что
@@ -89,14 +90,21 @@
 (re-frame/reg-event-fx
   ::create-projects
   (fn [{db :db} _]
-    (let [data-valid (v/whole-map-valid? (:data db))]
-      (if data-valid
-        {:db (assoc db :loading true
-                       :log-text "Please wait...")
-         :fx (if data-valid [[:dispatch [::http-post]]] nil)}
+    (let [data-valid (v/whole-map-valid? (:data db))
+          at-least-one-component (v/at-least-one-component (:data db))]
+      ;(println (pp/pprint (r/read-string (.getItem (.-localStorage js/window) :all-data))))
+      ;(println data-valid)
+
+      (if at-least-one-component
+        (if data-valid
+          {:db (assoc db :loading true
+                         :log-text "Please wait...")
+           :fx [[:dispatch [::http-post]]]}
+          {:db (assoc db :log-text
+                         "Cannot create project: some data is invalid!
+                         Check red fields above.")})
         {:db (assoc db :log-text
-                       "Cannot create project: some data is invalid!
-                       Check red fields above.")}))))
+                       "Choose at least one component you want to create!")}))))
 
 (re-frame/reg-event-db
   ::set-loading

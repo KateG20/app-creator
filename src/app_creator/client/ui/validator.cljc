@@ -52,5 +52,14 @@
              []
              m))
 
+(defn at-least-one-component [m]
+  (let [chosen-components [(get-in m [:db :type])
+                            (get-in m [:server :type])
+                            (get-in m [:client :type])
+                            (get-in m [:containerization :type])]]
+    (println chosen-components)
+    (println (filter #(not= "none" %) chosen-components))
+    (not (empty? (filter #(not= "none" %) chosen-components)))))
+
 (defn whole-map-valid? [db]
   (nil? (some false? (find-all-valid db))))
