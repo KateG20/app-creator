@@ -355,17 +355,30 @@
       [:div
        [:div
         {:class "col-12 pt-5 big-text"}
-        [:p {:class "mb-4 pb-2"} "3. Client"]]
+        [:p {:class "mb-4 pb-2"} "3. Client"]
+        [:input
+         {:type  "checkbox",
+          :class "tick-input",
+          :id    "do-client-checkbox"
+          :checked  (if (= @client-checked "none") false true)
+          :on-click (if (= @client-checked "none")
+                      #(re-frame/dispatch [::events/change-client-checked "android"])
+                      #(re-frame/dispatch [::events/change-client-checked "none"]))}]
+        [:label
+         {:for "do-client-checkbox", :class "tick-label"}
+         [:span {:class "tick-checked"}]]]
 
        [choose-type]
 
        [:div
+        {:class "col-12 pt-5 none-client center", :style
+         {:display (if (= @client-checked "none") "block" "none")}}
+        "Choose one of the platforms to create this component!"]
+
+       [:div
         {:class "col-12 pt-5 for-android center",
-         :style                                             ;"display: block;"
+         :style
          {:display (if (= @client-checked "android") "block" "none")}}
-        ;[:div
-        ; {:class "col-12 pt-5"}
-        ; [:p {:class "mb-4 pb-2"} "Project options"]]
         [:div
          {:class "col-12 pt-5 header-with-help"}
          [:label {:class "plus-label mt-20 help-label"

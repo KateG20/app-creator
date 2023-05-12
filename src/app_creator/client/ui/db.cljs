@@ -75,7 +75,7 @@
           :required     true
           :on-change    #(re-frame/dispatch-sync
                            [::events/postgres-column-name-change (-> % .-target .-value) box row])
-          :value (get-in row-content [:name :value])}]
+          :value        (get-in row-content [:name :value])}]
         [:label
          (if-not (get-in row-content [:name :valid])
            {:for   name, :class "label-name incorrect-label"
@@ -96,7 +96,7 @@
           :required     true
           :on-change    #(re-frame/dispatch-sync
                            [::events/postgres-column-opts-change (-> % .-target .-value) box row])
-          :value (get-in row-content [:opts :value])}]
+          :value        (get-in row-content [:opts :value])}]
         [:label
          (if-not (get-in row-content [:opts :valid])
            {:for   type, :class "label-name incorrect-label"
@@ -117,11 +117,11 @@
 
 ; Кнопка для добавления колонки в таблице
 (defn plus-table-row-button [box]
-    (fn [box]
-      (let [id (str "plus-column-" box)
-            current-items (re-frame/subscribe [::subs/postgres-columns-vec])
-            new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
-            new-item-vec (reagent/atom [box new-col-num])]
+  (fn [box]
+    (let [id (str "plus-column-" box)
+          current-items (re-frame/subscribe [::subs/postgres-columns-vec])
+          new-col-num (+ 1 (find-last-item-number-in-box box @current-items))
+          new-item-vec (reagent/atom [box new-col-num])]
       [:div
        [:button {:type     "button", :name "plus", :id id
                  :on-click #(re-frame/dispatch [::events/add-table-column-item @new-item-vec])}]
@@ -129,9 +129,9 @@
 
 ; Кнопка для добавления таблицы
 (defn plus-table-button []
-    (fn []
-      (let [current-items (re-frame/subscribe [::subs/postgres-tables-vec])
-            new-item-id (+ 1 (or (apply max @current-items) -1))]
+  (fn []
+    (let [current-items (re-frame/subscribe [::subs/postgres-tables-vec])
+          new-item-id (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -152,9 +152,9 @@
 
 ; Список колонок в таблице (строки в боксе)
 (defn table-box-columns [box]
-    (fn [box]
-      (let [all-items @(re-frame/subscribe [::subs/postgres-columns-vec])
-            our-box-items (filter #(= box (first %)) all-items)]
+  (fn [box]
+    (let [all-items @(re-frame/subscribe [::subs/postgres-columns-vec])
+          our-box-items (filter #(= box (first %)) all-items)]
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
@@ -193,7 +193,7 @@
             :required     true
             :on-change    #(re-frame/dispatch-sync
                              [::events/postgres-table-name-change (-> % .-target .-value) box])
-            :value (get-in content [:name :value])}]
+            :value        (get-in content [:name :value])}]
           [:label
            (if-not (get-in content [:name :valid])
              {:for   id, :class "label-name incorrect-label"
@@ -228,63 +228,24 @@
        [:div
         {:class "col-12 pt-5 big-text"}
         [:p {:class "mb-4 pb-2"} "1. Database"]
-
-        ;[:input
-        ; {:type "checkbox",
-        ;  :class "tick-input",
-        ;  :id "customCheckbox1",
-        ;  :checked true
-        ;  :hidden ""}]
-        ;[:label
-        ; {:for "customCheckbox1", :class "tick-label"}
-        ; [:div
-        ;  {:class "tick-group"}
-        ;  [:span {:class "tick-checked"}]]]
-
-        ;[:div
-        ; [:input {:type "checkbox", :id "scales", :name "scales", :checked ""}]
-        ; [:label {:for "scales"} "Scales"]]
-
-        ;[:div
-        ; {:class "tick-group"}
-         [:input
-          {:type "checkbox",
-           :class "tick-input",
-           :id "customCheckbox1",
-           ;:hidden true
-           ;:visibility "hidden"
-           ;:style {:display "block"
-           ;        ;:opacity "0"
-           ;        ;:width "0px"
-           ;        ;:height "0px"
-           ;        :margin "0px"}
-           }]
-         ;]
+        [:input
+         {:type  "checkbox",
+          :class "tick-input",
+          :id    "do-db-checkbox"
+          :checked  (if (= @db-checked "none") false true)
+          :on-click (if (= @db-checked "none")
+                      #(re-frame/dispatch [::events/change-db-checked "postgres"])
+                      #(re-frame/dispatch [::events/change-db-checked "none"]))}]
         [:label
-         {:for "customCheckbox1", :class "tick-label"}
-         [:span {:class "tick-checked"
-                 ;:style {:z-index "200"}
-                 }]]
-
-        ;[:label
-        ; {:for "customCheckbox1", :class "tick-label"}
-        ; [:div
-        ;  {:class "tick-group"}
-        ;  [:input
-        ;   {:type "checkbox",
-        ;    :class "tick-input",
-        ;    :id "customCheckbox1",
-        ;    ;:hidden true
-        ;    ;:visibility "hidden"
-        ;    :style {:display "block" :opacity "0" :width "0px" :height "0px" :margin "0px"}
-        ;    }]
-        ;  [:span {:class "tick-checked"
-        ;          ;:style {:z-index "200"}
-        ;          }]]]
-
-        ]
+         {:for "do-db-checkbox", :class "tick-label"}
+         [:span {:class "tick-checked"}]]]
 
        [choose-type]
+
+       [:div
+        {:class "col-12 pt-5 none-client center", :style
+         {:display (if (= @db-checked "none") "block" "none")}}
+        "Choose one of the types to create this component!"]
 
        [:div
         {:class "col-12 pt-5 for-postgres center",
@@ -318,7 +279,7 @@
              :required     true
              :on-change    #(re-frame/dispatch-sync
                               [::events/postgres-db-name-change (-> % .-target .-value)])
-             :value (get-in @props [:db-name :value])}]
+             :value        (get-in @props [:db-name :value])}]
            [:label
             (if-not (get-in @props [:db-name :valid])
               {:for   "db-name", :class "label-name incorrect-label"
@@ -338,7 +299,7 @@
              :autocomplete "off",
              :required     true
              :on-change    #(re-frame/dispatch-sync [::events/postgres-host-change (-> % .-target .-value)])
-             :value (get-in @props [:host :value])}]
+             :value        (get-in @props [:host :value])}]
            [:label
             (if-not (get-in @props [:host :valid])
               {:for   "db-host", :class "label-name incorrect-label"
@@ -359,7 +320,7 @@
              :autocomplete "off",
              :required     true
              :on-change    #(re-frame/dispatch-sync [::events/postgres-username-change (-> % .-target .-value)])
-             :value (get-in @props [:username :value])}]
+             :value        (get-in @props [:username :value])}]
            [:label
             (if-not (get-in @props [:username :valid])
               {:for   "db-username", :class "label-name incorrect-label"
@@ -379,7 +340,7 @@
              :autocomplete "off",
              :required     true
              :on-change    #(re-frame/dispatch-sync [::events/postgres-password-change (-> % .-target .-value)])
-             :value (get-in @props [:password :value])}]
+             :value        (get-in @props [:password :value])}]
            [:label
             (if-not (get-in @props [:password :valid])
               {:for   "db-password", :class "label-name incorrect-label"

@@ -624,18 +624,30 @@
       [:div
        [:div
         {:class "col-12 pt-5 big-text"}
-        [:p {:class "mb-4 pb-2"} "2. Server"]]
+        [:p {:class "mb-4 pb-2"} "2. Server"]
+        [:input
+         {:type  "checkbox",
+          :class "tick-input",
+          :id    "do-server-checkbox"
+          :checked  (if (= @server-checked "none") false true)
+          :on-click (if (= @server-checked "none")
+                      #(re-frame/dispatch [::events/change-server-checked "spring"])
+                      #(re-frame/dispatch [::events/change-server-checked "none"]))}]
+        [:label
+         {:for "do-server-checkbox", :class "tick-label"}
+         [:span {:class "tick-checked"}]]]
 
        [choose-type]
+
+       [:div
+        {:class "col-12 pt-5 none-client center", :style
+         {:display (if (= @server-checked "none") "block" "none")}}
+        "Choose one of the frameworks to create this component!"]
 
        [:div
         {:class "col-12 pt-5 for-spring center",
          :style
          {:display (if (= @server-checked "spring") "block" "none")}}
-
-        ;[:div
-        ; {:class "col-12 pt-5"}
-        ; [:p {:class "mb-4 pb-2"} "Project options"]]
 
         [:div
          {:class "col-12 pt-5 header-with-help"}

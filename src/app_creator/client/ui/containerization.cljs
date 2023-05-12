@@ -429,9 +429,25 @@
     [:div
      [:div
       {:class "col-12 pt-5 big-text"}
-      [:p {:class "mb-4 pb-2"} "4. Deploy"]]
+      [:p {:class "mb-4 pb-2"} "4. Deploy"]
+      [:input
+       {:type  "checkbox",
+        :class "tick-input",
+        :id    "do-deploy-checkbox"
+        :checked  (if (= @deploy-checked "none") false true)
+        :on-click (if (= @deploy-checked "none")
+                    #(re-frame/dispatch [::events/change-deploy-checked "docker"])
+                    #(re-frame/dispatch [::events/change-deploy-checked "none"]))}]
+      [:label
+       {:for "do-deploy-checkbox", :class "tick-label"}
+       [:span {:class "tick-checked"}]]]
 
      [choose-type]
+
+     [:div
+      {:class "col-12 pt-5 none-client center", :style
+       {:display (if (= @deploy-checked "none") "block" "none")}}
+      "Choose one of the platforms to create this component!"]
 
      [:div
       {:class "col-12 pt-5 for-docker center", :style
