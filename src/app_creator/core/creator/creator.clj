@@ -103,16 +103,16 @@
                                          'containerization-scripts))] ; names: containerization, out-path - it's important
 
                   (-> result-map
-                      (assoc "Database" (:result db-res))
+                      (assoc-in [:result "Database"] (:result db-res))
                       (update :errors #(-> (:errors db-res) (concat %) (vec)))
 
-                      (assoc "Server" (:result server-res))
+                      (assoc-in [:result "Server"] (:result server-res))
                       (update :errors #(-> (:errors server-res) (concat %) (vec)))
 
-                      (assoc "Client" (:result client-res))
+                      (assoc-in [:result "Client"] (:result client-res))
                       (update :errors #(-> (:errors client-res) (concat %) (vec)))
 
-                      (assoc "Deploy" (:result deploy-res))
+                      (assoc-in [:result "Deploy"] (:result deploy-res))
                       (update :errors #(-> (:errors deploy-res) (concat %) (vec)))))
 
                 ))))

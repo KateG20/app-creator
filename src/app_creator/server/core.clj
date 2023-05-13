@@ -35,10 +35,11 @@
         (let [init-str "Couldn't create following component(s) successfully: "
               response-str (str
                              (reduce-kv (fn [m k v]
-                                          (if (not v) (str m "\"" k "\" ")))
+                                          (if (not v) (str m "\"" k "\" ")
+                                                      (str m)))
                                         init-str
                                         result)
-                             "\nFollowing errors occurred: "
+                             ". Following errors occurred: "
                              (clojure.string/join "\n" errors))]
           (-> {:info response-str}
               (response)
