@@ -62,18 +62,14 @@
             (let [fill-result-map (fulfill specs out-path)]
               (if (:result fill-result-map)
                 (do (println "Server project successfully filled!\n")
-                    {:result true :errors []}
-                    ;true
-                    )
+                    {:result true :errors []})
                 (let [error-str (str "Something went wrong while filling project. "
                                      "Maybe, there are troubles with file paths. "
                                      "Try again or contact us to solve issue. "
-                                     (:errors fill-result-map) ; мда, лучше это убрать
+                                     ;(:errors fill-result-map) ; мда, лучше это убрать
                                      )]
                   (do (println error-str)
-                      {:result false :errors [error-str]}
-                      ;false
-                      )))))
+                      {:result false :errors [error-str]})))))
 
         :else
         (let [error-str (str "Something went wrong. Maybe, you do not have Spring Boot or JDK installed.\n"
@@ -81,6 +77,4 @@
                              )]
           (do
             (println error-str)
-            {:result false :errors [error-str]}
-            ;false
-            ))))))
+            {:result false :errors [error-str]}))))))

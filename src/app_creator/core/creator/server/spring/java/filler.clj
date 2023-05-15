@@ -84,21 +84,18 @@
 (defn fill [specs out-path]
   (try (let [{:keys [project properties controllers]} specs
              {:keys [proj-name group artifact language]} project
-             packages (str (:value group) "." (:value artifact))
-             path (templates/path-to-code out-path (:value proj-name) (:value group) (:value artifact) language)
-             props-path (templates/path-to-props out-path (:value proj-name) (:value group) (:value artifact) language)
+             group (:value group)
+             artifact (:value artifact)
+             proj-name (:value proj-name)
+             packages (str group "." artifact)
+             path (templates/path-to-code out-path proj-name group artifact language)
+             props-path (templates/path-to-props out-path proj-name group artifact language)
              controllers (:content controllers)]
-         (log/info "[App-Creator] PATH: " path " path-end")
-         (log/info "[App-Creator] PATH TO PROPS: " path " path-end")
          (create-controllers controllers packages path)
          (create-services controllers packages path)
          (create-entities controllers packages path)
          (create-repos controllers packages path)
          (create-properties properties props-path)
-         {:result true :errors nil}
-         ;true
-         )
+         {:result true :errors nil})
        (catch Exception e
-         {:result false :errors [e]}
-         ;false
-         )))
+         {:result false :errors [e]})))
