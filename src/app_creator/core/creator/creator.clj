@@ -82,7 +82,7 @@
                 out-path (:value out-path)
                 out-path-valid? (validator/validate-out-path out-path)]
             (if (not out-path-valid?)
-              (update result-map :errors #(-> [(str "Output directory does not exist! "
+              (update result-map :errors #(-> [(str "Output directory does not exist. "
                                                     "Please, enter absolute path to existing directory.")]
                                               (concat %) (vec)))
               (do

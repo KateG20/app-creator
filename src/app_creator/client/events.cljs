@@ -64,13 +64,22 @@
   ::success-post-result
   (fn [{db :db} [_ response]]
     {:db (assoc db :loading false
-                   :log-text (str "Finished! " response))}))
+                   :log-text (:info response))}))
 
 (re-frame/reg-event-fx
   ::failure-post-result
   (fn [{db :db} [_ details]]
     {:db (assoc db :loading false
-                   :log-text (str "Something went wrong! " (:debug-message details) ". Server may be down. \n" details))}))
+                   :log-text (let [{:keys [failure status]} details]
+                               (case failure
+                                 :timeout "Request timed out! Probably server is down. Reconnect the server."
+                                 :failed (str "Network connection is unsuccessful, request is interrupted. "
+                                              "Probably server is down. Reconnect the server.")
+                                 :aborted "The client aborted the request."
+                                 :parse "The response from the server failed to parse."
+                                 :error (case status
+                                          503 "Service is currently unavailable. Try again later."
+                                          (get-in details [:response :info])))))}))
 
 ; :params - "GET will add params onto the query string, POST will put the params in the body"
 ; but there are also :body and :url-params.
@@ -88,9 +97,32 @@
                   :on-failure      [::failure-post-result]}}))
 
 (re-frame/reg-event-fx
+  ::success-get-result
+  (fn [{db :db} [_ response]]
+    {:db (assoc db :loading false
+                   :log-text "Test passed!")}))
+
+(re-frame/reg-event-fx
+  ::failure-get-result
+  (fn [{db :db} [_ details]]
+    {:db (assoc db :loading false
+                   :log-text (str "Test was not passed((" details))}))
+
+(re-frame/reg-event-fx
+  ::http-test-get
+  (fn [{:keys [db] :as cofx} [_ val]]
+    {:http-xhrio {:method          :get
+                  :uri             "http://localhost:80/api/v1/test"
+                  :headers         {"Content-Type" "application/json"}
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [::success-get-result]
+                  :on-failure      [::failure-get-result]}}))
+
+(re-frame/reg-event-fx
   ::create-projects
   (fn [{db :db} _]
-    (let [data-valid (v/whole-map-valid? (:data db))
+    (let [data-valid true                                   ;(v/whole-map-valid? (:data db))
           at-least-one-component (v/at-least-one-component (:data db))]
       ;(println (pp/pprint (r/read-string (.getItem (.-localStorage js/window) :all-data))))
       ;(println data-valid)
@@ -99,7 +131,9 @@
         (if data-valid
           {:db (assoc db :loading true
                          :log-text "Please wait...")
-           :fx [[:dispatch [::http-post]]]}
+           :fx [[:dispatch [::http-post]]]
+           ;:fx [[:dispatch [::http-test-get]]]
+           }
           {:db (assoc db :log-text
                          "Cannot create project: some data is invalid!
                          Check red fields above.")})
