@@ -1,4 +1,5 @@
 (ns app-creator.core.creator.client.android.setter
+  (:require [taoensso.timbre :as log])
   (:import (java.io File)))
 
 (require '[app-creator.core.creator.client.android.templates :as templates]
@@ -13,9 +14,9 @@
 
 (defn create-options [specs]
   (let [{:keys [proj-name language package-name test-framework]} specs]
-    (as-> {"project-name"   (or proj-name defaults/proj-name)
+    (as-> {"project-name"   (or (:value proj-name) defaults/proj-name)
            "type"           (if (some? language) (str language "-application") defaults/language)
-           "package"        (or package-name defaults/package-name)
+           "package"        (or (:value package-name) defaults/package-name)
            "test-framework" (or test-framework defaults/test-framework)} $
           (for [[k v] $]
             (<< "--{{k}} {{v}} "))
@@ -31,7 +32,7 @@
 
 (defn create [specs out-path]
   (println "Creating android project...")
-  (let [proj-name (:proj-name specs)
+  (let [proj-name (get-in specs [:proj-name :value])
         utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
     (->> specs
          (create-options)
@@ -47,21 +48,31 @@
         (cond
           (= exit 0)
           (do (println (str "Client android project created successfully!\n"))
-              (println "Filling created client project...")
               ; Заполняем внутренности клиента
-              (change-settings-gradle (<< "{{proj-dir}}settings.gradle"))
+              (println "Filling created client project...")
+              ;(log/info out " OUT ERR " err)
+              (change-settings-gradle (<< "{{proj-dir}}settings.gradle")) ;todo
 
-              (if (fulfill specs out-path)
+              (let [fill-result-map (fulfill specs out-path)]
+                (if (:result fill-result-map)
                 (do (println "Client project successfully filled!\n")
-                    true)
-                (do (println (str "Something went wrong while filling project. "
-                                  "Maybe, there are troubles with file paths. "
-                                  "Try again or contact us to solve issue."))
-                    false)))
+                    {:result true :errors []}
+               )
+                (let [error-str (str "Something went wrong while filling project. "
+                                     "Maybe, there are troubles with file paths. "
+                                     "Try again or contact us to solve issue. "
+                                     ;(:errors fill-result-map) ; мда, лучше это убрать
+                                     )]
+                  (do (println error-str)
+                      {:result false :errors [error-str]}))))
+              )
 
           :else
-          (do
-            (println (str "Something went wrong. Maybe, you do not have Android SDK or Gradle or JDK installed.\n"
-                          ;err
-                          ))
-            false))))))
+          (let [error-str (str "Something went wrong. Maybe, you do not have Android SDK or Gradle or JDK installed.\n"
+                               ;err
+                               )]
+            (do
+              (println error-str)
+              {:result false :errors [error-str]}))))
+      )
+    ))

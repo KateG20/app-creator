@@ -10,10 +10,10 @@
 (def sep File/separator)
 
 (def current-gradle-version "7.0.4")
-(def current-constraint-layout-version "2.0.4")
-(def current-app-compat-version "1.4.1")
-(def current-retrofit-version "2.8.1")
-(def current-retrofit-gson-version "2.8.1")
+(def current-constraint-layout-version "2.1.4")
+(def current-app-compat-version "1.6.1")
+(def current-retrofit-version "2.9.0")
+(def current-retrofit-gson-version "2.9.0")
 
 (def gradle-properties
   (->> ["android.useAndroidX=true"
@@ -65,20 +65,20 @@
   (->> ["apply plugin: 'com.android.application'"
         ""
         "android {"
-        "    compileSdkVersion 31"
+        "    compileSdkVersion 33"
         "    buildToolsVersion \"30.0.3\""
         ""
         "    defaultConfig {"
         "        applicationId \"{{package-name}}\""
-        "        minSdkVersion 16"
-        "        targetSdkVersion 31"
+        "        minSdkVersion 21"
+        "        targetSdkVersion 33"
         "        versionCode 1"
         "        versionName \"1.0\""
         "    }"
         ""
         "    buildTypes {"
         "        release {"
-        "            minifyEnabled false"
+        "            minifyEnabled true"
         "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'"
         "        }"
         "    }"
@@ -90,8 +90,8 @@
         "}"
         ""
         "dependencies {"
-        "    implementation 'com.android.support.constraint:constraint-layout:{{current-constraint-layout-version}}'"
-        "    implementation 'androidx.appcompat:appcompat:{{current-app-compat-version}}'"
+        "    runtimeOnly 'androidx.constraintlayout:constraintlayout:{{current-constraint-layout-version}}'"
+        "    runtimeOnly 'androidx.appcompat:appcompat:{{current-app-compat-version}}'"
         ""
         "    implementation 'com.squareup.retrofit2:retrofit:{{current-retrofit-version}}'"
         "    implementation 'com.squareup.retrofit2:converter-gson:{{current-retrofit-gson-version}}'"
@@ -211,6 +211,8 @@
 (defn api-interface [package-name requests]
   (->> [
         "package {{package-name}};"
+        ""
+        "import java.util.List;"
         ""
         "import retrofit2.Call;"
         "import retrofit2.http.*;"
