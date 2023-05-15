@@ -9,7 +9,11 @@
 (def sep File/separator)
 
 (defn build-jar-images [dirs-path bat-path jars]
-  (dorun (map (fn [jar] (let [{:keys [image-name dir-name jar-path]} jar
+  (dorun (map (fn [jar] (let [[num data] jar
+                              {:keys [image-name dir-name jar-path]} data
+                              image-name (:value image-name)
+                              dir-name (:value dir-name)
+                              jar-path (:value jar-path)
                               dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
                           ; Создание директории для докерфайла,
                           ; чтобы потом в ней сбилдить образ
@@ -24,7 +28,11 @@
               jars)))
 
 (defn build-nginx-images [dirs-path bat-path nginx]
-  (dorun (map (fn [n] (let [{:keys [image-name dir-name backend-container-name]} n
+  (dorun (map (fn [n] (let [[num data] n
+                            {:keys [image-name dir-name backend-container-name]} data
+                            image-name (:value image-name)
+                            dir-name (:value dir-name)
+                            backend-container-name (:value backend-container-name)
                             dockerfile-dir (<< "{{dirs-path}}{{sep}}{{dir-name}}")]
                         ; Создание директории для докерфайла, чтобы потом в ней сбилдить образ
                         (io/make-parents (<< "{{dockerfile-dir}}{{sep}}files"))
@@ -42,30 +50,43 @@
   (spit bat-path (templates/create-network dirs-path network-name) :append true))
 
 (defn create-jar-containers [bat-path network-name jars]
-  (dorun (map (fn [jar] (let [{:keys [image-name container-name]} jar]
+  (dorun (map (fn [jar] (let [[num data] jar
+                              {:keys [image-name container-name]} data
+                              image-name (:value image-name)
+                              container-name (:value container-name)]
                           (spit bat-path
                                 (templates/run-jar-container network-name container-name image-name)
                                 :append true)))
               jars)))
 
 (defn create-nginx-containers [bat-path network-name nginx]
-  (dorun (map (fn [n] (let [{:keys [image-name container-name]} n]
+  (dorun (map (fn [n] (let [[num data] n
+                            {:keys [image-name container-name]} data
+                            image-name (:value image-name)
+                            container-name (:value container-name)]
                         (spit bat-path
                               (templates/run-nginx-container network-name container-name image-name)
                               :append true)))
               nginx)))
 
 (defn create-postgres-containers [bat-path network-name postgres]
-  (dorun (map (fn [p] (let [{:keys [container-name password]} p]
+  (dorun (map (fn [p] (let [[num data] p
+                            {:keys [container-name port password]} data
+                            port (:value port)
+                            container-name (:value container-name)
+                            password (:value password)]
                         (spit bat-path
-                              (templates/run-postgres-container network-name container-name password)
+                              (templates/run-postgres-container network-name container-name port password)
                               :append true)))
               postgres)))
 
 (defn create [specs out-path]
   (println "Creating containerization scripts...")
-  (try (let [{:keys [jars nginx postgres network]} specs
-             network-name (:network-name network)
+  (try (let [{:keys [network jars nginx postgres]} specs
+             network-name (:value network)
+             jars (:content jars)
+             nginx (:content nginx)
+             postgres (:content postgres)
              docker-path (<< "{{out-path}}{{sep}}docker-dirs")
              bat-path (<< "{{out-path}}{{sep}}run-containers.bat")]
 
@@ -74,21 +95,28 @@
 
          (io/make-parents (<< "{{docker-path}}{{sep}}files"))
 
-         ; Собираем образы
+         ; Создаем скрипт сборки образов
          (build-jar-images docker-path bat-path jars)
          (build-nginx-images docker-path bat-path nginx)
 
          ; Создаем сеть
          (create-network docker-path bat-path network-name)
 
-         ; Запускаем контейнеры
+         ; Создаем скрипт запуска контейнеров
          (create-jar-containers bat-path network-name jars)
          (create-nginx-containers bat-path network-name nginx)
          (create-postgres-containers bat-path network-name postgres)
 
          (println "Containerization scripts created successfully!\n")
-         true)
+         {:result true :errors nil})
        (catch Exception e
-         (println (str "Something went wrong while creating containerization scripts. "
-                       "Try again or contact us to solve issue."))
-         false)))
+         (let [error-str (str "Something went wrong while creating containerization scripts. "
+                              "Try again or contact us to solve issue.")]
+           (do
+             (println error-str)
+             ;false
+             {:result false :errors [error-str]}))
+         ;(println (str "Something went wrong while creating containerization scripts. "
+         ;              "Try again or contact us to solve issue."))
+         ;false
+         )))

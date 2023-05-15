@@ -90,9 +90,9 @@
        (string/join " ")
        (<<)))
 
-(defn run-postgres-container [network-name container-name password]
+(defn run-postgres-container [network-name container-name port password]
   (->> [
-        "docker run -d -p 5432:5432 --name {{container-name}} -e"
+        "docker run -d -p {{port}}:5432 --name {{container-name}} -e"
         "POSTGRES_PASSWORD={{password}} -e PGDATA=/var/lib/postgresql/data/pgdata"
         "-v /custom/mount:/var/lib/postgresql/data --network {{network-name}} postgres"
         "\n"
