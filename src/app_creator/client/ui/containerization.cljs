@@ -65,6 +65,15 @@
 
 ;------------------------------------------------JAR containers-----------------------------------
 
+; Кнопка для удаления бокса
+(defn minus-jar-cont-box-button [box]
+  (fn [box]
+    (let [id (str "minus-jar-cont-box-" box)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-jar-cont-item box])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
+
 ; Характеристика контейнера (строки в боксе)
 (defn jar-cont-box-chars [box]
   (fn [box]
@@ -140,9 +149,10 @@
                    {:class "content-name"
                     :style {:color "red"}}
                    {:class "content-name"})
-           "Run directory name"]]]]
+           "Run directory name"]]]
+        [minus-jar-cont-box-button box]]
        [:div
-        {:class "col-12 pb-5 center no-pt full-w"}
+        {:class "col-12 pb-5 center no-pt no-pb full-w"}
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -181,7 +191,7 @@
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :jars])
           ;new-item-vec (reagent/atom (+ 1 (last @current-items)))
-          new-item-vec (+ 1 (apply max @current-items))]
+          new-item-vec (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -192,6 +202,15 @@
         "+"]])))
 
 ;------------------------------------------------NGINX containers-----------------------------------
+
+; Кнопка для удаления бокса
+(defn minus-nginx-cont-box [box]
+  (fn [box]
+    (let [id (str "minus-nginx-cont-box-" box)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-nginx-cont-item box])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
 
 ; Характеристика контейнера (строки в боксе)
 (defn nginx-cont-box-chars [box]
@@ -205,7 +224,7 @@
       [:div
        {:class "col-12 pb-5 opts-group center no-pb"}
        [:div
-        {:class "col-12 pb-5 center no-pt"}
+        {:class "col-12 pb-5 center no-pt no-pb"}
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -290,7 +309,9 @@
                    {:class "content-name"
                     :style {:color "red"}}
                    {:class "content-name"})
-           "Backend container"]]]]])))
+           "Backend container"]]]
+        [minus-nginx-cont-box box]
+        ]])))
 
 ; Список nginx-контейнеров (боксов)
 (defn nginx-conts-list []
@@ -307,7 +328,7 @@
 (defn plus-nginx-cont-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :nginx])
-          new-item-vec (+ 1 (apply max @current-items))]
+          new-item-vec (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -318,6 +339,15 @@
         "+"]])))
 
 ;------------------------------------------------POSTGRES containers-----------------------------------
+
+; Кнопка для удаления бокса
+(defn minus-postgres-cont-box [box]
+  (fn [box]
+    (let [id (str "minus-postgres-cont-box-" box)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-postgres-cont-item box])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
 
 ; Характеристика контейнера (строки в боксе)
 (defn postgres-cont-box-chars [box]
@@ -330,7 +360,7 @@
       [:div
        {:class "col-12 pb-5 opts-group center no-pb"}
        [:div
-        {:class "col-12 pb-5 center no-pt"}
+        {:class "col-12 pb-5 center no-pt no-pb"}
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -394,7 +424,9 @@
                    {:class "content-name"
                     :style {:color "red"}}
                    {:class "content-name"})
-           "DB password"]]]]])))
+           "DB password"]]]
+        [minus-postgres-cont-box box]
+        ]])))
 
 ; Список контейнеров (боксов)
 (defn postgres-conts-list []
@@ -411,7 +443,7 @@
 (defn plus-postgres-cont-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/docker-containers-vec :postgres])
-          new-item-vec (+ 1 (apply max @current-items))]
+          new-item-vec (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button

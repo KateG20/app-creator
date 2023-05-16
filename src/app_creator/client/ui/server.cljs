@@ -442,6 +442,20 @@
                    {:class "content-name"})
            "Password"]]]]])))
 
+
+; Кнопка для удаления метода
+(defn minus-controller-method-button [box row]
+  (fn [box row]
+    (let [id (str "minus-server-method-" box "-" row)]
+      [:div
+       [:button
+        {:type     "button", :name "minus", :id id
+         :on-click #(re-frame/dispatch [::events/minus-controller-method-item box row])}]
+       [:label
+        {:class "plus-label mt-20", :for id}
+        "-"]])))
+
+
 ; Метод запроса (строка в боксе)
 (defn controller-method-item [box row]
   (fn [box row]
@@ -524,8 +538,8 @@
                   {:class "content-name"
                    :style {:color "red"}}
                   {:class "content-name"})
-          "Request type"]]]]
-      )))
+          "Request type"]]]
+       [minus-controller-method-button box row]])))
 
 ; принимает двумерный массив типа [[0 0] [0 1] [0 2] [1 1]]
 ; и для аргумента box=0 находит число 2
@@ -552,7 +566,7 @@
 (defn plus-controller-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/spring-controllers-vec])
-          new-item-vec (+ 1 (apply max @current-items))]
+          new-item-vec (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -561,6 +575,19 @@
          :id       "plus-controller"
          :on-click #(re-frame/dispatch [::events/add-controller-item new-item-vec])}]
        [:label {:class "mb-4 pb-2 plus-label", :for "plus-controller"} "+"]])))
+
+; Кнопка для удаления контроллера
+(defn minus-controller-button [box]
+  (fn [box]
+    (let [id (str "minus-controller-" box)]
+      [:div
+       {:class "col-12 pt-5 button-center"}
+       [:button
+        {:type     "button",
+         :name     "minus-controller",
+         :id       id
+         :on-click #(re-frame/dispatch [::events/minus-controller-item box])}]
+       [:label {:class "mb-4 pb-2 plus-label", :for id} "-"]])))
 
 ; Список методов в контроллере (строки в боксе)
 (defn controller-box-methods [box]
@@ -585,6 +612,18 @@
        {:class "col-12 pb-5 opts-group center box"}
        ;[:p {:style {:font-size "10px" :color "black"}} t-vec-content]
        ;[:p {:style {:font-size "10px" :color "black"}} c-vec-content]
+       ;[:ul
+       ; {:class "db-col-list"}
+       ; [:li
+       ;  {:class "table-row-li"}
+
+       [:div
+        {:class "col-12 pb-5"
+         :style {:display "flex"
+                 :align-items "center"
+                 :column-gap "20px"
+                 :justify-content "space-between"}}
+
        [:div
         {:class "col-12 pb-5 input-field"}
         [:input
@@ -606,6 +645,9 @@
                    :style {:color "red"}}
                   {:class "content-name"})
           "Controller name"]]]
+         [minus-controller-button box]]
+         ;]]
+
        [controller-box-methods box]
        [plus-controller-method-button box]])))
 

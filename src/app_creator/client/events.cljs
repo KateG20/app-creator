@@ -9,7 +9,7 @@
 
 ; С событиями всё понятно, тут просто регистрируем события, чтобы потом по ключу
 ; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что
-; в них правильно писать, но для стандартных событий всё изично.
+; в них правильно писать.
 
 ; Событие для инициации дб (вызывается в методе run, перед рендером)
 (re-frame/reg-event-db                                      ;; sets up initial application state
@@ -17,7 +17,6 @@
   (fn [_ _]                                                 ;; arguments not important, so use _
     (let [stored-data (.getItem (.-localStorage js/window) :all-data)
           empty-data init/init-db]
-      (println stored-data)
       (if stored-data
         (assoc empty-data :data (r/read-string stored-data))
         empty-data)
@@ -45,7 +44,6 @@
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
                          (assoc-in (conj place :valid) is-valid))]
-      ;(println "|" new-value "| |" is-valid)
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -400,8 +398,29 @@
                                     :type {:value ""
                                            :valid true}}))]
       {:db             updated-db
-       :update-storage updated-db}
-      )))
+       :update-storage updated-db})))
+
+(re-frame/reg-event-fx
+  ::minus-controller-method-item
+  (fn [{db :db} [_ box row]]
+    (let [updated-db (-> db
+                         (update-in [:data :server :spring :controllers :method-vec]
+                                    remove-elem #(and
+                                                   (= (first %) box)
+                                                   (= (second %) row)))
+                         (update-in [:data :server :spring :controllers :content box :columns] dissoc row))]
+      {:db             updated-db
+       :update-storage updated-db})))
+
+(re-frame/reg-event-fx
+  ::minus-controller-item
+  (fn [{db :db} [_ box]]
+    (let [updated-db (-> db
+                         (update-in [:data :server :spring :controllers :controller-vec] remove-elem #(= % box))
+                         (update-in [:data :server :spring :controllers :method-vec] remove-elem #(= (first %) box))
+                         (update-in [:data :server :spring :controllers :content] dissoc box))]
+      {:db             updated-db
+       :update-storage updated-db})))
 
 
 ;-----------------------------------------------CLIENT EVENTS-----------------------------------------------
@@ -492,6 +511,18 @@
       {:db             updated-db
        :update-storage updated-db})))
 
+(re-frame/reg-event-fx
+  ::minus-client-endpoint-item
+  (fn [{db :db} [_ box]]
+    (let [updated-db (-> db
+                         (update-in [:data :client :android :endpoints :endpoints-vec] remove-elem #(= % box))
+                         (update-in [:data :client :android :endpoints :content] dissoc box))]
+
+      {:db             updated-db
+       :update-storage updated-db})
+    ))
+
+
 ;-----------------------------------------------DEPLOY EVENTS-----------------------------------------------
 
 (re-frame/reg-event-fx
@@ -539,6 +570,16 @@
       {:db             updated-db
        :update-storage updated-db})))
 
+(re-frame/reg-event-fx
+  ::minus-jar-cont-item
+  (fn [{db :db} [_ box]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :jars :cont-vec] remove-elem #(= % box))
+                         (update-in [:data :containerization :docker :jars :content] dissoc box))]
+
+      {:db             updated-db
+       :update-storage updated-db})))
+
 ; Добавляет nginx-контейнер (new item = nginx-cont-num)
 (re-frame/reg-event-fx
   ::add-nginx-cont-item
@@ -554,6 +595,16 @@
                                                              :valid true}
                                     :backend-container-name {:value ""
                                                              :valid true}}))]
+      {:db             updated-db
+       :update-storage updated-db})))
+
+(re-frame/reg-event-fx
+  ::minus-nginx-cont-item
+  (fn [{db :db} [_ box]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :nginx :cont-vec] remove-elem #(= % box))
+                         (update-in [:data :containerization :docker :nginx :content] dissoc box))]
+
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -573,7 +624,15 @@
       {:db             updated-db
        :update-storage updated-db})))
 
+(re-frame/reg-event-fx
+  ::minus-postgres-cont-item
+  (fn [{db :db} [_ box]]
+    (let [updated-db (-> db
+                         (update-in [:data :containerization :docker :postgres :cont-vec] remove-elem #(= % box))
+                         (update-in [:data :containerization :docker :postgres :content] dissoc box))]
 
+      {:db             updated-db
+       :update-storage updated-db})))
 
 
 

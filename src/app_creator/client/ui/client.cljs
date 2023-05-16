@@ -225,7 +225,7 @@
 (defn plus-endpoint-button []
   (fn []
     (let [current-items (re-frame/subscribe [::subs/client-endpoints-vec])
-          new-item-vec (+ 1 (apply max @current-items))]
+          new-item-vec (+ 1 (or (apply max @current-items) -1))]
       [:div
        {:class "col-12 pt-5 button-center"}
        [:button
@@ -236,6 +236,16 @@
        [:label
         {:class "mb-4 pb-2 plus-label", :for "plus-client-endpoint"}
         "+"]])))
+
+
+; Кнопка для удаления эндпоинта
+(defn minus-endpoint-box [box]
+  (fn [box]
+    (let [id (str "minus-endpoint-box-" box)]
+      [:div
+       [:button {:type     "button", :name "minus", :id id
+                 :on-click #(re-frame/dispatch [::events/minus-client-endpoint-item box])}]
+       [:label {:class "plus-label mt-20", :for id} "-"]])))
 
 ; Характеристики эндпоинтов (строки в боксе)
 (defn endpoint-box-chars [box]
@@ -248,6 +258,8 @@
           content (get @all-content box)]
       [:ul
        {:class "db-col-list"}
+       ;[:li
+       ; [minus-endpoint-box box]]
        [:li
         [:div
          {:class "col-12 pb-5 input-field"}
@@ -316,7 +328,7 @@
                    {:class "content-name"})
            "Request type"]]]]
        [:li
-        {:class "pt-10"}
+        {:class "pt-10 table-row-li"}
         [:div
          {:class "col-12 pb-5 input-field"}
          [:input
@@ -336,7 +348,9 @@
                    {:class "content-name"
                     :style {:color "red"}}
                    {:class "content-name"})
-           "Body type"]]]]])))
+           "Body type"]]]
+        [minus-endpoint-box box]
+        ]])))
 
 ; Список эндпоинтов (боксов)
 (defn endpoint-list []

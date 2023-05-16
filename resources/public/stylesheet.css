@@ -591,15 +591,17 @@ mark {
 
 
 .input-field {
-    /*todo подумать*/
     width: auto;
-    /*width: max-content;*/
     display: flex;
     position: relative;
     height: 50px;
     overflow: hidden;
     align-items: center;
     justify-content: center;
+}
+
+.table-row-li > .input-field {
+    width: 256px;
 }
 
 .full-w {
@@ -785,8 +787,8 @@ li {
     width: 300px;
 }
 
-.controller-list > .box > .input-field {
-    width: 600px;
+.controller-list > .box .input-field {
+    width: 556px;
 }
 
 .db-col-list {
@@ -812,13 +814,15 @@ li {
     flex-direction: row;
     gap: 20px;
     padding-top: 10px;
+    justify-content: space-between;
 }
 
 .button-center {
     display: flex;
     /*align-items: center;*/
     flex-wrap: wrap;
-    justify-content: center
+    justify-content: center;
+    padding-bottom: 10px;
 }
 
 /*Плюсик*/
