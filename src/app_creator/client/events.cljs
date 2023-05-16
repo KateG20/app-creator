@@ -45,6 +45,7 @@
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
                          (assoc-in (conj place :valid) is-valid))]
+      ;(println "|" new-value "| |" is-valid)
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -158,7 +159,7 @@
 
 (re-frame/reg-event-fx
   ::postgres-db-name-change
-  (input-update-handler v/valid-host? [:data :db :postgres :db-name])) ;todo
+  (input-update-handler v/valid-postgres-db-name? [:data :db :postgres :db-name])) ;todo
 
 (re-frame/reg-event-fx
   ::postgres-host-change
@@ -166,16 +167,16 @@
 
 (re-frame/reg-event-fx
   ::postgres-username-change
-  (input-update-handler v/valid-host? [:data :db :postgres :username]))
+  (input-update-handler v/valid-postgres-username? [:data :db :postgres :username]))
 
 (re-frame/reg-event-fx
   ::postgres-password-change
-  (input-update-handler v/valid-host? [:data :db :postgres :password]))
+  (input-update-handler v/valid-postgres-password? [:data :db :postgres :password]))
 
 (re-frame/reg-event-fx
   ::postgres-table-name-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-postgres-table-name? new-value))        ;todo
           place [:data :db :postgres :tables :content box :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -186,7 +187,7 @@
 (re-frame/reg-event-fx
   ::postgres-column-name-change
   (fn [{db :db} [_ new-value box row]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-postgres-column-name? new-value))        ;todo
           place [:data :db :postgres :tables :content box :columns row :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -197,7 +198,7 @@
 (re-frame/reg-event-fx
   ::postgres-column-opts-change
   (fn [{db :db} [_ new-value box row]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-postgres-column-opts? new-value))        ;todo
           place [:data :db :postgres :tables :content box :columns row :opts]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -216,9 +217,9 @@
                                               :valid true}
                                     :columns nil
                                     }))]
-      (println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      ;(println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -233,9 +234,9 @@
                                            :valid true}
                                     :opts {:value ""
                                            :valid true}}))]
-      (println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      ;(println (str "added. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -246,18 +247,18 @@
 (re-frame/reg-event-fx
   ::minus-table-item
   (fn [{db :db} [_ id]]
-    (println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
-                  "\n" (get-in db [:data :db :postgres :tables :column-vec])
-                  "\n" (get-in db [:data :db :postgres :tables :content])))
+    ;(println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
+    ;              "\n" (get-in db [:data :db :postgres :tables :column-vec])
+    ;              "\n" (get-in db [:data :db :postgres :tables :content])))
 
     (let [updated-db (-> db
                          (update-in [:data :db :postgres :tables :table-vec] remove-elem #(= % id))
                          (update-in [:data :db :postgres :tables :column-vec] remove-elem #(= (first %) id))
                          (update-in [:data :db :postgres :tables :content] dissoc id))]
 
-      (println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      ;(println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -265,9 +266,9 @@
 (re-frame/reg-event-fx
   ::minus-table-column-item
   (fn [{db :db} [_ t-id col-id]]
-    (println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
-                  "\n" (get-in db [:data :db :postgres :tables :column-vec])
-                  "\n" (get-in db [:data :db :postgres :tables :content])))
+    ;(println (str "old: \n" (get-in db [:data :db :postgres :tables :table-vec])
+    ;              "\n" (get-in db [:data :db :postgres :tables :column-vec])
+    ;              "\n" (get-in db [:data :db :postgres :tables :content])))
 
     (let [updated-db (-> db
                          (update-in [:data :db :postgres :tables :column-vec]
@@ -276,9 +277,9 @@
                                                    (= (second %) col-id)))
                          (update-in [:data :db :postgres :tables :content t-id :columns] dissoc col-id))]
 
-      (println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
-                    "\n" (get-in updated-db [:data :db :postgres :tables :content])))
+      ;(println (str "removed. new: \n" (get-in updated-db [:data :db :postgres :tables :table-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :column-vec])
+      ;              "\n" (get-in updated-db [:data :db :postgres :tables :content])))
       {:db             updated-db
        :update-storage updated-db})))
 
@@ -296,31 +297,31 @@
 
 (re-frame/reg-event-fx
   ::spring-group-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :group]))
+  (input-update-handler v/valid-spring-group? [:data :server :spring :project :group]))
 
 (re-frame/reg-event-fx
   ::spring-artifact-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :artifact]))
+  (input-update-handler v/valid-spring-artifact? [:data :server :spring :project :artifact]))
 
 (re-frame/reg-event-fx
   ::spring-proj-name-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :proj-name]))
+  (input-update-handler v/valid-spring-proj-name? [:data :server :spring :project :proj-name]))
 
 (re-frame/reg-event-fx
   ::spring-description-change
-  (input-update-handler v/valid-host? [:data :server :spring :project :description]))
+  (input-update-handler v/always-valid? [:data :server :spring :project :description]))
 
 ; попробую запихнуть все пропсы в один ивент
 (re-frame/reg-event-fx
   ::spring-db-props-change
   (fn [{db :db} [_ prop-keyword new-value]]
     (let [is-valid (some? (case prop-keyword
-                            :type (v/valid-host? new-value) ;todo
-                            :username (v/valid-host? new-value) ;todo
-                            :password (v/valid-host? new-value) ;todo
-                            :sql-host (v/valid-host? new-value)
-                            :sql-port (v/valid-host? new-value) ;todo
-                            :db-name (v/valid-host? new-value))) ;todo
+                            :type (v/valid-spring-db-type? new-value) ;todo
+                            :username (v/valid-spring-db-username? new-value) ;todo
+                            :password (v/valid-spring-db-password? new-value) ;todo
+                            :sql-host (v/valid-spring-db-sql-host? new-value)
+                            :sql-port (v/valid-spring-db-sql-port? new-value) ;todo
+                            :db-name (v/valid-spring-db-name? new-value))) ;todo
           place [:data :server :spring :properties :db prop-keyword]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -331,7 +332,7 @@
 (re-frame/reg-event-fx
   ::spring-controller-name-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-spring-controller-name? new-value))        ;todo
           place [:data :server :spring :controllers :content box :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -342,7 +343,7 @@
 (re-frame/reg-event-fx
   ::spring-method-name-change
   (fn [{db :db} [_ new-value box row]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-spring-method-name? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -353,7 +354,7 @@
 (re-frame/reg-event-fx
   ::spring-method-url-change
   (fn [{db :db} [_ new-value box row]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-spring-method-url? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :url]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -364,7 +365,7 @@
 (re-frame/reg-event-fx
   ::spring-method-type-change
   (fn [{db :db} [_ new-value box row]]
-    (let [is-valid (some? (v/valid-host? new-value))        ;todo
+    (let [is-valid (some? (v/valid-spring-method-type? new-value))        ;todo
           place [:data :server :spring :controllers :content box :methods row :type]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -381,11 +382,9 @@
                          (assoc-in [:data :server :spring :controllers :content new-item]
                                    {:name    {:value ""
                                               :valid true}
-                                    :methods nil
-                                    }))]
+                                    :methods nil}))]
       {:db             updated-db
-       :update-storage updated-db}
-      )))
+       :update-storage updated-db})))
 
 ; Добавляет метод в контроллер сервера (new item = [controller-num req-num])
 (re-frame/reg-event-fx
@@ -419,10 +418,10 @@
   ::android-props-change
   (fn [{db :db} [_ prop-keyword new-value]]
     (let [is-valid (some? (case prop-keyword
-                            :proj-name (v/valid-host? new-value) ;todo
-                            :package-name (v/valid-host? new-value) ;todo
-                            :server-host (v/valid-host? new-value)
-                            :server-port (v/valid-host? new-value))) ;todo
+                            :proj-name (v/valid-android-proj-name? new-value)
+                            :package-name (v/valid-android-package-name? new-value)
+                            :server-host (v/valid-android-server-host? new-value)
+                            :server-port (v/valid-android-server-port? new-value)))
           place [:data :client :android prop-keyword]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -434,7 +433,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-url-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-url? new-value))         ;todo
+    (let [is-valid (some? (v/valid-url? new-value))
           place [:data :client :android :endpoints :content box :url]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -445,7 +444,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-method-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-java-name? new-value))   ;todo
+    (let [is-valid (some? (v/valid-java-name? new-value))
           place [:data :client :android :endpoints :content box :name]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -456,7 +455,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-request-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-req-type? new-value))    ;todo
+    (let [is-valid (some? (v/valid-req-type? new-value))
           place [:data :client :android :endpoints :content box :request]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -467,7 +466,7 @@
 (re-frame/reg-event-fx
   ::android-endpoint-body-change
   (fn [{db :db} [_ new-value box]]
-    (let [is-valid (some? (v/valid-java-name? new-value))   ;todo
+    (let [is-valid (some? (v/valid-java-obj? new-value))
           place [:data :client :android :endpoints :content box :body]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -504,13 +503,13 @@
   ::docker-container-opts-change
   (fn [{db :db} [_ new-value box type-keyword prop-keyword]]
     (let [is-valid (some? (case prop-keyword
-                            :image-name (v/valid-host? new-value) ;todo
-                            :container-name (v/valid-host? new-value) ;todo
-                            :dir-name (v/valid-host? new-value) ;todo
-                            :backend-container-name (v/valid-host? new-value) ;todo
-                            :jar-path (v/valid-host? new-value) ;todo
-                            :port (v/valid-host? new-value) ;todo
-                            :password (v/valid-host? new-value))) ;todo
+                            :image-name (v/valid-docker-container-image-name? new-value) ;todo
+                            :container-name (v/valid-docker-container-container-name? new-value) ;todo
+                            :dir-name (v/valid-docker-container-dir-name? new-value) ;todo
+                            :backend-container-name (v/valid-docker-container-backend-container-name? new-value) ;todo
+                            :jar-path (v/valid-docker-container-jar-path? new-value) ;todo
+                            :port (v/valid-docker-container-port? new-value) ;todo
+                            :password (v/valid-docker-container-password? new-value))) ;todo
           place [:data :containerization :docker type-keyword :content box prop-keyword]
           updated-db (-> db
                          (assoc-in (conj place :value) new-value)
@@ -520,7 +519,7 @@
 
 (re-frame/reg-event-fx
   ::docker-network-change
-  (input-update-handler v/valid-host? [:data :containerization :docker :network]))
+  (input-update-handler v/valid-docker-network? [:data :containerization :docker :network]))
 
 ; Добавляет джар-контейнер (new item = jar-cont-num)
 (re-frame/reg-event-fx
