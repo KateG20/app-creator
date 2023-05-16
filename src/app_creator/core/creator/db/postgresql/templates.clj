@@ -20,10 +20,10 @@
        (<<)))
 
 (defn create-db [db-name]
-  (<< "SELECT 'CREATE DATABASE {{db-name}}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{db-name}}')\\gexec"))
+  (<< "SELECT 'CREATE DATABASE \"{{db-name}}\"' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{db-name}}')\\gexec"))
 
 (defn create-table [table-name cols]
-  (->> ["CREATE TABLE {{table-name}} ("
+  (->> ["CREATE TABLE \"{{table-name}}\" ("
         "{{cols}});"
         ""
         ""]
