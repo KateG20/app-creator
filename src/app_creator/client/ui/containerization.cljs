@@ -490,7 +490,7 @@
        [:label {:class "plus-label mt-20 help-label"
                 :style {:visibility "hidden"}} "?"]
        [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Network"]]
-       [:label {:class "plus-label mt-20 help-label" :for "network-help"} "?"]
+       [:label {:class "shadow-label mt-20 help-label" :for "network-help"} "?"]
        [:button {:class "help-button" :id "network-help" :style {:display "none"}}]
        [:div {:class "help-div box"}
         [:p "Name of the network to run your containers in"]]]
@@ -502,7 +502,7 @@
        [:label {:class "plus-label mt-20 help-label"
                 :style {:visibility "hidden"}} "?"]
        [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "JAR containers"]]
-       [:label {:class "plus-label mt-20 help-label" :for "jar-cont-help"} "?"]
+       [:label {:class "shadow-label mt-20 help-label" :for "jar-cont-help"} "?"]
        [:button {:class "help-button" :id "jar-cont-help" :style {:display "none"}}]
        [:div {:class "help-div box"}
         [:p [:b "Container name:"] " name of your future container" [:br]
@@ -518,7 +518,7 @@
        [:label {:class "plus-label mt-20 help-label"
                 :style {:visibility "hidden"}} "?"]
        [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Nginx containers"]]
-       [:label {:class "plus-label mt-20 help-label" :for "nginx-cont-help"} "?"]
+       [:label {:class "shadow-label mt-20 help-label" :for "nginx-cont-help"} "?"]
        [:button {:class "help-button" :id "nginx-cont-help" :style {:display "none"}}]
        [:div {:class "help-div box"}
         ; todo
@@ -535,7 +535,7 @@
        [:label {:class "plus-label mt-20 help-label"
                 :style {:visibility "hidden"}} "?"]
        [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Postgres containers"]]
-       [:label {:class "plus-label mt-20 help-label" :for "pg-cont-help"} "?"]
+       [:label {:class "shadow-label mt-20 help-label" :for "pg-cont-help"} "?"]
        [:button {:class "help-button" :id "pg-cont-help" :style {:display "none"}}]
        [:div {:class "help-div box"}
         ; todo

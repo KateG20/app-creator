@@ -826,9 +826,9 @@ li {
 }
 
 /*Плюсик*/
-/*Тут без .opts .db-list .box перед plus-label (оно было)*/
-.checkbox:checked ~ .section .container .row .col-12 .plus-label,
-.checkbox:not(:checked) ~ .section .container .row .col-12 .plus-label {
+/*Тут без .opts .db-list .box перед shadow-label (оно было)*/
+.checkbox:checked ~ .section .container .row .col-12 .shadow-label,
+.checkbox:not(:checked) ~ .section .container .row .col-12 .shadow-label {
     display: block;
     cursor: pointer;
     z-index: 2;
@@ -844,8 +844,8 @@ li {
     transition: all 150ms linear;
 }
 
-.checkbox:checked ~ .section .container .row .col-12 .plus-label:hover,
-.checkbox:not(:checked) ~ .section .container .row .col-12 .plus-label:hover {
+.checkbox:checked ~ .section .container .row .col-12 .shadow-label:hover,
+.checkbox:not(:checked) ~ .section .container .row .col-12 .shadow-label:hover {
     box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.2);
 }
 
@@ -856,7 +856,7 @@ li {
 }
 
 /*Плюсик темы в темной теме*/
-.checkbox:checked ~ .section .container .row .col-12 .plus-label {
+.checkbox:checked ~ .section .container .row .col-12 .shadow-label {
     /*content: '+';*/
     /*left: 50px;*/
     color: var(--grey);
@@ -865,11 +865,42 @@ li {
 }
 
 /*Плюсик в светлой теме*/
-.checkbox:not(:checked) ~ .section .container .row .col-12 .plus-label {
+.checkbox:not(:checked) ~ .section .container .row .col-12 .shadow-label {
     color: var(--green2);
     background-color: var(--almost-white);
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(26, 53, 71, 0.07);
 }
+
+.plus-label {
+    position: relative;
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
+    /*width: 20px;*/
+    /*height: 20px;*/
+    background: transparent;
+    border: 2px solid rgba(109, 180, 61, 0.6);
+    /*border-radius: 50px;*/
+    /*margin: 0 5px;*/
+    cursor: pointer;
+
+    color: rgba(109, 180, 61, 0.7);
+    font-weight: 500;
+
+    display: block;
+    z-index: 2;
+    font-size: 18px;
+    line-height: 18px;
+    letter-spacing: 0;
+    text-align: center;
+    vertical-align: top;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    -webkit-transition: all 150ms linear;
+    transition: all 150ms linear;
+}
+
 
 .big-button + label {
     position: relative;
@@ -992,28 +1023,6 @@ li {
     justify-content: center;
 }
 
-/*.tick-label {*/
-/*    margin: 0 5px;*/
-/*    cursor: pointer;*/
-/*}*/
-
-/*.tick-group {*/
-/*    position: relative;*/
-/*    display: flex;*/
-/*    justify-content: center;*/
-/*    align-items: center;*/
-/*    width: 20px;*/
-/*    height: 20px;*/
-/*    background: transparent;*/
-/*    border: 2px solid #28c4ae;*/
-/*    border-radius: 5px;*/
-/*}*/
-
-/*.tick-label {*/
-/*    margin: 0 5px;*/
-/*    cursor: pointer;*/
-/*}*/
-
 .tick-label {
     position: relative;
     display: flex;
@@ -1029,9 +1038,7 @@ li {
 }
 
 .tick-input:checked ~ .tick-label .tick-checked {
-/*.tick-input:checked {*/
     opacity: 1;
-    /*z-index: 101 !important;*/
 }
 
 /*.tick-input:not(:checked), .tick-input:checked{*/

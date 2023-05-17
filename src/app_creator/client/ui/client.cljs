@@ -398,7 +398,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Project options"]]
-         [:label {:class "plus-label mt-20 help-label" :for "android-options-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "android-options-help"} "?"]
          [:button {:class "help-button" :id "android-options-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           ; todo
@@ -416,7 +416,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Endpoints"]]
-         [:label {:class "plus-label mt-20 help-label" :for "android-endpoints-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "android-endpoints-help"} "?"]
          [:button {:class "help-button" :id "android-endpoints-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           ; todo

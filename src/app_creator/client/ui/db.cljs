@@ -257,7 +257,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} "Properties"]
-         [:label {:class "plus-label mt-20 help-label" :for "db-prop-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "db-prop-help"} "?"]
          [:button {:class "help-button" :id "db-prop-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
@@ -358,7 +358,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} "Tables"]
-         [:label {:class "plus-label mt-20 help-label" :for "db-tables-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "db-tables-help"} "?"]
          [:button {:class "help-button" :id "db-tables-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]

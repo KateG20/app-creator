@@ -696,7 +696,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Project options"]]
-         [:label {:class "plus-label mt-20 help-label" :for "spring-opts-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "spring-opts-help"} "?"]
          [:button {:class "help-button" :id "spring-opts-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           ; todo
@@ -711,7 +711,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Properties"]]
-         [:label {:class "plus-label mt-20 help-label" :for "spring-props-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "spring-props-help"} "?"]
          [:button {:class "help-button" :id "spring-props-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           ; todo
@@ -729,7 +729,7 @@
          [:label {:class "plus-label mt-20 help-label"
                   :style {:visibility "hidden"}} "?"]
          [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Controllers"]]
-         [:label {:class "plus-label mt-20 help-label" :for "spring-controllers-help"} "?"]
+         [:label {:class "shadow-label mt-20 help-label" :for "spring-controllers-help"} "?"]
          [:button {:class "help-button" :id "spring-controllers-help" :style {:display "none"}}]
          [:div {:class "help-div box"}
           ; todo
