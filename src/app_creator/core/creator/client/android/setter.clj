@@ -12,11 +12,14 @@
 
 (def sep File/separator)
 
+(defn has-val [opt]
+  (if (empty? (:value opt)) nil (:value opt)))
+
 (defn create-options [specs]
   (let [{:keys [proj-name language package-name test-framework]} specs]
-    (as-> {"project-name"   (or (:value proj-name) defaults/proj-name)
+    (as-> {"project-name"   (or (has-val proj-name) defaults/proj-name)
            "type"           (if (some? language) (str language "-application") defaults/language)
-           "package"        (or (:value package-name) defaults/package-name)
+           "package"        (or (has-val package-name) defaults/package-name)
            "test-framework" (or test-framework defaults/test-framework)} $
           (for [[k v] $]
             (<< "--{{k}} {{v}} "))
@@ -33,6 +36,7 @@
 (defn create [specs out-path]
   (println "Creating android project...")
   (let [proj-name (get-in specs [:proj-name :value])
+        proj-name (if (nil? proj-name) defaults/proj-name proj-name)
         utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
     (->> specs
          (create-options)
@@ -56,16 +60,14 @@
               (let [fill-result-map (fulfill specs out-path)]
                 (if (:result fill-result-map)
                 (do (println "Client project successfully filled!\n")
-                    {:result true :errors []}
-               )
+                    {:result true :errors []})
                 (let [error-str (str "Something went wrong while filling project. "
                                      "Maybe, there are troubles with file paths. "
                                      "Try again or contact us to solve issue. "
                                      ;(:errors fill-result-map) ; мда, лучше это убрать
                                      )]
                   (do (println error-str)
-                      {:result false :errors [error-str]}))))
-              )
+                      {:result false :errors [error-str]})))))
 
           :else
           (let [error-str (str "Something went wrong. Maybe, you do not have Android SDK or Gradle or JDK installed.\n"
@@ -73,6 +75,4 @@
                                )]
             (do
               (println error-str)
-              {:result false :errors [error-str]}))))
-      )
-    ))
+              {:result false :errors [error-str]})))))))

@@ -11,20 +11,23 @@
 
 (def sep File/separator)
 
+(defn has-val [opt]
+  (if (empty? (:value opt)) nil (:value opt)))
+
 (defn create-options [specs]
   (let [{:keys [build language boot-version group artifact proj-name description
                 packaging java-version project-version deps]} (:project specs)]
 
     ; TODO проверить, влияет ли мавен/градл на пути к файлам с кодом
 
-    (as-> {"type"         (if build (str build "-project") defaults/language)
+    (as-> {"type"         (if build (str build "-project") defaults/type)
            ;"build"        (or build defaults/build)         ; outdated
            "language"     (or language defaults/language)
            "boot-version" (or boot-version defaults/boot-version)
-           "group-id"     (or (:value group) defaults/group)
-           "artifact-id"  (or (:value artifact) defaults/artifact)
-           "name"         (or (:value proj-name) defaults/proj-name)
-           "description"  (if (:value description) (str "\"" (:value description) "\"") defaults/description)
+           "group-id"     (or (has-val group) defaults/group)
+           "artifact-id"  (or (has-val artifact) defaults/artifact)
+           "name"         (or (has-val proj-name) defaults/proj-name)
+           "description"  (if (has-val description) (str "\"" (:value description) "\"") defaults/description)
            "packaging"    (or packaging defaults/packaging)
            "java-version" (or java-version defaults/java-version)
            "version"      (or project-version defaults/project-version)
@@ -46,10 +49,11 @@
 (defn create [specs out-path]
   ; Заливаем в файл команду
   (println "Creating server project...")
-  (let [utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")]
+  (let [utils-path (<< "{{out-path}}{{sep}}utils{{sep}}")
+        proj-name (get-in specs [:project :proj-name :value])]
     (spit (<< "{{utils-path}}springinit.bat")
           (templates/spring-init
-            (get-in specs [:project :proj-name :value])
+            (if (nil? proj-name) defaults/proj-name proj-name)
             (create-options specs)
             out-path))
     ; Вызываем выполнение этого файла
@@ -77,4 +81,5 @@
                              )]
           (do
             (println error-str)
-            {:result false :errors [error-str]}))))))
+            {:result false :errors [error-str]}))))
+    ))

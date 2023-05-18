@@ -1,5 +1,6 @@
 (ns app-creator.core.creator.server.spring.java.filler
-  (:require [taoensso.timbre :as log])
+  (:require [taoensso.timbre :as log]
+            [app-creator.core.creator.server.spring.defaults :as defaults])
   (:import (java.io File)))
 
 (require '[app-creator.core.creator.server.spring.java.templates :as templates])
@@ -13,36 +14,47 @@
     ; Создает директорию типа ...\src\main\java\com\example\demo_proj\{{name}}\
     (clojure.java.io/make-parents dir-name)))
 
+(defn has-val [opt]
+  (if (empty? (:value opt)) nil (:value opt)))
+
 (defn create-requests [requests controller-name]
-  (apply str
-         (for [[num req] requests
-               :let [{:keys [name url type]} req
-                     service-var-name (templates/service-name controller-name :var? true)
-                     entity-name (templates/entity-name controller-name)]]
-           (templates/request (:value name) (:value url) (:value type) service-var-name entity-name))))
+  (let [requests (if (nil? requests) defaults/controller-methods requests)]
+    (apply str
+           (for [[num req] requests
+                 :let [{:keys [name url type]} req
+                       service-var-name (templates/service-name controller-name :var? true)
+                       entity-name (templates/entity-name controller-name)
+                       name (or (has-val name) "demoGet")
+                       url (or (has-val url) "/demo")
+                       type (or (has-val type) "get")]]
+             (templates/request name url type service-var-name entity-name)))))
 
 (defn create-controllers [controllers packages path]
   (create-dir path "controller")
   (dorun (for [[num controller] controllers
                :let [{:keys [name methods]} controller
-                     controller-name (:value name)
+                     controller-name (or (has-val name) "DemoController")
                      requests (create-requests methods controller-name)
                      controllers (templates/controller packages controller-name requests)
                      file-name (<< "{{path}}controller{{sep}}{{controller-name}}.java")]]
            (spit file-name controllers))))
 
 (defn create-service-methods [requests controller-name & {:keys [implementation?] :or {implementation? false}}]
-  (apply str
+  (let [requests (if (nil? requests) defaults/controller-methods requests)]
+    (apply str
          (for [[num req] requests
                :let [{:keys [name]} req
-                     entity-name (templates/entity-name controller-name)]]
-           (templates/service-method entity-name (:value name) :implementation? implementation?))))
+                     entity-name (templates/entity-name controller-name)
+                     name (or (has-val name) "demoGet")]]
+           (templates/service-method entity-name name :implementation? implementation?)))))
 
 (defn create-services [controllers packages path]
   (create-dir path "service")
   (dorun (for [[num controller] controllers
                :let [{:keys [name methods]} controller
-                     controller-name (:value name)
+                     controller-name (or (has-val name) "DemoController")
+                     methods (if (nil? methods) defaults/controller-methods methods)
+
                      service-name (templates/service-name controller-name)
                      service-name-impl (str service-name "Impl")
                      entity-name (templates/entity-name controller-name)
@@ -63,7 +75,7 @@
   (create-dir path "entity")
   (dorun (for [[num controller] controllers
                :let [{:keys [name]} controller
-                     entity-name (templates/entity-name (:value name))
+                     entity-name (templates/entity-name (or (has-val name) "DemoController"))
                      entity (templates/entity packages entity-name)
                      file-name (<< "{{path}}entity{{sep}}{{entity-name}}.java")]]
            (spit file-name entity))))
@@ -72,7 +84,7 @@
   (create-dir path "repository")
   (dorun (for [[num controller] controllers
                :let [{:keys [name]} controller
-                     entity-name (templates/entity-name (:value name))
+                     entity-name (templates/entity-name (or (has-val name) "DemoController"))
                      repo (templates/repo packages entity-name) ; todo можно заполнять методами
                      file-name (<< "{{path}}repository{{sep}}{{entity-name}}Repository.java")]]
            (spit file-name repo))))
@@ -84,13 +96,14 @@
 (defn fill [specs out-path]
   (try (let [{:keys [project properties controllers]} specs
              {:keys [proj-name group artifact language]} project
-             group (:value group)
-             artifact (:value artifact)
-             proj-name (:value proj-name)
+             group (or (has-val group) defaults/group)
+             artifact (or (has-val artifact) defaults/artifact)
+             proj-name (or (has-val proj-name) defaults/proj-name)
              packages (str group "." artifact)
              path (templates/path-to-code out-path proj-name group artifact language)
              props-path (templates/path-to-props out-path proj-name group artifact language)
-             controllers (:content controllers)]
+             controllers (if (empty? (:content controllers))
+                           defaults/controller-content (:content controllers))]
          (create-controllers controllers packages path)
          (create-services controllers packages path)
          (create-entities controllers packages path)

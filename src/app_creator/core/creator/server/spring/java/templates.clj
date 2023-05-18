@@ -191,15 +191,18 @@
        (string/join \newline)
        (<<)))
 
+(defn has-val [opt]
+  (if (empty? (:value opt)) nil (:value opt)))
+
 (defn props [props]
   (let [{:keys [type username password sql-host sql-port db-name]} (:db props)
-        type (:value type)
-        username (:value username)
-        password (:value password)
-        sql-host (:value sql-host)
-        sql-port (:value sql-port)
-        db-name (:value db-name)]
-    (->> ["# Before deploying, replace sql-host with your further container name"
+        type (or (has-val type) "postgresql")
+        username (or (has-val username) "postgres")
+        password (or (has-val password) "admin")
+        sql-host (or (has-val sql-host) "localhost")
+        sql-port (or (has-val sql-port) "5432")
+        db-name (or (has-val db-name) "DemoDatabase")]
+    (->> ["# Before deploying, replace host with your further container name."
           "spring.datasource.url=jdbc:{{type}}://{{sql-host}}:{{sql-port}}/{{db-name}}"
           "spring.datasource.username={{username}}"
           "spring.datasource.password={{password}}"

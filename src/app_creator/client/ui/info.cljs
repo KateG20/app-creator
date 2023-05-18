@@ -91,7 +91,7 @@
    [:b "Container name:"] " valid name of your future container." [:br]
    [:b "Image name:"] " name of the image to build (without tag), up to 128 characters long." [:br]
    [:b "Build directory name:"] [:i " " [:u "name"]] " of the directory to build your image in." [:br]
-   [:b "Path to jar:"] " valid absolute path to the existing .jar file
+   [:b "Path to jar:"] " valid absolute path to the .jar file
    with server application (use only forward slashes)." [:br]])
 
 (def cont-nginx-info

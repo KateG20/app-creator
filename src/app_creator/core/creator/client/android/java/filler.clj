@@ -1,4 +1,5 @@
 (ns app-creator.core.creator.client.android.java.filler
+  (:require [app-creator.core.creator.client.android.defaults :as defaults])
   (:import (java.io File)))
 
 (require '[app-creator.core.creator.client.android.java.templates :as templates]
@@ -9,6 +10,9 @@
 (use 'selmer.parser)
 
 (def sep File/separator)
+
+(defn has-val [opt]
+  (if (empty? (:value opt)) nil (:value opt)))
 
 (defn add-root-build-gradle [path]
   (spit path templates/root-build-gradle))
@@ -55,10 +59,10 @@
   (apply str
          (for [[num endp] endpoints
                :let [{:keys [url name request body]} endp
-                     url (:value url)
-                     name (:value name)
-                     request (:value request)
-                     body (:value body)]]
+                     url (or (has-val url) "/demo")
+                     name (or (has-val name) "demoGet")
+                     request (or (has-val request) "get")
+                     body (or (has-val body) "DemoClass")]]
            (templates/request name url request body))))
 
 (defn create-entity-imports [package-name requests]
@@ -72,7 +76,8 @@
   "В интерфейс может быть нужно залить импорты для всех сущностей, которые будут использоваться
   в реквестах. Поэтому отдельно можно создать комплект импортов entity-imports и передать его
   в функцию. У нас сейчас всё в одном пакете, поэтому импорты не требуются, но вдруг"
-  (let [requests (create-requests requests)
+  (let [requests (if (nil? requests) defaults/endpoint-content requests)
+        requests (create-requests requests)
         ;entity-imports (create-entity-imports package-name (vec requests))
         ]
     (spit path (templates/api-interface package-name requests))))
@@ -88,22 +93,24 @@
 (defn create-pojos [path package-name requests]
   "Для сущности из каждого реквеста проверяет, существует ли уже POJO для нее.
   Если нет, создает и заливает туда его"
-  (dorun (for [[num req] requests
+  (let [requests (if (nil? requests) defaults/endpoint-content requests)]
+        (dorun (for [[num req] requests
                :let [{:keys [body]} req
-                     body (:value body)
+                     body (or (has-val body) "DemoClass")
                      body (type-from-generic body)
                      pojo-file-name (str path body ".java")]]
            (if (not (.exists (io/as-file pojo-file-name)))
              (let [pojo (templates/pojo package-name body)]
-               (spit pojo-file-name pojo))))))
+               (spit pojo-file-name pojo)))))))
 
 (defn fill [specs out-path]
   (try (let [{:keys [proj-name package-name server-host server-port endpoints]} specs
-             proj-name (:value proj-name)
-             package-name (:value package-name)
-             server-host (:value server-host)
-             server-port (:value server-port)
-             endpoints (:content endpoints)
+             proj-name (or (has-val proj-name) defaults/proj-name)
+             package-name (or (has-val package-name) defaults/package-name)
+             server-host (or (has-val server-host) defaults/server-host)
+             server-port (or (has-val server-port) defaults/server-port)
+             endpoints (if (empty? (:content endpoints))
+                         defaults/endpoint-content (:content endpoints))
 
              package-path (string/replace package-name #"\." "/")
              proj-dir (<< "{{out-path}}{{sep}}{{proj-name}}{{sep}}")
