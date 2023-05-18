@@ -5,7 +5,8 @@
             [app-creator.client.ui.containerization :as cont-ui]
             [app-creator.client.events :as events]
             [app-creator.client.subs :as subs]
-            [re-frame.core :as re-frame]))
+            [re-frame.core :as re-frame]
+            [app-creator.client.ui.info :as info]))
 
 ; А здесь, как и во всем неймспейсе ui, разметка с подписками и диспатчами.
 ; Подписываемся (subscribe) на штуки, которые зарегистрированы в файле subs.cljs.
@@ -92,7 +93,9 @@
           [cont-ui/cont-ui]
 
           [:div
-           {:class "col-12 pb-5 center no-pt"}
+           {:class "col-12 pb-5 center no-pt"
+            :style {:align-items "center"
+                    :gap "0"}}
            [:div
             {:class "col-12 pb-5 input-field more-w"}
             [:input
@@ -112,7 +115,13 @@
                       {:class "content-name"
                        :style {:color "red"}}
                       {:class "content-name"})
-              "Path to result"]]]]
+              "Path to result"]]]
+
+           [:label {:class "shadow-label mt-20 help-label" :for "out-path-help"} "?"]
+           [:button {:class "help-button" :id "out-path-help" :style {:display "none"}}]
+           [:div {:class "help-div box"}
+            info/out-path-info]]
+
           [:div
            {:class "col-12 pb-5 center"}
            [:button

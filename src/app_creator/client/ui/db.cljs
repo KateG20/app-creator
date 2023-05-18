@@ -2,6 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [app-creator.client.events :as events]
             [app-creator.client.subs :as subs]
+            [app-creator.client.ui.info :as info]
             [reagent.core :as reagent]))
 
 (defn choose-type []
@@ -158,8 +159,7 @@
       [:ul
        {:class "db-col-list"}
        (for [item our-box-items]
-         [table-column-item (first item) (second item)]
-         )])))
+         [table-column-item (first item) (second item)])])))
 
 ; Содержимое бокса таблицы
 ; Когда это было включено в table-list, оно не работало, хотя let было то же самое.
@@ -204,8 +204,7 @@
                      :style {:color "red"}}
                     {:class "content-name"})
             "Table name"]]]
-         [minus-table-button box]
-         ]]
+         [minus-table-button box]]]
 
        [table-box-columns box]
        [plus-table-row-button box]])))
@@ -217,8 +216,7 @@
       [:ul
        {:class "db-list"}
        (for [t @tables]
-         [table-box t]
-         )])))
+         [table-box t])])))
 
 (defn db-ui []
   (let [db-checked (re-frame/subscribe [::subs/db-checked])
@@ -252,18 +250,7 @@
          :style
          {:display (if (= @db-checked "postgres") "block" "none")}}
 
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} "Properties"]
-         [:label {:class "shadow-label mt-20 help-label" :for "db-prop-help"} "?"]
-         [:button {:class "help-button" :id "db-prop-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          [:p [:b "DB name:"] " valid SQL-identifier of your future database" [:br]
-           [:b "Host:"] " valid host of your PostgreSQL server" [:br]
-           [:b "Username:"] " your PostgreSQL username" [:br]
-           [:b "Password:"] " password for your PostgreSQL user" [:br]]]]
+        [info/help-label "db-prop-help" info/postgres-props-info "Properties"]
 
         [:div
          {:class "col-12 pb-5 opts-group center"}
@@ -352,18 +339,8 @@
                      {:class "content-name"})
              "Password"]]]]]
 
+        [info/help-label "db-tables-help" info/postgres-tables-info "Tables"]
 
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} "Tables"]
-         [:label {:class "shadow-label mt-20 help-label" :for "db-tables-help"} "?"]
-         [:button {:class "help-button" :id "db-tables-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
         [:div
          {:class "col-12 pt-5 center opts",
           :style {:display "flex"}}

@@ -2,7 +2,8 @@
   (:require [re-frame.core :as re-frame]
             [app-creator.client.events :as events]
             [app-creator.client.subs :as subs]
-            [reagent.core :as reagent]))
+            [reagent.core :as reagent]
+            [app-creator.client.ui.info :as info]))
 
 (defn choose-type []
   (let [server-checked (re-frame/subscribe [::subs/server-checked])]
@@ -691,51 +692,15 @@
          :style
          {:display (if (= @server-checked "spring") "block" "none")}}
 
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Project options"]]
-         [:label {:class "shadow-label mt-20 help-label" :for "spring-opts-help"} "?"]
-         [:button {:class "help-button" :id "spring-opts-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          ; todo
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+        [info/help-label "spring-opts-help" info/server-opts-info "Project options"]
 
         [project-opts]
 
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Properties"]]
-         [:label {:class "shadow-label mt-20 help-label" :for "spring-props-help"} "?"]
-         [:button {:class "help-button" :id "spring-props-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          ; todo
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+        [info/help-label "spring-props-help" info/server-props-info "Properties"]
 
         [properties]
 
-        ;[:div
-        ; {:class "col-12 pt-5"}
-        ; [:p {:class "mb-4 pb-2"} "Controllers"]]
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Controllers"]]
-         [:label {:class "shadow-label mt-20 help-label" :for "spring-controllers-help"} "?"]
-         [:button {:class "help-button" :id "spring-controllers-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          ; todo
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+        [info/help-label "spring-controllers-help" info/server-controllers-info "Controllers"]
 
         [:div
          {:class "col-12 pt-5 center opts", :style          ;"display: flex;"
@@ -750,8 +715,6 @@
        [:div
         {:class "col-12 pt-5 for-nodejs center", :style
          {:display (if (= @server-checked "nodejs") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another framework."]
-       ]
-      )))
+        "Coming soon!" [:br] "Please, choose another framework."]])))
 
 

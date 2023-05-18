@@ -2,7 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [app-creator.client.events :as events]
             [app-creator.client.subs :as subs]
-            [reagent.core :as reagent]))
+            [app-creator.client.ui.info :as info]))
 
 (defn choose-type []
   (let [client-checked (re-frame/subscribe [::subs/client-checked])]
@@ -393,36 +393,12 @@
         {:class "col-12 pt-5 for-android center",
          :style
          {:display (if (= @client-checked "android") "block" "none")}}
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Project options"]]
-         [:label {:class "shadow-label mt-20 help-label" :for "android-options-help"} "?"]
-         [:button {:class "help-button" :id "android-options-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          ; todo
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+
+        [info/help-label "android-options-help" info/client-opts-info "Project options"]
 
         [project-opts]
 
-        ;[:div
-        ; {:class "col-12 pt-5"}
-        ; [:p {:class "mb-4 pb-2"} "Endpoints"]]
-        [:div
-         {:class "col-12 pt-5 header-with-help"}
-         [:label {:class "plus-label mt-20 help-label"
-                  :style {:visibility "hidden"}} "?"]
-         [:p {:class "mb-4 pb-2"} [:p {:class "mb-4 pb-2"} "Endpoints"]]
-         [:label {:class "shadow-label mt-20 help-label" :for "android-endpoints-help"} "?"]
-         [:button {:class "help-button" :id "android-endpoints-help" :style {:display "none"}}]
-         [:div {:class "help-div box"}
-          ; todo
-          [:p [:b "Table name:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Column:"] " valid SQL-identifier for your future table" [:br]
-           [:b "Type:"] " column data type, one of [bool number string date]" [:br]]]]
+        [info/help-label "android-endpoints-help" info/client-endpoints-info "Endpoints"]
 
         [:div
          {:class "col-12 pt-5 center opts", :style          ;"display: flex;"
