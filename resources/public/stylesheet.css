@@ -542,10 +542,8 @@ mark {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    /*align-items: flex-start;*/
     align-items: stretch;
     align-content: center;
-    /*text-align: center;*/
     padding-top: 20px;
     padding-bottom: 20px;
     padding-left: 10px;
@@ -587,6 +585,10 @@ mark {
 
 .mt-20 {
     margin-top: 20px;
+}
+
+.mt-10 {
+    margin-top: 10px;
 }
 
 

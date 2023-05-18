@@ -148,7 +148,7 @@
       [:div
        [:button {:type     "button", :name "minus", :id id
                  :on-click #(re-frame/dispatch [::events/minus-table-item box])}]
-       [:label {:class "plus-label mt-20", :for id} "-"]])))
+       [:label {:class "mt-10 plus-label", :for id} "-"]])))
 
 ; Список колонок в таблице (строки в боксе)
 (defn table-box-columns [box]
