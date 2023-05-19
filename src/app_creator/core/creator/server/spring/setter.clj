@@ -60,7 +60,9 @@
     (let [{:keys [exit out err]} (cmd/sh (<< "{{utils-path}}springinit.bat"))]
       (cond
         (= exit 0)
-        (do (println (str "Server project created successfully!\n" out))
+        (do (println (str "Server project created successfully!\n"
+                          ;out
+                          ))
             ; Заполняем внутренности сервера
             (println "Filling created server project...")
             (let [fill-result-map (fulfill specs out-path)]
