@@ -109,11 +109,11 @@
             [:label
              (if-not (get @out-path-content :valid)
                {:for   "result-path", :class "label-name incorrect-label"
-                :style {:border-bottom-color "red"}}
+                :style {:border-bottom-color "#ff6969"}}
                {:for "result-path", :class "label-name"})
              [:span (if-not (get @out-path-content :valid)
                       {:class "content-name"
-                       :style {:color "red"}}
+                       :style {:color "#ff6969"}}
                       {:class "content-name"})
               "Path to result"]]]
 

@@ -55,11 +55,11 @@
          [:label
           (if-not (get @network :valid)
             {:for   "network-name", :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for "network-name", :class "label-name"})
           [:span (if-not (get @network :valid)
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Network name"]]]]])))
 
@@ -101,11 +101,11 @@
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for cont-name, :class "label-name"})
           [:span (if-not (get-in content [:container-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Container name"]]]
         [:div
@@ -122,11 +122,11 @@
          [:label
           (if-not (get-in content [:image-name :valid])
             {:for   img-name, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for img-name, :class "label-name"})
           [:span (if-not (get-in content [:image-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Image name"]]]
         [:div
@@ -143,11 +143,11 @@
          [:label
           (if-not (get-in content [:dir-name :valid])
             {:for   run-dir, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for run-dir, :class "label-name"})
           [:span (if-not (get-in content [:dir-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Build directory name"]]]
         [minus-jar-cont-box-button box]]
@@ -167,11 +167,11 @@
          [:label
           (if-not (get-in content [:jar-path :valid])
             {:for   jar-path, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for jar-path, :class "label-name"})
           [:span (if-not (get-in content [:jar-path :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Path to JAR"]]]]])))
 
@@ -239,11 +239,11 @@
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for cont-name, :class "label-name"})
           [:span (if-not (get-in content [:container-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Container name"]]]
         [:div
@@ -260,11 +260,11 @@
          [:label
           (if-not (get-in content [:image-name :valid])
             {:for   img-name, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for img-name, :class "label-name"})
           [:span (if-not (get-in content [:image-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Image name"]]]
         [:div
@@ -281,11 +281,11 @@
          [:label
           (if-not (get-in content [:dir-name :valid])
             {:for   run-dir, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for run-dir, :class "label-name"})
           [:span (if-not (get-in content [:dir-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Build directory name"]]]
         [:div
@@ -303,11 +303,11 @@
          [:label
           (if-not (get-in content [:backend-container-name :valid])
             {:for   back-cont, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for back-cont, :class "label-name"})
           [:span (if-not (get-in content [:backend-container-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Backend container"]]]
         [minus-nginx-cont-box box]
@@ -376,11 +376,11 @@
          [:label
           (if-not (get-in content [:container-name :valid])
             {:for   cont-name, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for cont-name, :class "label-name"})
           [:span (if-not (get-in content [:container-name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Container name"]]]
         [:div
@@ -397,11 +397,11 @@
          [:label
           (if-not (get-in content [:port :valid])
             {:for   pg-port, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for pg-port, :class "label-name"})
           [:span (if-not (get-in content [:port :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "DB port"]]]
         [:div
@@ -418,11 +418,11 @@
          [:label
           (if-not (get-in content [:password :valid])
             {:for   pg-pwd, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for pg-pwd, :class "label-name"})
           [:span (if-not (get-in content [:password :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "DB password"]]]
         [minus-postgres-cont-box box]

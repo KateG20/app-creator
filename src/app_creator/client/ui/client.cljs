@@ -151,11 +151,11 @@
           [:label
            (if-not (get-in @opts [:proj-name :valid])
              {:for   "client-proj-name", :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
+              :style {:border-bottom-color "#ff6969"}}
              {:for "client-proj-name", :class "label-name"})
            [:span (if-not (get-in @opts [:proj-name :valid])
                     {:class "content-name"
-                     :style {:color "red"}}
+                     :style {:color "#ff6969"}}
                     {:class "content-name"})
             "Project name"]]]
          [:div
@@ -172,11 +172,11 @@
           [:label
            (if-not (get-in @opts [:package-name :valid])
              {:for   "client-pack-name", :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
+              :style {:border-bottom-color "#ff6969"}}
              {:for "client-pack-name", :class "label-name"})
            [:span (if-not (get-in @opts [:package-name :valid])
                     {:class "content-name"
-                     :style {:color "red"}}
+                     :style {:color "#ff6969"}}
                     {:class "content-name"})
             "Package name"]]]
          [:div
@@ -193,11 +193,11 @@
           [:label
            (if-not (get-in @opts [:server-host :valid])
              {:for   "client-host", :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
+              :style {:border-bottom-color "#ff6969"}}
              {:for "client-host", :class "label-name"})
            [:span (if-not (get-in @opts [:server-host :valid])
                     {:class "content-name"
-                     :style {:color "red"}}
+                     :style {:color "#ff6969"}}
                     {:class "content-name"})
             "Server host"]]]
          [:div
@@ -214,11 +214,11 @@
           [:label
            (if-not (get-in @opts [:server-port :valid])
              {:for   "client-port", :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
+              :style {:border-bottom-color "#ff6969"}}
              {:for "client-port", :class "label-name"})
            [:span (if-not (get-in @opts [:server-port :valid])
                     {:class "content-name"
-                     :style {:color "red"}}
+                     :style {:color "#ff6969"}}
                     {:class "content-name"})
             "Server port"]]]]]])))
 
@@ -276,11 +276,11 @@
          [:label
           (if-not (get-in content [:url :valid])
             {:for   uri-id, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for uri-id, :class "label-name"})
           [:span (if-not (get-in content [:url :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "URL"]]]]
        [:li
@@ -299,11 +299,11 @@
          [:label
           (if-not (get-in content [:name :valid])
             {:for   method-id, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for method-id, :class "label-name"})
           [:span (if-not (get-in content [:name :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Method name"]]]]
        [:li
@@ -321,11 +321,11 @@
          [:label
           (if-not (get-in content [:request :valid])
             {:for   r-type-id, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for r-type-id, :class "label-name"})
           [:span (if-not (get-in content [:request :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Request type"]]]]
        [:li
@@ -343,11 +343,11 @@
          [:label
           (if-not (get-in content [:body :valid])
             {:for   b-type-id, :class "label-name incorrect-label"
-             :style {:border-bottom-color "red"}}
+             :style {:border-bottom-color "#ff6969"}}
             {:for b-type-id, :class "label-name"})
           [:span (if-not (get-in content [:body :valid])
                    {:class "content-name"
-                    :style {:color "red"}}
+                    :style {:color "#ff6969"}}
                    {:class "content-name"})
            "Body type"]]]
         [minus-endpoint-box box]

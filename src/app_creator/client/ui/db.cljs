@@ -80,11 +80,11 @@
         [:label
          (if-not (get-in row-content [:name :valid])
            {:for   name, :class "label-name incorrect-label"
-            :style {:border-bottom-color "red"}}
+            :style {:border-bottom-color "#ff6969"}}
            {:for name, :class "label-name"})
          [:span (if-not (get-in row-content [:name :valid])
                   {:class "content-name"
-                   :style {:color "red"}}
+                   :style {:color "#ff6969"}}
                   {:class "content-name"})
           "Column"]]]
        [:div
@@ -101,11 +101,11 @@
         [:label
          (if-not (get-in row-content [:opts :valid])
            {:for   type, :class "label-name incorrect-label"
-            :style {:border-bottom-color "red"}}
+            :style {:border-bottom-color "#ff6969"}}
            {:for type, :class "label-name"})
          [:span (if-not (get-in row-content [:opts :valid])
                   {:class "content-name"
-                   :style {:color "red"}}
+                   :style {:color "#ff6969"}}
                   {:class "content-name"})
           "Type"]]]
        [minus-table-row-button box row]
@@ -197,11 +197,11 @@
           [:label
            (if-not (get-in content [:name :valid])
              {:for   id, :class "label-name incorrect-label"
-              :style {:border-bottom-color "red"}}
+              :style {:border-bottom-color "#ff6969"}}
              {:for id, :class "label-name"})
            [:span (if-not (get-in content [:name :valid])
                     {:class "content-name"
-                     :style {:color "red"}}
+                     :style {:color "#ff6969"}}
                     {:class "content-name"})
             "Table name"]]]
          [minus-table-button box]]]
@@ -270,11 +270,11 @@
            [:label
             (if-not (get-in @props [:db-name :valid])
               {:for   "db-name", :class "label-name incorrect-label"
-               :style {:border-bottom-color "red"}}
+               :style {:border-bottom-color "#ff6969"}}
               {:for "db-name", :class "label-name"})
             [:span (if-not (get-in @props [:db-name :valid])
                      {:class "content-name"
-                      :style {:color "red"}}
+                      :style {:color "#ff6969"}}
                      {:class "content-name"})
              "DB name"]]]
           [:div
@@ -290,11 +290,11 @@
            [:label
             (if-not (get-in @props [:host :valid])
               {:for   "db-host", :class "label-name incorrect-label"
-               :style {:border-bottom-color "red"}}
+               :style {:border-bottom-color "#ff6969"}}
               {:for "db-host", :class "label-name"})
             [:span (if-not (get-in @props [:host :valid])
                      {:class "content-name"
-                      :style {:color "red"}}
+                      :style {:color "#ff6969"}}
                      {:class "content-name"})
              "Host"]]
            ]
@@ -311,11 +311,11 @@
            [:label
             (if-not (get-in @props [:username :valid])
               {:for   "db-username", :class "label-name incorrect-label"
-               :style {:border-bottom-color "red"}}
+               :style {:border-bottom-color "#ff6969"}}
               {:for "db-username", :class "label-name"})
             [:span (if-not (get-in @props [:username :valid])
                      {:class "content-name"
-                      :style {:color "red"}}
+                      :style {:color "#ff6969"}}
                      {:class "content-name"})
              "Username"]]]
           [:div
@@ -331,11 +331,11 @@
            [:label
             (if-not (get-in @props [:password :valid])
               {:for   "db-password", :class "label-name incorrect-label"
-               :style {:border-bottom-color "red"}}
+               :style {:border-bottom-color "#ff6969"}}
               {:for "db-password", :class "label-name"})
             [:span (if-not (get-in @props [:password :valid])
                      {:class "content-name"
-                      :style {:color "red"}}
+                      :style {:color "#ff6969"}}
                      {:class "content-name"})
              "Password"]]]]]
 
