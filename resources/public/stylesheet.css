@@ -260,13 +260,13 @@ mark {
     line-height: 2px !important;
 }
 
-/*Что-то про надпись в светлой теме (нет)*/
+/*про надпись в светлой теме (нет)*/
 .checkbox-comp-type:not(:checked) + label {
     background-color: var(--dark-light);
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-/*Что-то про надпись в темной теме (нет)*/
+/*про надпись в темной теме (нет)*/
 .checkbox-comp-type:checked + label {
     background-color: transparent;
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
@@ -292,18 +292,22 @@ mark {
     z-index: -1;
 }
 
-/*.checkbox-comp-type:checked + label .uil,*/
-/*.checkbox-comp-type:not(:checked) + label .uil{*/
-/*    font-size: 24px;*/
-/*    line-height: 24px;*/
-/*    display: block;*/
-/*    padding-bottom: 10px;*/
-/*}*/
+.checkbox-comp-type[disabled] + label {
+    /*background-color: var(--green1);*/
+    /*color: var(--white);*/
+    pointer-events: none;
+}
 
-/*Что-то про контейнер тулза в светлой теме*/
+/*про контейнер тулза в светлой теме*/
 .checkbox:not(:checked) ~ .section .container .row .col-12 .checkbox-comp-type:not(:checked) + label {
     background-color: var(--light);
     color: var(--dark-blue);
+    box-shadow: 0 1x 4px 0 rgba(0, 0, 0, 0.1);
+}
+
+.checkbox:not(:checked) ~ .section .container .row .col-12 .checkbox-comp-type[disabled] + label {
+    background-color: var(--light);
+    color: #b0b0b0;
     box-shadow: 0 1x 4px 0 rgba(0, 0, 0, 0.1);
 }
 

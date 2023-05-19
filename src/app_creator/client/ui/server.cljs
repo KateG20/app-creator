@@ -95,6 +95,7 @@
             :type     "radio",
             :name     "lang",
             :id       "kotlin"
+            :disabled true
             :checked  (= (:language @opts) "kotlin")
             :on-click #(re-frame/dispatch [::events/change-spring-opt-radio :language "kotlin"])}]
           [:label

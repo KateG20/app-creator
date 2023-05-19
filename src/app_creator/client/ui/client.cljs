@@ -78,6 +78,7 @@
            :type     "radio",
            :name     "client-lang",
            :id       "client-kotlin"
+           :disabled true
            :checked  (= (:language @opts) "kotlin")
            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :language "kotlin"])}]
          [:label

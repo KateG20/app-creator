@@ -35,7 +35,7 @@
 (def server-opts-info
   [:p "Different project options of your future application." [:br]
    [:b "Build tool:"] " tool for your project build automation." [:br]
-   [:b "Language:"] " programming language of your project." [:br]
+   [:b "Language:"] " programming language of your project (currently only Java is available)." [:br]
    [:b "Packaging:"] " your project packaging format." [:br]
    [:b "Boot version:"] " used Spring Boot version." [:br]
    [:b "Java version:"] " language level of your project." [:br]
@@ -65,7 +65,7 @@
 
 (def client-opts-info
   [:p
-   [:b "Language:"] " programming language of your project." [:br]
+   [:b "Language:"] " programming language of your project (currently only Java is available)." [:br]
    [:b "Test framework:"] " the test framework to be used." [:br]
    [:b "Project name:"] "your application name, e.g. " [:i "demo"] [:br]
    [:b "Package name:"] " the package for source files.
