@@ -72,7 +72,7 @@
                                (case failure
                                  :timeout "Request timed out! Probably server is down. Reconnect the server."
                                  :failed (str "Network connection is unsuccessful, request is interrupted. "
-                                              "Probably server is down. Reconnect the server.")
+                                              "Probably the server is down. Reconnect the server.")
                                  :aborted "The client aborted the request."
                                  :parse "The response from the server failed to parse."
                                  :error (case status
