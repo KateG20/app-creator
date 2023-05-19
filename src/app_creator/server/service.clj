@@ -5,5 +5,5 @@
 (defn create-projects [data]
   (let [result-map (creator/create-from-web data)]
     (Thread/sleep 1000)
-    (log/info (str "\n[App-Creator] RESULT MAP: " result-map))
+    ;(log/info (str "\n[App-Creator] RESULT MAP: " result-map))
     result-map))
