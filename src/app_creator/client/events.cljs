@@ -2,10 +2,9 @@
   (:require [re-frame.core :as re-frame]
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]
-            [app-creator.client.ui.validator :as v]
+            [app-creator.client.validator :as v]
             [app-creator.client.init :as init]
-            [cljs.reader :as r]
-            [clojure.pprint :as pp]))
+            [cljs.reader :as r]))
 
 ; С событиями всё понятно, тут просто регистрируем события, чтобы потом по ключу
 ; их диспатчить в нужных местах. Мне нужно было много времени, чтобы понять, как куда и что

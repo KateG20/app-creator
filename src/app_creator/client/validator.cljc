@@ -1,33 +1,23 @@
-(ns app-creator.client.ui.validator
+(ns app-creator.client.validator
   (:require [clojure.string :as cstr]
             #?(:clj  [clojure.java.io :as io]
                :cljs [cljs.nodejs :as nodejs])))
 
-;(def sql-indentifier-regex #"^([[:alpha:]_][[:alnum:]_]*)$")
 (def ip-regex                                               ; ok
   #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
 ; using re-pattern requires double-escape
-;(def url-regex (re-pattern "^\\/([!#$&\\-;=?-\\[\\]_a-z~]|%[0-9a-fA-F]{2}|\\/?)+$")) ; ok
-;(def url-regex #"^\/([#!$&\-;=?-\[\]_a-z~]|%[0-9a-fA-F]{2}|\/?|{[a-zA-Z0-9]+})+$") ; ok
-;(def url-regex #"^\/([?=$&\-_a-z~#]|\/?|\{[a-zA-Z0-9]+\})+$") ; ok
 (def url-regex (re-pattern "^\\/([?=$&\\-_a-z~#]|\\/?|\\{[a-zA-Z0-9]+\\})+$")) ; ok
 (def java-name-regex #"^[a-zA-Z0-9_]+$")                    ; ok
-(def java-collection-regex #"^[A-Z][a-zA-Z0-9_]*<[a-zA-Z0-9_]+>$")                    ; ok
+(def java-collection-regex #"^[A-Z][a-zA-Z0-9_]*<[a-zA-Z0-9_]+>$") ; ok
 
 (def dir-path-regex #"^[A-Za-z]:{0,1}[\w \/-]*$")           ; ok
 (def folder-regex #"^[\w -]*$")                             ; ok
-;(def dir-path-regex #"^[\p{L}]:{0,1}[\p{L}\p{N} _\/-]*$") ; ok
-;(def folder-regex #"^[\p{L}\p{N} _-]*$")                    ; ok
 
 (def password-regex #"^.+$")                                ; ok
-;(def password-regex #"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]|[_]).{8,}$")
 (def username-regex #"^[^ ]+$")                             ; ok
-;(def username-regex #"^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$")
 
 (def sql-identifier-regex #"^[a-zA-Z_][\w]{0,62}$")         ; ok
-;(def sql-identifier-regex #"^[\p{L}_][\p{L}\p{N}_]{0,62}$") ; ok
 
-;(def column-name-regex #"^([a-zA-Z])[a-zA-Z0-9_]{0,29}$")
 (def port-regex                                             ; ok
   #"^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")
 (def docker-containers-regex #"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$") ; ok
@@ -37,9 +27,6 @@
 (def controller-name-regex #"^[a-zA-Z0-9_]+Controller$")    ; ok
 (def package-name-dot-regex #"^([A-Za-z]{1}[A-Za-z\d_]*\.)+[A-Za-z][A-Za-z\d_]*$") ; ok
 (def package-name-regex #"^[A-Za-z]{1}[A-Za-z\d_]*$")       ; ok
-
-
-;(def db-types ["get" "head" "post" "put" "patch" "delete" "options"])
 
 (def http-methods ["get" "head" "post" "put" "patch" "delete" "options"])
 (def column-opts ["bool" "number" "string" "date" "id"])
@@ -54,12 +41,8 @@
   (cstr/trim s))
 
 (defn empty-or-matches [val regex]
-  ;(let [val (trim-input val)]
-  ;(println val " " (re-matches regex val))
   (or (empty? val)
       (re-matches regex val)))
-;)
-
 
 (defn valid-host? [host]
   (or (= "localhost" host)
@@ -80,7 +63,6 @@
   (empty-or-matches path dir-path-regex))
 
 (defn valid-req-type? [req-type]
-  ;(some #(= (cstr/lower-case (trim-input req-type)) %) (conj http-methods "")))
   (some #(= (cstr/lower-case req-type) %) (conj http-methods "")))
 
 (defn find-all-valid [m]
@@ -103,12 +85,6 @@
 (defn whole-map-valid? [db]
   (nil? (some false? (find-all-valid db))))
 
-
-
-
-; ------- postgres ------
-
-
 (defn valid-postgres-db-name? [value]
   (empty-or-matches value sql-identifier-regex))
 
@@ -125,10 +101,8 @@
   (empty-or-matches value sql-identifier-regex))
 
 (defn valid-postgres-column-opts? [value]
-  ;(some #(= (cstr/lower-case (trim-input value)) %) (conj column-opts "")))
   (some #(= (cstr/lower-case value) %) (conj column-opts "")))
 
-; ------- spring ------
 (defn valid-spring-group? [value]
   (empty-or-matches value package-name-dot-regex))
 
@@ -137,10 +111,6 @@
 
 (defn valid-spring-proj-name? [value]
   (empty-or-matches value package-name-regex))
-
-;(defn valid-spring-description? [value]
-;  (or (= "localhost" value)
-;      (empty-or-matches value ip-regex)))
 
 (defn valid-spring-db-type? [value]
   (if (and (not (empty? value)) (not= "postgresql" value)) nil true))
@@ -173,11 +143,6 @@
 (defn valid-spring-method-type? [value]
   (valid-req-type? value))
 
-
-
-; -------- android --------
-
-
 (defn valid-android-proj-name? [value]
   (empty-or-matches value package-name-regex))
 
@@ -190,8 +155,6 @@
 
 (defn valid-android-server-port? [value]
   (empty-or-matches value port-regex))
-
-; -------- docker --------
 
 (defn valid-docker-container-image-name? [value]
   (empty-or-matches value docker-image-regex))
