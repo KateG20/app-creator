@@ -143,7 +143,7 @@
 ;      (empty-or-matches value ip-regex)))
 
 (defn valid-spring-db-type? [value]
-  (if (not= "postgresql" value) nil true))
+  (if (and (not (empty? value)) (not= "postgresql" value)) nil true))
 
 (defn valid-spring-db-username? [value]
   (empty-or-matches value username-regex))

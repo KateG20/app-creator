@@ -53,7 +53,7 @@
         proj-name (get-in specs [:project :proj-name :value])]
     (spit (<< "{{utils-path}}springinit.bat")
           (templates/spring-init
-            (if (nil? proj-name) defaults/proj-name proj-name)
+            (if (empty? proj-name) defaults/proj-name proj-name)
             (create-options specs)
             out-path))
     ; Вызываем выполнение этого файла

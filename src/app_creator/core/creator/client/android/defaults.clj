@@ -1,6 +1,6 @@
 (ns app-creator.core.creator.client.android.defaults)
 
-(def proj-name "demo")
+(def proj-name "democlient")
 (def language "java")
 (def package-name "demo.example")
 (def test-framework "junit-jupiter")
