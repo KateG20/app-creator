@@ -60,10 +60,11 @@
          (for [[num endp] endpoints
                :let [{:keys [url name request body]} endp
                      url (or (has-val url) "/demo")
-                     name (or (has-val name) "demoGet")
+                     ;name (or (has-val name) "demoGet")
                      request (or (has-val request) "get")
                      body (or (has-val body) "DemoClass")]]
-           (templates/request name url request body))))
+           (if (has-val name)
+             (templates/request (:value name) url request body) ""))))
 
 (defn create-entity-imports [package-name requests]
   "Поступает вектор реквестов - это мапы, в числе ключей которых есть :entity,
