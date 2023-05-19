@@ -994,7 +994,6 @@ li {
 
 .help-button:hover + .help-div,
 .help-div:hover {
-    /*display: block;*/
     visibility: visible;
     opacity: 1;
 }
@@ -1009,7 +1008,6 @@ li {
     display: block;
     width: 64px;
     height: 64px;
-    /*margin: 8px;*/
     border-radius: 50%;
     border: 6px solid var(--green1);
     border-color: var(--green1) transparent;

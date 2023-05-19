@@ -95,7 +95,7 @@
           [:div
            {:class "col-12 pb-5 center no-pt"
             :style {:align-items "center"
-                    :gap "0"}}
+                    :gap         "0"}}
            [:div
             {:class "col-12 pb-5 input-field more-w"}
             [:input
@@ -117,10 +117,11 @@
                       {:class "content-name"})
               "Path to result"]]]
 
-           [:label {:class "shadow-label mt-20 help-label" :for "out-path-help"} "?"]
-           [:button {:class "help-button" :id "out-path-help" :style {:display "none"}}]
-           [:div {:class "help-div box"}
-            info/out-path-info]]
+           [:div
+            {:style {:position "relative"}} [:label {:class "shadow-label mt-20 help-label" :for "out-path-help"} "?"]
+            [:button {:class "help-button" :id "out-path-help" :style {:display "none"}}]
+            [:div {:class "help-div box"}
+             info/out-path-info]]]
 
           [:div
            {:class "col-12 pb-5 center"}
