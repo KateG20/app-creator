@@ -35,17 +35,17 @@
                          col-name (or (has-val name) defaults/column)
                          opts (or (has-val opts) defaults/opt)
                          types (adjust-type opts)]
-                     (<< "\t{{col-name}} {{types}},\n")) columns)))
+                     (if (has-val name) (<< "\t{{col-name}} {{types}},\n") "")) columns)))
 
 (defn create-table-script [tables]
   "Вписывает данные о колонках в create-table DDL"
   (apply str (map #(let [[num table] %
                          {:keys [name columns]} table]
-                     (if (nil? name) ""
+                     (if (has-val name)
                        (let [table-name (:value name)
-                             columns (if (nil? columns) defaults/column-content columns)
+                             ;columns (if (nil? columns) defaults/column-content columns)
                              columns (get-columns-info columns)]
-                         (templates/create-table table-name columns))))
+                         (templates/create-table table-name columns)) ""))
                   tables)))
 
 (defn create-tables-script [tables out-path]

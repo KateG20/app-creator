@@ -23,8 +23,8 @@
 
 (def postgres-tables-info
   [:p
-   [:b "Table name:"] " valid SQL-identifier of your future table name." [:br]
-   [:b "Column:"] " valid SQL-identifier of your future column" [:br]
+   [:b "Table name "] "(required):  valid SQL-identifier of your future table name." [:br]
+   [:b "Column "] "(required):  valid SQL-identifier of your future column" [:br]
    [:b "Type:"] " column data type. Valid types: " [:br]
    [:i "bool"] " - matches BOOLEAN" [:br]
    [:i "number"] " - matches INTEGER" [:br]
@@ -56,8 +56,8 @@
 (def server-controllers-info
   [:p "Rest Controllers to add to your new project.
   Service ans Repository layers and corresponding Entities will be also added." [:br]
-   [:b "Controller name:"] " valid Java-class name of your controller ending with \"Controller\"." [:br]
-   [:b "Method name:"] " valid Java-method name of your request method." [:br]
+   [:b "Controller name "] "(required): valid Java-class name of your controller ending with \"Controller\"." [:br]
+   [:b "Method name "] "(required): valid Java-method name of your request method." [:br]
    [:b "Request URL:"] " route of the request. Must be a valid URL starting with \"/\".
    Accepts path variables in curly brackets." [:br]
    [:b "Request type:"] " type of HTTP call of the request. Valid types: "
@@ -77,7 +77,7 @@
   [:p "Description of endpoints of your client project." [:br]
    [:b "URL:"] " route of the endpoint. Must be a valid URL starting with \"/\".
    Accepts path variables in curly brackets." [:br]
-   [:b "Method name:"] " valid Java-method name of your request method." [:br]
+   [:b "Method name "] "(required): valid Java-method name of your request method." [:br]
    [:b "Request type:"] " type of HTTP call of the request. Valid types: "
    [:i "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"] " (valid in any case)." [:br]
    [:b "Body type:"] " valid Java-class name or Java-collection of Java-class type, e.g. "
@@ -88,22 +88,22 @@
 
 (def cont-jar-info
   [:p "Description of Docker containers with server JAR applications." [:br]
-   [:b "Container name:"] " valid name of your future container." [:br]
-   [:b "Image name:"] " name of the image to build (without tag), up to 128 characters long." [:br]
+   [:b "Container name "] "(required): valid name of your future container." [:br]
+   [:b "Image name "] "(required): name of the image to build (without tag), up to 128 characters long." [:br]
    [:b "Build directory name:"] [:i " " [:u "name"]] " of the directory to build your image in." [:br]
    [:b "Path to jar:"] " valid absolute path to the .jar file
    with server application (use only forward slashes)." [:br]])
 
 (def cont-nginx-info
   [:p "Description of Docker containers with NGINX proxy web servers." [:br]
-   [:b "Container name:"] " valid name of your future container." [:br]
-   [:b "Image name:"] " valid name of the image to build (without tag), up to 128 characters long." [:br]
+   [:b "Container name "] "(required): valid name of your future container." [:br]
+   [:b "Image name "] "(required): valid name of the image to build (without tag), up to 128 characters long." [:br]
    [:b "Build directory name:"] [:i " " [:u "name"]] " of the directory to build your image in." [:br]
    [:b "Backend container:"] " valid name of the container with server application." [:br]])
 
 (def cont-pg-info
   [:p "Description of Docker containers with PostgreSQL databases." [:br]
-   [:b "Container name:"] " valid SQL-identifier for your future table" [:br]
+   [:b "Container name "] "(required): valid SQL-identifier for your future table" [:br]
    [:b "DB port:"] " port of the database in your container." [:br]
    [:b "DB password:"] " password for the user of the database in your container." [:br]])
 
