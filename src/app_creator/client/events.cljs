@@ -120,7 +120,7 @@
 (re-frame/reg-event-fx
   ::create-projects
   (fn [{db :db} _]
-    (let [data-valid true                                   ;(v/whole-map-valid? (:data db))
+    (let [data-valid (v/whole-map-valid? (:data db))
           at-least-one-component (v/at-least-one-component (:data db))]
       ;(println (pp/pprint (r/read-string (.getItem (.-localStorage js/window) :all-data))))
       ;(println data-valid)
