@@ -56,83 +56,87 @@
     (fn []
       [:div
        {:class "col-12 pt-5 center opts",
-        :style {:display "flex"}}
+        :style {:display        "flex"
+                :flex-direction "column"}}
        [:div
-        {:class "col-12 pb-5 opts-group center"}
-        [:p {:class "mb-4 pb-2"} "Language"]
+        {:class "col-12 pt-5 center opts",
+         :style {:display "flex"}}
         [:div
-         {:class "col-12 pb-5 thin"}
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "client-lang",
-           :id       "client-java",
-           :checked  (= (:language @opts) "java")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :language "java"])
-           }]
-         [:label
-          {:class "for-checkbox-comp-type", :for "client-java"}
-          "Java"]
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "client-lang",
-           :id       "client-kotlin"
-           :disabled true
-           :checked  (= (:language @opts) "kotlin")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :language "kotlin"])}]
-         [:label
-          {:class "for-checkbox-comp-type", :for "client-kotlin"}
-          "Kotlin"]]]
-       [:div
-        {:class "col-12 pb-5 opts-group center"}
-        [:p {:class "mb-4 pb-2"} "Test framework"]
+         {:class "col-12 pb-5 opts-group center"}
+         [:p {:class "mb-4 pb-2"} "Language"]
+         [:div
+          {:class "col-12 pb-5 thin"}
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "client-lang",
+            :id       "client-java",
+            :checked  (= (:language @opts) "java")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :language "java"])
+            }]
+          [:label
+           {:class "for-checkbox-comp-type", :for "client-java"}
+           "Java"]
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "client-lang",
+            :id       "client-kotlin"
+            :disabled true
+            :checked  (= (:language @opts) "kotlin")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :language "kotlin"])}]
+          [:label
+           {:class "for-checkbox-comp-type", :for "client-kotlin"}
+           "Kotlin"]]]
         [:div
-         {:class "col-12 pb-5 thin"}
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "test-framework",
-           :id       "junit",
-           :checked  (= (:test-framework @opts) "junit")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "junit"])
-           }]
-         [:label
-          {:class "for-checkbox-comp-type", :for "junit"}
-          "JUnit"]
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "test-framework",
-           :id       "testng",
-           :checked  (= (:test-framework @opts) "testng")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "testng"])
-           }]
-         [:label
-          {:class "for-checkbox-comp-type", :for "testng"}
-          "TestNG"]
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "test-framework",
-           :id       "spock",
-           :checked  (= (:test-framework @opts) "spock")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "spock"])
-           }]
-         [:label
-          {:class "for-checkbox-comp-type", :for "spock"}
-          "Spock"]
-         [:input
-          {:class    "checkbox-comp-type",
-           :type     "radio",
-           :name     "test-framework",
-           :id       "junit-jupiter",
-           :checked  (= (:test-framework @opts) "junit-jupiter")
-           :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "junit-jupiter"])
-           }]
-         [:label
-          {:class "for-checkbox-comp-type", :for "junit-jupiter"}
-          "JUnit-Jupiter"]]]
+         {:class "col-12 pb-5 opts-group center"}
+         [:p {:class "mb-4 pb-2"} "Test framework"]
+         [:div
+          {:class "col-12 pb-5 thin"}
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "test-framework",
+            :id       "junit",
+            :checked  (= (:test-framework @opts) "junit")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "junit"])
+            }]
+          [:label
+           {:class "for-checkbox-comp-type", :for "junit"}
+           "JUnit"]
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "test-framework",
+            :id       "testng",
+            :checked  (= (:test-framework @opts) "testng")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "testng"])
+            }]
+          [:label
+           {:class "for-checkbox-comp-type", :for "testng"}
+           "TestNG"]
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "test-framework",
+            :id       "spock",
+            :checked  (= (:test-framework @opts) "spock")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "spock"])
+            }]
+          [:label
+           {:class "for-checkbox-comp-type", :for "spock"}
+           "Spock"]
+          [:input
+           {:class    "checkbox-comp-type",
+            :type     "radio",
+            :name     "test-framework",
+            :id       "junit-jupiter",
+            :checked  (= (:test-framework @opts) "junit-jupiter")
+            :on-click #(re-frame/dispatch [::events/android-radio-opts-change :test-framework "junit-jupiter"])
+            }]
+          [:label
+           {:class "for-checkbox-comp-type", :for "junit-jupiter"}
+           "JUnit-Jupiter"]]]]
        [:div
         {:class "col-12 pb-5 opts-group center"}
         [:div
@@ -147,7 +151,7 @@
             :required     true
             :on-change    #(re-frame/dispatch-sync
                              [::events/android-props-change :proj-name (-> % .-target .-value)])
-            :value (get-in @opts [:proj-name :value])}]
+            :value        (get-in @opts [:proj-name :value])}]
           [:label
            (if-not (get-in @opts [:proj-name :valid])
              {:for   "client-proj-name", :class "label-name incorrect-label"
@@ -168,7 +172,7 @@
             :required     true
             :on-change    #(re-frame/dispatch-sync
                              [::events/android-props-change :package-name (-> % .-target .-value)])
-            :value (get-in @opts [:package-name :value])}]
+            :value        (get-in @opts [:package-name :value])}]
           [:label
            (if-not (get-in @opts [:package-name :valid])
              {:for   "client-pack-name", :class "label-name incorrect-label"
@@ -189,7 +193,7 @@
             :required     true
             :on-change    #(re-frame/dispatch-sync
                              [::events/android-props-change :server-host (-> % .-target .-value)])
-            :value (get-in @opts [:server-host :value])}]
+            :value        (get-in @opts [:server-host :value])}]
           [:label
            (if-not (get-in @opts [:server-host :valid])
              {:for   "client-host", :class "label-name incorrect-label"
@@ -210,7 +214,7 @@
             :required     true
             :on-change    #(re-frame/dispatch-sync
                              [::events/android-props-change :server-port (-> % .-target .-value)])
-            :value (get-in @opts [:server-port :value])}]
+            :value        (get-in @opts [:server-port :value])}]
           [:label
            (if-not (get-in @opts [:server-port :valid])
              {:for   "client-port", :class "label-name incorrect-label"
@@ -272,7 +276,7 @@
            :required     true
            :on-change    #(re-frame/dispatch-sync
                             [::events/android-endpoint-url-change (-> % .-target .-value) box])
-           :value (get-in content [:url :value])}]
+           :value        (get-in content [:url :value])}]
          [:label
           (if-not (get-in content [:url :valid])
             {:for   uri-id, :class "label-name incorrect-label"
@@ -295,7 +299,7 @@
            :required     true
            :on-change    #(re-frame/dispatch-sync
                             [::events/android-endpoint-method-change (-> % .-target .-value) box])
-           :value (get-in content [:name :value])}]
+           :value        (get-in content [:name :value])}]
          [:label
           (if-not (get-in content [:name :valid])
             {:for   method-id, :class "label-name incorrect-label"
@@ -317,7 +321,7 @@
            :autocomplete "off",
            :required     true
            :on-change    #(re-frame/dispatch-sync [::events/android-endpoint-request-change (-> % .-target .-value) box])
-           :value (get-in content [:request :value])}]
+           :value        (get-in content [:request :value])}]
          [:label
           (if-not (get-in content [:request :valid])
             {:for   r-type-id, :class "label-name incorrect-label"
@@ -339,7 +343,7 @@
            :autocomplete "off",
            :required     true
            :on-change    #(re-frame/dispatch-sync [::events/android-endpoint-body-change (-> % .-target .-value) box])
-           :value (get-in content [:body :value])}]
+           :value        (get-in content [:body :value])}]
          [:label
           (if-not (get-in content [:body :valid])
             {:for   b-type-id, :class "label-name incorrect-label"
@@ -372,9 +376,9 @@
         {:class "col-12 pt-5 big-text"}
         [:p {:class "mb-4 pb-2"} "3. Client"]
         [:input
-         {:type  "checkbox",
-          :class "tick-input",
-          :id    "do-client-checkbox"
+         {:type     "checkbox",
+          :class    "tick-input",
+          :id       "do-client-checkbox"
           :checked  (if (= @client-checked "none") false true)
           :on-click (if (= @client-checked "none")
                       #(re-frame/dispatch [::events/change-client-checked "android"])
