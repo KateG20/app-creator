@@ -479,7 +479,7 @@
      [:div
       {:class "col-12 pt-5 none-client center", :style
        {:display (if (= @deploy-checked "none") "block" "none")}}
-      "Choose one of the platforms to create this component!"]
+      [:p "Choose one of the platforms to create this component!"]]
 
      [:div
       {:class "col-12 pt-5 for-docker center", :style
@@ -507,4 +507,4 @@
      [:div
       {:class "col-12 pt-5 for-vagrant center", :style
        {:display (if (= @deploy-checked "vagrant") "block" "none")}}
-      "Coming soon!" [:br] "Please, choose another platform."]])))
+      [:p "Coming soon!" [:br] "Please, choose another platform."]]])))

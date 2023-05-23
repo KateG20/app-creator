@@ -388,7 +388,7 @@
        [:div
         {:class "col-12 pt-5 none-client center", :style
          {:display (if (= @client-checked "none") "block" "none")}}
-        "Choose one of the platforms to create this component!"]
+        [:p "Choose one of the platforms to create this component!"]]
 
        [:div
         {:class "col-12 pt-5 for-android center",
@@ -402,7 +402,8 @@
         [info/help-label "android-endpoints-help" info/client-endpoints-info "Endpoints"]
 
         [:div
-         {:class "col-12 pt-5 center opts", :style          ;"display: flex;"
+         {:class "col-12 pt-5 center opts",
+          :style
           {:display "flex"}}
          [endpoint-list]]
         [plus-endpoint-button]]
@@ -410,12 +411,12 @@
        [:div
         {:class "col-12 pt-5 for-ios center", :style
          {:display (if (= @client-checked "ios") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another platform."]
+        [:p "Coming soon!" [:br] "Please, choose another platform."]]
        [:div
         {:class "col-12 pt-5 for-flutter center", :style
          {:display (if (= @client-checked "flutter") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another platform."]
+        [:p "Coming soon!" [:br] "Please, choose another platform."]]
        [:div
         {:class "col-12 pt-5 for-web center", :style
          {:display (if (= @client-checked "web") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another platform."]])))
+        [:p "Coming soon!" [:br] "Please, choose another platform."]]])))

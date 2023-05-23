@@ -686,7 +686,7 @@
        [:div
         {:class "col-12 pt-5 none-client center", :style
          {:display (if (= @server-checked "none") "block" "none")}}
-        "Choose one of the frameworks to create this component!"]
+        [:p "Choose one of the frameworks to create this component!"]]
 
        [:div
         {:class "col-12 pt-5 for-spring center",
@@ -712,10 +712,10 @@
        [:div
         {:class "col-12 pt-5 for-django center", :style
          {:display (if (= @server-checked "django") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another framework."]
+        [:p "Coming soon!" [:br] "Please, choose another framework."]]
        [:div
         {:class "col-12 pt-5 for-nodejs center", :style
          {:display (if (= @server-checked "nodejs") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another framework."]])))
+        [:p "Coming soon!" [:br] "Please, choose another framework."]]])))
 
 

@@ -243,7 +243,7 @@
        [:div
         {:class "col-12 pt-5 none-client center", :style
          {:display (if (= @db-checked "none") "block" "none")}}
-        "Choose one of the types to create this component!"]
+        [:p "Choose one of the types to create this component!"]]
 
        [:div
         {:class "col-12 pt-5 for-postgres center",
@@ -350,9 +350,9 @@
        [:div
         {:class "col-12 pt-5 for-mongodb center",
          :style {:display (if (= @db-checked "mongodb") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another database type."]
+        [:p "Coming soon!" [:br] "Please, choose another database type."]]
        [:div
         {:class "col-12 pt-5 for-clickhouse center",
          :style {:display (if (= @db-checked "clickhouse") "block" "none")}}
-        "Coming soon!" [:br] "Please, choose another database type."]
+        [:p "Coming soon!" [:br] "Please, choose another database type."]]
        ])))
