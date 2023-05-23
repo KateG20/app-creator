@@ -311,6 +311,12 @@ mark {
     box-shadow: 0 1x 4px 0 rgba(0, 0, 0, 0.1);
 }
 
+.checkbox:checked ~ .section .container .row .col-12 .checkbox-comp-type[disabled] + label {
+    background-color: var(--middle-dark);
+    color: #b0b0b0;
+    box-shadow: 0 1x 4px 0 rgba(0, 0, 0, 0.1);
+}
+
 /*Деньги*/
 .checkbox-budget:checked + label,
 .checkbox-budget:not(:checked) + label {
