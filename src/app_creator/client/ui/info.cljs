@@ -14,7 +14,7 @@
      info]]])
 
 (def postgres-props-info
-  [:p
+  [:p "Properties for configuring your future database." [:br]
    [:b "DB name:"] " valid SQL-identifier of your future database." [:br]
    [:b "Host:"] " valid host of your PostgreSQL server." [:br]
    [:b "Username:"] " your PostgreSQL username." [:br]
@@ -22,7 +22,7 @@
    "Input your values without quotes."])
 
 (def postgres-tables-info
-  [:p
+  [:p "Information for creating tables for your future database." [:br]
    [:b "Table name "] "(required):  valid SQL-identifier of your future table name." [:br]
    [:b "Column "] "(required):  valid SQL-identifier of your future column" [:br]
    [:b "Type:"] " column data type. Valid types: " [:br]
@@ -55,7 +55,7 @@
 
 (def server-controllers-info
   [:p "Rest Controllers to add to your new project.
-  Service ans Repository layers and corresponding Entities will be also added." [:br]
+  Service and Repository layers and corresponding Entities will also be added." [:br]
    [:b "Controller name "] "(required): valid Java-class name of your controller ending with \"Controller\"." [:br]
    [:b "Method name "] "(required): valid Java-method name of your request method." [:br]
    [:b "Request URL:"] " route of the request. Must be a valid URL starting with \"/\".
@@ -64,14 +64,14 @@
    [:i "GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS"] " (valid in any case)." [:br]])
 
 (def client-opts-info
-  [:p
+  [:p "Different project options of your future application." [:br]
    [:b "Language:"] " programming language of your project (currently only Java is available)." [:br]
    [:b "Test framework:"] " the test framework to be used." [:br]
    [:b "Project name:"] "your application name, e.g. " [:i "demo"] [:br]
    [:b "Package name:"] " the package for source files.
    Must consist of at least two parts, e.g. " [:i "com.example.demo"] [:br]
-   [:b "Server host"] " host of the server of your application." [:br]
-   [:b "Server port"] " port of the server of your application." [:br]])
+   [:b "Server host:"] " host of the server of your application." [:br]
+   [:b "Server port:"] " port of the server of your application." [:br]])
 
 (def client-endpoints-info
   [:p "Description of endpoints of your client project." [:br]

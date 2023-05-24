@@ -69,7 +69,7 @@
               (if (:result fill-result-map)
                 (do (println "Server project successfully filled!\n")
                     {:result true :errors []})
-                (let [error-str (str "Something went wrong while filling project. "
+                (let [error-str (str "Something went wrong while filling Spring Boot project. "
                                      "Maybe, there are troubles with file paths. "
                                      "Try again or contact us to solve issue. "
                                      ;(:errors fill-result-map) ; мда, лучше это убрать
