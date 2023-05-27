@@ -5,7 +5,8 @@
             [ring.middleware.json :as json-middleware]
             [app-creator.server.wrapper :as wrapper]
             [app-creator.server.routes :as routes])
-  (:gen-class))
+  (:gen-class)
+  (:import (java.io IOException)))
 
 (def app
   (->
@@ -15,10 +16,14 @@
     (json-middleware/wrap-json-response {:pretty true})))
 
 (defn start [port]
-  (log/info "\n[App-Creator]: started Jetty")
-  (jetty/run-jetty app {:port  port
-                        :join? false}))
+  (log/info "\n[App-Creator]: started Jetty server")
+  (try (jetty/run-jetty app {:port  port
+                             :join? false})
+       (catch IOException e (log/info "\n[App-Creator]: IOException occurred: probably,"
+                                      "server instance or another process is already running on this port."
+                                      "Make port 80 available and try again."))
+       (catch Exception e (log/info "\n[App-Creator]: Exception occurred. Try restarting the server."))))
 
 (defn -main []
-  (let [port (Integer/parseInt (or (System/getenv "PORT") "80"))]
+  (let [port (Integer/parseInt "80")]
     (start port)))
