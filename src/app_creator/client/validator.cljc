@@ -3,30 +3,30 @@
             #?(:clj  [clojure.java.io :as io]
                :cljs [cljs.nodejs :as nodejs])))
 
-(def ip-regex                                               ; ok
+(def ip-regex
   #"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$")
 ; using re-pattern requires double-escape
-(def url-regex (re-pattern "^\\/([?=$&\\-_a-z~#]|\\/?|\\{[a-zA-Z0-9]+\\})+$")) ; ok
-(def java-name-regex #"^[a-zA-Z0-9_]+$")                    ; ok
-(def java-collection-regex #"^[A-Z][a-zA-Z0-9_]*<[a-zA-Z0-9_]+>$") ; ok
+(def url-regex (re-pattern "^\\/([?=$&\\-_a-z~#]|\\/?|\\{[a-zA-Z0-9]+\\})+$"))
+(def java-name-regex #"^[a-zA-Z0-9_]+$")
+(def java-collection-regex #"^[A-Z][a-zA-Z0-9_]*<[a-zA-Z0-9_]+>$")
 
-(def dir-path-regex #"^[A-Za-z]:{0,1}[\w \/-]*$")           ; ok
-(def folder-regex #"^[\w -]*$")                             ; ok
+(def dir-path-regex #"^[A-Za-z]:{0,1}[\w \/-]*$")
+(def folder-regex #"^[\w -]*$")
 
-(def password-regex #"^.+$")                                ; ok
-(def username-regex #"^[^ ]+$")                             ; ok
+(def password-regex #"^.+$")
+(def username-regex #"^[^ ]+$")
 
-(def sql-identifier-regex #"^[a-zA-Z_][\w]{0,62}$")         ; ok
+(def sql-identifier-regex #"^[a-zA-Z_][\w]{0,62}$")
 
-(def port-regex                                             ; ok
+(def port-regex
   #"^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$")
-(def docker-containers-regex #"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$") ; ok
-(def docker-image-regex #"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$") ;ok
-(def docker-network-regex #"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,14}$") ; ok
-(def jar-path-regex #"^[\w-]:{0,1}[\w _\/-]*[\w-]\.jar$")   ; ok
-(def controller-name-regex #"^[a-zA-Z0-9_]+Controller$")    ; ok
-(def package-name-dot-regex #"^([A-Za-z]{1}[A-Za-z\d_]*\.)+[A-Za-z][A-Za-z\d_]*$") ; ok
-(def package-name-regex #"^[A-Za-z]{1}[A-Za-z\d_]*$")       ; ok
+(def docker-containers-regex #"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+(def docker-image-regex #"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$")
+(def docker-network-regex #"^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,14}$")
+(def jar-path-regex #"^[\w-]:{0,1}[\w _\/-]*[\w-]\.jar$")
+(def controller-name-regex #"^[a-zA-Z0-9_]+Controller$")
+(def package-name-dot-regex #"^([A-Za-z]{1}[A-Za-z\d_]*\.)+[A-Za-z][A-Za-z\d_]*$")
+(def package-name-regex #"^[A-Za-z]{1}[A-Za-z\d_]*$")
 
 (def http-methods ["get" "head" "post" "put" "patch" "delete" "options"])
 (def column-opts ["bool" "number" "string" "date" "id"])
@@ -70,7 +70,9 @@
                (if (= k :valid)
                  (conj prev v)
                  (if (map? v)
-                   (into [] (concat prev (find-all-valid v)))
+                   (if (= (:type v) "none")
+                     prev
+                     (into [] (concat prev (find-all-valid v))))
                    prev)))
              []
              m))
